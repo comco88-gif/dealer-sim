@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>나는 자동차 딜러다 · 딜러 커리어 시뮬레이션</title>
+<meta name="description" content="28세 신입 딜러로 입사해 60세 은퇴까지, 30년 자동차 딜러 인생을 사는 커리어 시뮬레이션 게임">
+<meta property="og:title" content="나는 자동차 딜러다">
+<meta property="og:description" content="국산·수입·하이엔드·전기차, 어느 전시장에서 시작할까요? 30년 딜러 인생 시뮬레이션">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#13203A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2313203A'/%3E%3Ccircle cx='32' cy='36' r='18' fill='none' stroke='%23D9BE8A' stroke-width='5' stroke-dasharray='85 200' transform='rotate(135 32 36)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E8EBEF; --surface:#FBFBFC; --sunk:#F1F3F6; --ink:#14213A; --sub:#5B6576; --rule:#D5DAE1;
+  --gold:#A8854A; --goldSoft:#E8DCC4; --teal:#2D7A6E; --crimson:#B0302A;
+  --dash:#13203A; --dash2:#1B2B4A; --dashText:#EEF1F6; --dashSub:#93A0B8; --needle:#D9BE8A;
+  --marker:var(--ink); --red:var(--crimson); --green:var(--teal); --line:var(--rule); --paper:var(--surface);
+  --serif:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; --sans:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1421;--surface:#161F31;--sunk:#111A2A;--ink:#E7EBF2;--sub:#97A2B5;--rule:#26324A;--goldSoft:#3A3324;--teal:#5DBBA9;--crimson:#E2685F;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E1421;--surface:#161F31;--sunk:#111A2A;--ink:#E7EBF2;--sub:#97A2B5;--rule:#26324A;--goldSoft:#3A3324;--teal:#5DBBA9;--crimson:#E2685F;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:20px 18px 72px}
+h1,h2,h3{font-family:var(--serif);font-weight:800;margin:0;letter-spacing:-.015em}
+.hand{font-family:var(--serif);font-weight:700}
+section{margin-top:28px}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+select,input[type=text]{font:inherit;padding:11px 14px;border:1px solid var(--rule);border-radius:10px;background:var(--surface);color:var(--ink);width:100%;max-width:340px}
+.magnet{display:none}
+
+/* 패널 */
+.board{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:22px 22px 24px}
+.board h2{font-size:21px;color:var(--ink);display:flex;align-items:center;gap:12px}
+.board h2::after{content:"";flex:0 0 28px;height:2px;background:var(--gold);margin-top:4px}
+.board::after{display:none}
+
+/* 시작 */
+.hero{display:grid;gap:14px;padding:40px 0 18px}
+.plateBig{display:inline-flex;align-items:center;justify-self:start;background:#fff;color:#111;border:2.5px solid #1a1a1a;border-radius:6px;padding:1px 14px;font-family:var(--sans);font-weight:700;font-size:19px;letter-spacing:.08em}
+.title{font-size:clamp(42px,8.5vw,78px);line-height:1.02;letter-spacing:-.03em}
+.lead{color:var(--sub);max-width:52ch;margin:0;font-size:16px}
+.dealers{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:16px}
+.card{text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:12px;padding:16px 16px 14px;position:relative;transition:border-color .2s}
+.card:hover{border-color:var(--sub)}
+.card[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 4px 0 0 var(--gold)}
+.card h3{font-size:19px}
+.card small{color:var(--sub);display:block;font-size:12.5px;margin-top:2px}
+.card p{color:var(--sub)}
+.card dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:12px 0 0;font-size:13px;border-top:1px solid var(--rule);padding-top:10px}
+.card dt{color:var(--sub)}.card dd{margin:0;font-weight:600}
+.go{font-weight:600;background:var(--ink);color:var(--surface);border:0;border-radius:10px;padding:12px 22px}
+.go:hover{background:var(--dash2)}
+.go:disabled{opacity:.3;cursor:not-allowed}
+.ghost{font-weight:500;background:transparent;color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:10px 15px}
+.ghost:hover{border-color:var(--ink)}
+.ghost:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.guide{flex-basis:100%;margin:0;font-size:13.5px;background:var(--sunk);border-radius:10px;padding:10px 14px;color:var(--sub);border-left:3px solid var(--gold)}
+
+/* 계기판 */
+.dash{background:radial-gradient(120% 140% at 50% 0%,var(--dash2),var(--dash) 60%);color:var(--dashText);border-radius:26px;padding:20px 22px 16px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;box-shadow:0 18px 40px -24px rgba(10,20,40,.6)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.dashTop{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.odo{font-family:var(--serif);font-weight:800;font-size:28px;line-height:1;letter-spacing:-.01em}
+.odo span{display:inline-block;margin-right:8px}
+.odo span+span{color:var(--needle)}
+.dashSub{color:var(--dashSub);font-size:13px;margin-top:6px}
+.cash{font-family:var(--serif);font-weight:800;font-size:26px;color:var(--needle);text-align:right}
+.gauges{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px;border-top:1px solid rgba(255,255,255,.08);padding-top:10px}
+.gauge{text-align:center;font-size:12px;color:var(--dashSub)}
+.gauge svg{width:100%;max-width:68px;height:auto;display:block;margin:0 auto}
+.gauge b{display:block;color:var(--dashSub);font-weight:500;font-size:12.5px;margin-top:-6px}
+.chip{display:inline-block;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:1px 10px;font-size:12px;color:var(--dashText);margin-top:8px}
+.dash[data-tier="1"]{box-shadow:inset 0 0 0 1px #8D9AB0,0 18px 40px -24px rgba(10,20,40,.6)}
+.dash[data-tier="2"]{box-shadow:inset 0 0 0 1.5px var(--needle),0 18px 40px -24px rgba(10,20,40,.6)}
+.dash[data-tier="3"]{background:radial-gradient(120% 140% at 50% 0%,#24304A,#0F1830 65%);box-shadow:inset 0 0 0 1.5px var(--needle),inset 0 0 0 5px #0F1830,inset 0 0 0 6px rgba(217,190,138,.45),0 18px 40px -24px rgba(10,20,40,.7)}
+.gauge i,.statHelp i{font-style:normal;font-size:11px;font-weight:700}
+.up{color:#7FD3BF}.dn{color:#F08A82}
+.statHelp{margin-top:8px;font-size:13px}
+.statHelp summary{cursor:pointer;color:var(--dashSub);font-size:12.5px;list-style:none}
+.statHelp summary::before{content:"+ "}
+.statHelp[open] summary::before{content:"− "}
+.statHelp p{margin:10px 0;line-height:1.55;color:var(--dashSub);max-width:70ch}
+.statHelp p b{color:var(--dashText)}
+
+/* 명함 */
+.me{display:grid;grid-template-columns:minmax(0,360px) 1fr;gap:22px;align-items:center}
+@media (max-width:640px){.me{grid-template-columns:1fr}}
+.biz{aspect-ratio:9/5;border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;justify-content:space-between;background:#fff;color:#14213A;border:1px solid #D5DAE1;box-shadow:0 14px 30px -18px rgba(20,33,58,.45)}
+.biz .co{font-size:12px;color:#5B6576;letter-spacing:.01em}
+.biz .nm{font-family:var(--serif);font-weight:800;font-size:30px;line-height:1.05}
+.biz .rk{font-size:13.5px;font-weight:600;margin-top:4px}
+.biz .ph{font-size:12px;color:#5B6576}
+.biz[data-tier="1"]{background:linear-gradient(135deg,#F3F5F8,#E3E8EE);border-bottom:4px solid #9AA6B8}
+.biz[data-tier="2"]{background:linear-gradient(135deg,#1B2B4A,#13203A);color:#EEF1F6;border-color:#13203A}
+.biz[data-tier="2"] .co,.biz[data-tier="2"] .ph{color:#A9B5CA}
+.biz[data-tier="3"]{background:linear-gradient(135deg,#1A1F28,#0E1218);color:#D9BE8A;border:1px solid #A8854A}
+.biz[data-tier="3"] .co,.biz[data-tier="3"] .ph{color:#9E8657}
+.next h3{font-size:20px}
+.next small{color:var(--sub)}
+.prog{height:6px;background:var(--rule);border-radius:6px;overflow:hidden;margin-top:8px}
+.prog i{display:block;height:100%;background:var(--teal);border-radius:6px}
+.next .prog{height:8px}
+.tierRow{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.tierRow span{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--rule);color:var(--sub)}
+.tierRow span.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+
+/* 행동: 키 태그 */
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.key{position:relative;text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:12px 30px 30px 12px;padding:14px 18px 14px 40px;transition:border-color .15s,transform .15s}
+.key::before{content:"";position:absolute;left:15px;top:50%;width:11px;height:11px;margin-top:-5.5px;border-radius:50%;border:1.5px solid var(--gold);background:var(--bg)}
+.key b{display:block;font-size:15.5px;font-weight:600}
+.key span{font-size:12.5px;color:var(--sub);display:block;line-height:1.45;margin-top:2px}
+.key:hover{border-color:var(--ink)}
+.key:active{transform:translateY(1px)}
+
+/* 판매 현황 */
+.bars{display:flex;align-items:flex-end;gap:4px;height:130px;border-bottom:1px solid var(--ink);overflow-x:auto;padding-top:12px;margin-top:10px}
+.bars div{flex:0 0 12px;background:var(--ink);opacity:.82;border-radius:3px 3px 0 0}
+.bars div.top{background:var(--gold);opacity:1}
+.boardNote{font-family:var(--serif);font-weight:700;font-size:16px;color:var(--sub)}
+
+/* 트로피 진열장 */
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px 12px;background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:16px 16px 10px}
+.trophy{text-align:center;padding:8px 4px 10px}
+.trophy .t svg{width:46px;height:56px;display:block;margin:0 auto 4px}
+.trophy .n{font-size:12.5px;font-weight:600;line-height:1.35}
+.trophy .c{font-family:var(--serif);font-weight:800;color:var(--gold);font-size:15px}
+.trophy .pk{font-size:11px;color:var(--sub);line-height:1.35;margin-top:3px}
+.trophy.off{opacity:.38}
+.trophy.off .t svg{filter:grayscale(1)}
+
+/* 커리어 · 팀 · 라이벌 */
+.career{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+@media (max-width:640px){.career{grid-template-columns:1fr}}
+.mate{display:grid;grid-template-columns:130px 1fr 1fr;gap:12px;align-items:center;font-size:14px;padding:8px 0;border-bottom:1px solid var(--rule)}
+.mate:last-child{border-bottom:0}
+.mate small{color:var(--sub);font-size:12px;font-weight:400}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;text-align:center;margin:6px 0 10px}
+.vs b{display:block;font-family:var(--serif);font-weight:800;font-size:36px;line-height:1.1;color:var(--ink)}
+.vs small{display:block;color:var(--sub);font-size:12.5px}
+.vsMid{font-size:22px;color:var(--gold)}
+
+/* 업적 */
+.achGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.ach{border:1px dashed var(--rule);border-radius:12px;padding:10px 12px;color:var(--sub);background:transparent}
+.ach b{display:block;font-size:14px;font-weight:600}
+.ach small{display:block;font-size:12px;line-height:1.45}
+.ach.on{border:1px solid var(--goldSoft);background:var(--surface);color:var(--ink);box-shadow:inset 3px 0 0 var(--gold)}
+.ach .pkx{color:var(--teal)}
+.ranks{margin:10px 0 0;padding-left:0;list-style:none;font-size:14px}
+.ranks li{padding:8px 0;border-bottom:1px solid var(--rule)}
+
+/* 일지 */
+.note{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:6px 18px;max-height:320px;overflow:auto}
+.note ul{list-style:none;margin:0;padding:0}
+.note li{padding:8px 0 8px 14px;font-size:13.5px;border-bottom:1px solid var(--rule);position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note li:last-child{border-bottom:0}
+.note li::before{content:"";position:absolute;left:0;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:var(--rule)}
+.note li.good::before{background:var(--teal)}.note li.bad::before{background:var(--crimson)}.note li.award::before{background:var(--gold)}
+.good{color:var(--teal)}.bad{color:var(--crimson)}.award{font-weight:600;color:var(--ink)}
+
+/* 모달 · 연출 */
+.modal{position:fixed;inset:0;background:rgba(9,15,28,.58);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.sheet{background:var(--surface);border-radius:20px;max-width:520px;width:100%;max-height:90vh;overflow:auto;padding:24px;box-shadow:0 30px 80px -20px rgba(9,15,28,.55)}
+.sheet h2{font-size:24px}
+#stage{z-index:30}
+#stage .sheet{min-height:380px}
+.stageHead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.autoTag{font-family:var(--serif);font-weight:700;color:var(--gold);font-size:14px}
+#stageLines p{margin:7px 0;line-height:1.55}
+#stageLines .dim{color:var(--sub)}
+#stageLines .q{font-weight:600;border-left:3px solid var(--gold);padding-left:12px}
+#choices{display:grid;gap:8px;margin-top:10px}
+#stageNum{font-family:var(--serif);font-weight:800;font-size:84px;line-height:1;margin:14px 0 6px;min-height:84px;color:var(--ink);letter-spacing:-.03em}
+#stageNum.hot{color:var(--gold)}
+#stageNum.hot::after{content:"월간 판매왕";font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:0;color:var(--ink);background:var(--goldSoft);border-radius:999px;padding:4px 12px;margin-left:12px;vertical-align:middle}
+#stageOut p{margin:4px 0;font-size:13.5px}
+#stageOut .dim{color:var(--sub)}
+.skiphint{font-size:12px;color:var(--sub);margin-top:12px}
+.big{font-family:var(--serif);font-weight:800;font-size:42px;line-height:1.05;letter-spacing:-.02em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kv{background:var(--sunk);border-radius:10px;padding:10px 12px}
+.kv small{color:var(--sub);display:block;font-size:12px}.kv b{font-family:var(--serif);font-weight:800;font-size:20px}
+@media (prefers-reduced-motion:no-preference){#stageLines p{animation:typein .35s ease}@keyframes typein{from{opacity:0;transform:translateY(3px)}}#stageNum.hot{animation:pop .45s cubic-bezier(.2,1.4,.4,1)}@keyframes pop{from{transform:scale(.92)}}}
+@media (max-width:520px){.gauges{gap:2px}.gauge{font-size:11px}.odo{font-size:24px}.cash{font-size:22px}.mate{grid-template-columns:100px 1fr 1fr}}
+.key:disabled{cursor:not-allowed}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="start">
+  <div class="hero">
+    <span class="plateBig">12가 3456</span>
+    <h1 class="title">나는 자동차 딜러다</h1>
+    <p class="lead">스물여덟, 첫 출근. 어느 브랜드 전시장에 설지 고르세요. 매달 영업하고, 상 받고, 이직하고, 예순에 은퇴합니다.</p>
+  </div>
+  <section class="board">
+    <h2><span class="magnet"></span>계정</h2>
+    <div class="row" id="authBox"></div>
+  </section>
+  <section class="board" id="contBox" hidden>
+    <h2><span class="magnet"></span>이어서 하기</h2>
+    <p id="contInfo" style="margin:6px 0 0"></p>
+    <div class="row"><button class="go" id="contBtn">이어하기</button><button class="ghost" id="newBtn">저장 지우고 새로 시작</button></div>
+  </section>
+  <section class="board">
+    <h2><span class="magnet"></span>입사 지원</h2>
+    <div class="row"><select id="makerSel" aria-label="브랜드 선택"></select></div>
+    <div class="dealers" id="dealers"></div>
+    <div class="row" style="margin-top:18px">
+      <select id="bgSel" aria-label="시작 배경" style="max-width:260px"></select>
+      <p class="guide" id="bgDesc"></p>
+    </div>
+    <div class="row">
+      <input type="text" id="pname" maxlength="10" placeholder="딜러 이름" aria-label="딜러 이름">
+      <button class="go" id="startBtn" disabled>입사하기</button>
+    </div>
+  </section>
+  <section class="board" id="globalBox" hidden>
+    <h2><span class="magnet"></span>전체 랭킹 TOP 10</h2>
+    <ol class="ranks" id="globalList"></ol>
+  </section>
+  <section class="board" id="rankBox" hidden>
+    <h2><span class="magnet"></span>내 명예의 전당 (이 기기)</h2>
+    <ol class="ranks" id="rankList"></ol>
+  </section>
+  <p class="lead" style="font-size:12.5px;margin-top:26px">회사·딜러사·차량 이름은 모두 가상이며 실제 기업과 관계없습니다. 로그인하지 않으면 진행 상황은 이 브라우저에만 저장돼요. 테스트 버전입니다.</p>
+</div>
+
+<div id="game" hidden>
+  <div class="dash">
+    <div class="dashTop">
+      <div>
+        <div class="odo" id="odo"></div>
+        <div class="dashSub" id="who"></div>
+        <span class="chip" id="cycle"></span> <span class="chip" id="cloudState" hidden></span> <span class="chip" id="assets"></span>
+      </div>
+      <div>
+        <div class="cash" id="money"></div>
+        <div class="dashSub" style="text-align:right" id="career"></div>
+      </div>
+    </div>
+    <div class="gauges" id="gauges"></div>
+    <details class="statHelp"><summary>능력치는 어디에 쓰이나요? · 최근 변화 보기</summary><div id="statHelp"></div></details>
+  </div>
+
+  <section class="me">
+    <div class="biz" id="biz"></div>
+    <div class="next" id="next"></div>
+  </section>
+
+  <section>
+    <h2 style="font-size:24px;margin-bottom:10px">이번 달 영업</h2>
+    <div class="keys" id="actions"></div>
+    <div class="row">
+      <label style="font-size:14px;color:var(--sub)"><input type="checkbox" id="auto12"> 같은 행동으로 12개월 연속 진행</label>
+      <select id="autoStyle" aria-label="연속 진행 성향" hidden style="max-width:190px;padding:6px 10px"><option value="safe">성향: 안전 위주</option><option value="bal" selected>성향: 균형</option><option value="bold">성향: 공격적</option></select>
+      <p class="guide" id="autoGuide" hidden></p>
+      <button class="ghost" id="retireBtn" hidden>조기 은퇴하기</button>
+    </div>
+  </section>
+
+  <section class="board">
+    <h2><span class="magnet"></span>커리어 · 이직</h2>
+    <div class="career" style="margin-top:8px">
+      <div id="careerInfo"></div>
+      <div class="row" style="margin:0">
+        <button class="ghost" id="tgtBtn">목표 회사 정하기</button>
+        <button class="ghost" id="huntBtn">헤드헌터 만나기</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="board" id="teamPanel" hidden>
+    <h2><span class="magnet"></span>우리 팀</h2>
+    <div id="team" style="margin-top:6px"></div>
+    <div style="font-size:12px;color:var(--sub);margin-top:6px">팀원 판매의 일부가 내 수당과 승진 포인트로 들어와요. 사기가 바닥이면 퇴사합니다.</div>
+  </section>
+
+  <section class="board">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
+      <h2><span class="magnet"></span>월별 판매 현황</h2>
+      <span class="boardNote" id="boardNote"></span>
+    </div>
+    <div class="bars" id="bars" aria-label="최근 36개월 판매 대수"></div>
+    <div style="font-size:12px;color:var(--sub);margin-top:4px">빨간 막대는 월간 판매왕을 받은 달</div>
+  </section>
+
+  <section class="board">
+    <h2><span class="magnet"></span>라이벌</h2>
+    <div id="rival" style="margin-top:6px"></div>
+  </section>
+
+  <section>
+    <h2 style="font-size:24px;margin-bottom:8px">트로피 진열장</h2>
+    <div class="shelf" id="shelf"></div>
+  </section>
+
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="font-size:24px;margin-bottom:8px">업적 도감</h2><span class="hand" style="font-size:24px;color:var(--marker)" id="achCount"></span></div>
+    <div class="achGrid" id="achGrid"></div>
+  </section>
+
+  <section>
+    <h2 style="font-size:24px;margin-bottom:8px">영업 일지</h2>
+    <div class="note"><ul id="log"></ul></div>
+  </section>
+</div>
+
+<div class="modal" id="modal" hidden><div class="sheet" id="modalBody"></div></div>
+<div class="modal" id="stage" hidden><div class="sheet">
+  <div class="stageHead"><span class="autoTag" id="autoTag"></span><button class="ghost" id="stopBtn" hidden style="padding:4px 10px;font-size:13px">여기서 멈추기</button></div>
+  <div id="stageLines" aria-live="polite"></div>
+  <div id="choices"></div>
+  <div id="stageNum"></div>
+  <div id="stageOut"></div>
+  <div class="row"><button class="go" id="stageOk" hidden>다음 달로</button></div>
+  <div class="skiphint" id="skipHint">화면을 누르면 이번 달 결과로 건너뜁니다</div>
+</div></div>
+</div>
+<script>
+// 데이터
+
+const MAKERS={
+  hyundai:{maker:"현다이",origin:"국산",ptPer:1,hof:2000,cars:["아반테","쏘나다","그랜드저","싼타패","팰리사이드"]},
+  kia:{maker:"키아",origin:"국산",ptPer:1,hof:2000,cars:["모닝콜","K오","쏘렌투","카니발레","스포티지아"]},
+  genesis:{maker:"제니시스",origin:"국산",ptPer:1.5,hof:1400,cars:["G7O","G8O","GV7O","GV8O"]},
+  kgn:{maker:"KGN모빌리티",origin:"국산",ptPer:1,hof:1600,cars:["토레손","티볼레","렉스톤즈","액티온"]},
+  renault:{maker:"르노아르코리아",origin:"국산",ptPer:1,hof:1500,cars:["그랑콜레오스","아르카나","QM-6"]},
+  chevy:{maker:"쉐보리",origin:"국산",ptPer:1,hof:1500,cars:["트랙스크로스","트레일블레이즈","콜로라도"]},
+  mentz:{maker:"멘츠",origin:"수입",ptPer:3,hof:700,cars:["C클라쓰","E클라쓰","S클라쓰","GLE-","G바겐"]},
+  bnw:{maker:"BNW",origin:"수입",ptPer:3,hof:800,cars:["3시리즈","5시리즈","7시리즈","X5-","M4-"]},
+  audi:{maker:"오우디",origin:"수입",ptPer:3,hof:700,cars:["A4-","A6-","Q5-","e트론"]},
+  volvo:{maker:"볼부",origin:"수입",ptPer:3,hof:700,cars:["XC40-","XC60-","XC90-","S90-"]},
+  lexus:{maker:"렉써스",origin:"수입",ptPer:3,hof:700,cars:["ES30h","NX35h","RX45h"]},
+  porsche:{maker:"포르세",origin:"수입",group:"수입 하이엔드",ptPer:6,hof:350,cars:["마칸느","카이엔느","파나메라","911-","타이칸느"]},
+  bentley:{maker:"벤틀레이",origin:"수입",group:"수입 하이엔드",ptPer:7,hof:260,cars:["벤테이가-","컨티넨탈GT-","플라잉스퍼-"]},
+  ferrari:{maker:"페라라",origin:"수입",group:"수입 하이엔드",ptPer:8,hof:200,cars:["로마-","296GTB-","푸로산게-","SF90-"]},
+  lambo:{maker:"람보기니",origin:"수입",group:"수입 하이엔드",ptPer:8,hof:200,cars:["우루스-","우라칸-","레부엘토-"]},
+  rolls:{maker:"롤스로이즈",origin:"수입",group:"수입 하이엔드",ptPer:10,hof:150,cars:["고스트-","컬리넌-","스펙터-"]},
+  byt:{maker:"BYT",origin:"전기차",ptPer:1,hof:2000,ev:true,cars:["아토3-","씰-","씨라이언7-","돌핀-"]},
+  polar:{maker:"폴라스타",origin:"전기차",ptPer:1.5,hof:1300,ev:true,cars:["폴라스타2-","폴라스타4-","폴라스타3-"]},
+  tesla:{maker:"테슬러",origin:"전기차",ptPer:1,hof:2200,ev:true,cars:["모델3-","모델Y-","모델S-","모델X-"]}
+};
+const DEALERS=[
+  {id:"hy_d",mk:"hyundai",name:"현다이 직영지점",type:"직영 카마스터",base:320,comm:25,leads:14,conv:1,top:14,desc:"기본급이 탄탄하고 손님이 많아요."},
+  {id:"hy_a",mk:"hyundai",name:"현다이 한마음대리점",type:"대리점",base:140,comm:48,leads:12,conv:1,top:13,desc:"기본급은 낮지만 판 만큼 벌어요."},
+  {id:"kia_d",mk:"kia",name:"키아 직영지점",type:"직영",base:300,comm:24,leads:13,conv:1,top:13,desc:"안정적이고 승진 체계가 뚜렷해요."},
+  {id:"kia_a",mk:"kia",name:"키아 대한오토",type:"대리점",base:150,comm:45,leads:12,conv:1,top:12,desc:"실력 차이가 수입 차이로 바로 이어져요."},
+  {id:"gn_s",mk:"genesis",name:"제니시스 스튜디오",type:"직영 프리미엄",base:340,comm:40,leads:9,conv:.95,top:9,desc:"고급 브랜드 경험을 앞세운 직영 전시장."},
+  {id:"gn_a",mk:"genesis",name:"제니시스 지정대리점",type:"대리점",base:160,comm:70,leads:8,conv:.95,top:8,desc:"국산 최고 수당 구간. 고객층이 까다로워요."},
+  {id:"kg_a",mk:"kgn",name:"KGN 한빛대리점",type:"대리점",base:150,comm:40,leads:9,conv:1,top:9,desc:"SUV 마니아 고객이 꾸준히 찾아와요."},
+  {id:"rn_a",mk:"renault",name:"르노아르 스페이스",type:"대리점",base:150,comm:42,leads:8,conv:1,top:8,desc:"신차 한 대에 지점 분위기가 크게 출렁여요."},
+  {id:"ch_a",mk:"chevy",name:"쉐보리 동부대리점",type:"대리점",base:150,comm:42,leads:7,conv:1.05,top:7,desc:"픽업·수입 라인업 덕에 틈새 고객이 있어요."},
+  {id:"mz_h",mk:"mentz",name:"한솔모터스",type:"공식 딜러사 · 대형",base:230,comm:120,leads:7,conv:.78,top:7,desc:"전시장이 많아 손님도 많아요."},
+  {id:"mz_k",mk:"mentz",name:"KCS오토",type:"공식 딜러사 · 중견",base:200,comm:140,leads:5.5,conv:.85,top:5,desc:"손님은 적어도 수당률이 높아요."},
+  {id:"mz_t",mk:"mentz",name:"더클라쓰효상",type:"공식 딜러사 · 프리미엄",base:250,comm:130,leads:5,conv:.9,top:5,desc:"VIP 고객이 많아 평판이 특히 중요해요."},
+  {id:"bn_k",mk:"bnw",name:"코올롱모터스",type:"공식 딜러사 · 대형",base:230,comm:105,leads:8,conv:.82,top:7,desc:"교육 체계가 좋아 신입에게 무난해요."},
+  {id:"bn_d",mk:"bnw",name:"도이취모터스",type:"공식 딜러사 · 대형",base:210,comm:100,leads:9,conv:.8,top:8,desc:"물량이 많고 프로모션이 공격적이에요."},
+  {id:"bn_b",mk:"bnw",name:"바바리온모터스",type:"공식 딜러사 · 지역형",base:190,comm:120,leads:6,conv:.88,top:6,desc:"경쟁이 덜하고 단골 장사가 잘 돼요."},
+  {id:"au_g",mk:"audi",name:"고진오토",type:"공식 딜러사 · 대형",base:210,comm:105,leads:6,conv:.85,top:6,desc:"할인 프로모션 시기에 판매가 몰려요."},
+  {id:"au_t",mk:"audi",name:"태안모터즈",type:"공식 딜러사 · 지역형",base:190,comm:115,leads:5,conv:.88,top:5,desc:"지역 단골이 탄탄해요."},
+  {id:"vo_s",mk:"volvo",name:"스칸디모터스",type:"공식 딜러사 · 대형",base:220,comm:100,leads:6,conv:.92,top:6,desc:"출고 대기가 길지만 계약은 잘 돼요."},
+  {id:"vo_n",mk:"volvo",name:"노르딕오토",type:"공식 딜러사 · 지역형",base:200,comm:110,leads:5,conv:.92,top:5,desc:"가족 고객 비중이 높아요."},
+  {id:"lx_d",mk:"lexus",name:"디엔티모터스",type:"공식 딜러사 · 대형",base:220,comm:95,leads:6,conv:.92,top:6,desc:"하이브리드 수요가 꾸준해요."},
+  {id:"lx_c",mk:"lexus",name:"센트럴오토",type:"공식 딜러사 · 지역형",base:200,comm:105,leads:5,conv:.92,top:5,desc:"재구매 고객이 많아요."},
+  {id:"pr_s",mk:"porsche",name:"슈투트모터스",type:"공식 딜러사 · 프리미엄",base:280,comm:300,leads:2.5,conv:.75,top:3,desc:"한 대가 대박. 0대인 달도 흔해요."},
+  {id:"bt_c",mk:"bentley",name:"클래식모터스",type:"공식 딜러사 · 프리미엄",base:300,comm:420,leads:2,conv:.72,top:2,desc:"재력가 단골 몇 명이 1년 실적을 좌우해요."},
+  {id:"fr_f",mk:"ferrari",name:"포르짜모터스",type:"공식 딜러사 · 독점",base:320,comm:550,leads:1.6,conv:.7,top:2,desc:"대기 고객 관리가 핵심. 배정 물량이 곧 실적이에요."},
+  {id:"lb_s",mk:"lambo",name:"스쿼드모터스",type:"공식 딜러사 · 독점",base:320,comm:500,leads:1.8,conv:.7,top:2,desc:"SUV 우루스가 효자. 슈퍼카 고객은 인맥으로 와요."},
+  {id:"rr_r",mk:"rolls",name:"로열모터스",type:"공식 딜러사 · 비스포크",base:350,comm:650,leads:1.1,conv:.68,top:2,desc:"1년에 몇 대. 한 대의 의전이 모든 것을 결정해요."},
+  {id:"by_h",mk:"byt",name:"BYT 하모니오토",type:"공식 딜러사 · 대형",base:220,comm:45,leads:12,conv:.85,top:11,desc:"가성비 전기차로 문의가 많지만 브랜드 신뢰를 쌓아야 해요."},
+  {id:"by_g",mk:"byt",name:"BYT 그린모빌리티",type:"공식 딜러사 · 지역형",base:200,comm:52,leads:10,conv:.88,top:9,desc:"지역 택시·법인 수요가 꾸준해요."},
+  {id:"ps_k",mk:"polar",name:"폴라스타 코리아",type:"본사 직영 · 체험형 스페이스",base:330,comm:40,leads:8,conv:.9,top:8,desc:"디자인을 보고 찾아오는 고객. 시승 경험이 승부예요."},
+  {id:"ts_k",mk:"tesla",name:"테슬러 코리아",type:"본사 직영 · 온라인 판매",base:380,comm:12,leads:16,conv:.9,top:18,desc:"가격 흥정 없음. 보조금 정책에 판매가 크게 흔들려요."}
+];
+const BRANDS={};DEALERS.forEach(d=>BRANDS[d.id]={...MAKERS[d.mk],...d});
+const RANKS=[["사원",0],["주임",60],["대리",180],["과장",420],["차장",800],["팀장",1500],["지점장",2600]];
+const ACTIONS=[
+  {id:"floor",name:"전시장 상담",desc:"들어오는 손님 응대. 무난한 판매",lead:1.0,hp:-8,eff:{talk:1}},
+  {id:"pioneer",name:"개척 영업",desc:"법인·지인 발로 뛰기. 인맥 상승",lead:1.25,hp:-14,eff:{net:3}},
+  {id:"sns",name:"SNS·유튜브 홍보",desc:"평판 상승. 판매는 다음 달부터 효과",lead:.7,hp:-6,eff:{rep:3}},
+  {id:"study",name:"상품·금융 공부",desc:"상품지식 크게 상승. 판매 소폭",lead:.5,hp:-4,eff:{know:4}},
+  {id:"coach",name:"팀원 코칭",desc:"팀원 실력·사기 상승. 내 판매는 줄어요",lead:.6,hp:-6,eff:{},mgr:true},
+  {id:"rest",name:"휴가·휴식",desc:"체력 회복. 이번 달 판매 거의 없음",lead:.15,hp:+30,eff:{}}
+];
+const MONTH_MOD=[.75,.9,1.2,1.05,1.0,1.05,.95,.8,1.0,1.05,1.0,1.25];
+const CYCLES=[
+  {name:"수입차 관세 인상",mul:1,ev:1,imp:.75,special:true},{name:"수입차 관세 인하",mul:1,ev:1,imp:1.25,special:true},{name:"온라인 직판 확산",mul:.88,ev:1.1,special:true},
+  {name:"평년",mul:1,ev:1},{name:"금리 인상기",mul:.85,ev:.9},{name:"신차 대란",mul:1.15,ev:1},
+  {name:"전기차 보조금 확대",mul:1,ev:1.45},{name:"전기차 보조금 축소",mul:1,ev:.65},{name:"경기 호황",mul:1.15,ev:1.1},{name:"경기 침체",mul:.85,ev:.85}
+];
+const NAMES=["김도윤","이서준","박하은","최지호","정민서","강유나","조현우","윤채원","장시우","임다은","한예준","오수아"];
+
+// ───── 차량 가격 · 수당 ─────
+const CARPRICE={"아반테":2200,"쏘나다":3000,"그랜드저":4300,"싼타패":3900,"팰리사이드":5000,"모닝콜":1500,"K오":3000,"쏘렌투":3900,"카니발레":4200,"스포티지아":3100,
+"G7O":5000,"G8O":6500,"GV7O":6000,"GV8O":8000,"토레손":3200,"티볼레":2300,"렉스톤즈":4500,"액티온":3500,"그랑콜레오스":4000,"아르카나":2800,"QM-6":3000,
+"트랙스크로스":2300,"트레일블레이즈":2700,"콜로라도":4700,"C클라쓰":6500,"E클라쓰":8000,"S클라쓰":15000,"GLE-":12000,"G바겐":20000,
+"3시리즈":6000,"5시리즈":7500,"7시리즈":15000,"X5-":11000,"M4-":12000,"A4-":5500,"A6-":7500,"Q5-":7000,"e트론":11000,
+"XC40-":5000,"XC60-":6800,"XC90-":9500,"S90-":7000,"ES30h":6500,"NX35h":6800,"RX45h":9000,
+"마칸느":9000,"카이엔느":14000,"파나메라":18000,"911-":18000,"타이칸느":15000,"모델3-":5200,"벤테이가-":28000,"컨티넨탈GT-":32000,"플라잉스퍼-":30000,"로마-":30000,"296GTB-":38000,"푸로산게-":60000,"SF90-":55000,"우루스-":26000,"우라칸-":30000,"레부엘토-":60000,"고스트-":45000,"컬리넌-":50000,"스펙터-":60000,"아토3-":3150,"씰-":4700,"씨라이언7-":4500,"돌핀-":2500,"폴라스타2-":5500,"폴라스타4-":6700,"폴라스타3-":9000,"모델Y-":5600,"모델S-":13000,"모델X-":14000};
+DEALERS.forEach(d=>{const B=BRANDS[d.id];const ps=B.cars.map(c=>CARPRICE[c]||5000);B.avgPrice=ps.reduce((a,c)=>a+c,0)/ps.length;B.rate=d.comm/B.avgPrice;B.pmin=Math.min(...ps);B.pmax=Math.max(...ps)});
+function sellMix(b,n){
+  const tilt=-.7+(S.know+S.rep)/220;
+  const ws=b.cars.map(c=>Math.pow(CARPRICE[c]||5000,tilt)),sum=ws.reduce((a,c)=>a+c,0);
+  const cnt={};let comm=0,rev=0;
+  for(let i=0;i<n;i++){let r=Math.random()*sum,j=0;while(j<ws.length-1&&r>ws[j]){r-=ws[j];j++}
+    const c=b.cars[j],p=CARPRICE[c]||5000;cnt[c]=(cnt[c]||0)+1;rev+=p;comm+=p*b.rate}
+  return{comm,rev,text:Object.entries(cnt).map(([c,k])=>`${c} ${k}`).join(", ")};
+}
+
+// ───── 직급 · 칭호 ─────
+function myRank(){if(S.rank==null)S.rank=Math.min(rankIdx(S.pts),4);return S.rank}
+function gateOk(i){if(i===5)return S.age>=34;if(i===6)return S.age>=40&&((S.trophy.yearTop||0)>=1||(S.trophy.quarter||0)>=6)&&S.teamTotal>=300;return true}
+function gateText(i){if(i===5)return "조건: 34세 이상";if(i===6)return "조건: 40세 이상 · 연간 TOP 1회 또는 분기 MVP 6회 · 팀 누적 300대";return ""}
+function addTitle(t){S.titles=S.titles||[];if(S.titles.includes(t))return;S.titles.push(t);log(`🎗️ 칭호 획득: 「${t}」`,"award")}
+function grantTitles(){
+  if(myRank()>=5&&S.age<38)addTitle("젊은 팀장");
+  if(myRank()>=6&&S.age<43)addTitle("최연소급 지점장");
+  if(myRank()>=6)addTitle("지점의 얼굴");
+}
+function tryPromote(){
+  let up=false;
+  while(myRank()<rankIdx(S.pts)&&myRank()<6&&gateOk(myRank()+1)){S.rank=myRank()+1;up=true;log(`📈 ${RANKS[S.rank][0]}(으)로 승진했습니다!`,"award")}
+  const nx=myRank()+1;S.gateWarn=S.gateWarn||{};
+  if(!up&&nx<=6&&rankIdx(S.pts)>=nx&&!S.gateWarn[nx]){S.gateWarn[nx]=1;log(`⏳ 승진 포인트는 채웠지만 ${RANKS[nx][0]} 승진 ${gateText(nx)}`,"bad")}
+  if(up){grantTitles();ensureTeam()}
+  return up;
+}
+
+// ───── 팀 역할 ─────
+const ROLES={ace:{n:"에이스",d:"판매 1.4배 · 실적이 안 나오면 사기 급락"},rookie:{n:"신입",d:"매달 실력이 자라요"},fleet:{n:"법인 담당",d:"가끔 법인 대량 계약"},
+  cs:{n:"고객관리",d:"팀 사기·내 평판 유지 · 판매는 적음"},digital:{n:"디지털 마케터",d:"나와 팀의 문의량 증가"}};
+function newMate(){const role=pick(Object.keys(ROLES));return{name:pick(NAMES),role,skill:role==="ace"?rnd(55,75):role==="rookie"?rnd(15,30):rnd(30,55),morale:rnd(55,80),last:0}}
+function ensureTeam(fresh){
+  const size=myRank()>=6?6:myRank()>=5?4:0;if(!size)return;
+  if(fresh||!S.team)S.team=[];const before=S.team.length;
+  S.team.forEach(m=>{if(!ROLES[m.role])m.role="rookie"});
+  while(S.team.length<size)S.team.push(newMate());
+  if(S.team.length>before)log(before?`👥 지점장이 되어 팀원이 ${size}명으로 늘었어요.`:`👥 팀원 ${size}명을 맡았습니다. 역할 구성이 팀 실적을 좌우해요.`,"award");
+}
+function teamMonth(b,cyc,a){
+  S.team.forEach(m=>{if(!ROLES[m.role])m.role="rookie"});
+  const cnt=r=>S.team.filter(m=>m.role===r).length,dig=cnt("digital"),cs=cnt("cs");
+  if(a.id==="coach"){const m=S.team.reduce((x,y)=>x.skill<y.skill?x:y);m.skill=clamp(m.skill+rnd(3,6)*(has("mentor")?2:1)*(m.skill>80?.4:1));S.team.forEach(t=>t.morale=clamp(t.morale+8));log(`🧑‍🏫 ${m.name}(${ROLES[m.role].n}) 코칭. 팀 사기 상승`,"good")}
+  let total=0;
+  S.team.forEach(m=>{
+    if(m.role==="rookie"&&m.skill<70)m.skill=clamp(m.skill+1);
+    let base=b.top*Math.pow(m.skill/100,1.6)*.75*MONTH_MOD[S.month-1]*cyc*(1+dig*.1)*(m.morale<40?.55:m.morale>75?1.15:1);
+    if(m.role==="ace")base*=1.4;if(m.role==="cs")base*=.6;
+    let n=0;for(let i=0;i<Math.round(base*2);i++)if(Math.random()<.5)n++;
+    if(m.role==="fleet"&&Math.random()<.15){const f=Math.round(rnd(3,6)*(b.ptPer>1?.5:1));n+=f;log(`🏢 ${m.name}(법인 담당)이 법인 ${f}대 계약!`,"good")}
+    m.last=n;total+=n;
+    let decay=rnd(1,4)-cs*1.5-S.talk/50;if(m.role==="ace"&&n<b.top*.8)decay+=3;
+    m.morale=clamp(m.morale-decay+(n>=b.top*.6?2:0));
+  });
+  if(cs)S.rep=clamp(S.rep+.5*cs);
+  return total;
+}
+
+// ───── 트로피 · 업적 혜택 ─────
+function has(k){return !!(S.ach&&S.ach[k])}
+const AWARD_PERK={
+  month:["5회마다 화술 +2",()=>{if(S.trophy.month%5===0)S.talk+=2}],quarter:["2회마다 평판 +2",()=>{if(S.trophy.quarter%2===0)S.rep+=2}],rookie:["상품지식 +5",()=>S.know+=5],
+  yearTop:["체력 +20 · 기본급 +3%",()=>{S.hp+=20;S.baseBonus+=.03}],grand:["평판 +5 · 기본급 +5%",()=>{S.rep+=5;S.baseBonus+=.05}],
+  cs:["인맥 +5",()=>S.net+=5],golden:["매달 체력 소모 -2 (영구)",null],nego:["화술 +3",()=>S.talk+=3],
+  team:["팀 사기 +10",()=>S.team&&S.team.forEach(m=>m.morale=clamp(m.morale+10))],c100:["인맥 +3",()=>S.net+=3],c500:["상품지식 +5",()=>S.know+=5],
+  c1000:["모든 능력 +3",()=>{S.talk+=3;S.know+=3;S.net+=3;S.rep+=3}],hof:["문의량 +10% (영구)",null],loyal:["기본급 +5%",()=>S.baseBonus+=.05],iron:["체력 +20",()=>S.hp+=20]
+};
+const ACH_PERK={first:["화술 +2",()=>S.talk+=2],dom2imp:["수입차 계약률 +3%",null],toEv:["보조금 축소 충격 절반",null],loyal15:["기본급 +10%",()=>S.baseBonus+=.1],
+  bird:["사이닝 보너스 +30%",null],rich:["휴식 때 체력 +10",null],dry:["화술 +3 (오기)",()=>S.talk+=3],allround:["계약률 +3%",null],mentor:["코칭 효과 2배",null],
+  survivor:["번아웃 한도 +1",null],rivalKing:["평판 +5",()=>S.rep+=5],porsche:["인맥 +5",()=>S.net+=5],topBrand:["문의량 +5%",null],fire:["엔딩 점수 보너스",null],iron:["엔딩 점수 보너스",null]};
+function fixStats(){["talk","know","net","rep","hp"].forEach(k=>S[k]=clamp(S[k]))}
+
+// ───── 시작 배경 ─────
+const BGS={
+  normal:{n:"평범한 신입",d:"모든 능력이 고르게 시작해요.",f:()=>{}},
+  autoMajor:{n:"자동차학과 출신",d:"상품지식 +20 · 화술 -5. 차 얘기라면 자신 있어요.",f:()=>{S.know+=20;S.talk-=5}},
+  insurance:{n:"보험 영업 출신 (31세)",d:"화술 +15 · 인맥 +15 · 상품지식 -5. 대신 3년 늦게 시작해요.",f:()=>{S.talk+=15;S.net+=15;S.know-=5;S.age=31}},
+  rich:{n:"집안이 넉넉한 신입",d:"자금 +8,000만 · 인맥 +10 · 화술 -5 · 평판 -5. 돈은 있는데 절박함이 없어요.",f:()=>{S.cash+=8000;S.net+=10;S.talk-=5;S.rep=Math.max(0,S.rep-5)}},
+  career:{n:"경력 전환 (35세)",d:"인맥 +25 · 화술 +10 · 자금 +3,000만 · 상품지식 -5. 시간이 짧은 대신 출발이 빨라요.",f:()=>{S.net+=25;S.talk+=10;S.cash+=3000;S.know-=5;S.age=35}},
+  athlete:{n:"운동선수 출신",d:"체력 소모가 매달 2씩 적어요 · 화술 -5 · 상품지식 -5.",f:()=>{S.talk-=5;S.know-=5}}
+};
+function initBg(){
+  const s=$("bgSel");s.innerHTML=Object.entries(BGS).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join("");
+  const sync=()=>$("bgDesc").textContent=(BGS[s.value]||BGS.normal).d;s.onchange=sync;sync();
+}
+
+// ───── 능력치 변화 · 설명 ─────
+const STAT_KEYS=[["talk","화술"],["know","상품지식"],["net","인맥"],["rep","평판"],["hp","체력"]];
+const STAT_HELP={
+  talk:"계약 성공률을 올리고, 협상·설득 선택지의 성공 확률을 높여요. 팀장이 되면 팀원 사기 유지에도 쓰여요.",
+  know:"계약 성공률을 올리고, 비싼 차를 팔 확률을 높여요. 이직 면접 합격률과 이직 준비 속도에도 영향을 줘요.",
+  net:"매달 찾아오는 손님(문의량)을 늘려요. 소개·법인 영업 선택지에 강하고, 이직하면 일부를 잃어요.",
+  rep:"문의량과 수당 보너스(평판 3당 수당 +1%)를 올리고, 비싼 차 판매 비중과 몸값(이직 제안)을 높여요.",
+  hp:"45 미만이면 계약률 -20%, 25 미만이면 -50%, 30 미만이면 이벤트 성공률도 떨어져요. 0이 되면 번아웃이에요."
+};
+function snapStats(){const o={};STAT_KEYS.forEach(([k])=>o[k]=S[k]);return o}
+function statDelta(snap){
+  const d={},parts=[];
+  STAT_KEYS.forEach(([k,n])=>{const v=Math.round(S[k]-snap[k]);if(v){d[k]=v;parts.push(`${n} ${v>0?"+":""}${v}`)}});
+  S.lastDelta=d;return parts.length?`📊 능력치 변화: ${parts.join(" · ")}`:"";
+}
+function statHelpHtml(){return STAT_KEYS.map(([k,n])=>`<p><b>${n} ${Math.round(S[k])}</b>${S.lastDelta&&S.lastDelta[k]?` <i class="${S.lastDelta[k]>0?"up":"dn"}">${S.lastDelta[k]>0?"▲":"▼"}${Math.abs(S.lastDelta[k])}</i>`:""}<br>${STAT_HELP[k]}</p>`).join("")}
+
+// ───── 연봉 협상 ─────
+function salaryTalk(){
+  const b=BRANDS[S.brand],perf=(S.lastYearSales||0)/(b.top*12),mv=marketValue();
+  const pStrong=clamp(.15+perf*.45+S.talk/300,0,.9),pCard=clamp(.35+mv/150,0,.85);
+  const feel=p=>p>=.7?"자신 있음":p>=.45?"해볼 만함":"모험";
+  ask("연봉 협상",`작년 판매 ${S.lastYearSales||0}대 (목표 대비 ${Math.round(perf*100)}%). 인사팀과 연봉 협상 자리에 앉았습니다.<br><small>강하게 요구: 예감 ${feel(pStrong)} · 이직 카드: 예감 ${feel(pCard)}</small>`,[
+    ["실적을 근거로 강하게 요구",()=>{if(Math.random()<pStrong){S.baseBonus+=.08;log("💼 연봉 협상 성공! 기본급 +8%","good")}else{S.rep=clamp(S.rep-2);log("💼 요구가 받아들여지지 않았어요. 분위기만 어색해졌어요.","bad")}}],
+    ["무난하게 회사 제시안 수용",()=>{S.baseBonus+=.03;S.rep=clamp(S.rep+1);log("💼 기본급 +3%로 무난하게 마무리했어요.")}],
+    ...(mv>=35?[["“다른 데서 연락 왔어요” 이직 카드",()=>{if(Math.random()<pCard){S.baseBonus+=.12;log("💼 이직 카드가 통했어요! 기본급 +12%","good")}else{S.rep=clamp(S.rep-4);log("💼 “그럼 가셔도 됩니다”… 체면만 구겼어요.","bad")}}]]:[])
+  ]);
+}
+
+// ───── 인생 이벤트 ─────
+function lifeEvent(){
+  const L=[];
+  if(S.married&&(S.kids||0)<2&&S.age<=42)L.push(()=>ask("아이가 생겼어요",`${S.kids?"둘째":"첫째"} 아이가 태어납니다! 생활비가 매달 60만 원 늘어나요.`,[
+    ["육아휴직 2개월",()=>{S.kids=(S.kids||0)+1;S.leaveMonths=2;S.hp=clamp(S.hp+10);log("👶 아이가 태어났어요. 2개월 육아휴직에 들어갑니다.","good")}],
+    ["바로 복귀해 더 열심히",()=>{S.kids=(S.kids||0)+1;S.hp=clamp(S.hp-10);S.talk=clamp(S.talk+2);log("👶 아이가 태어났어요. 분유값을 벌러 바로 전시장으로!","good")}]]));
+  if(!S.home&&S.cash>=15000)L.push(()=>ask("내 집 마련",`모아 둔 돈으로 집을 살 수 있을 것 같아요. 1억 2천만 원이 들지만 월세·전세 부담이 줄어요.`,[
+    ["집을 산다",()=>{S.cash-=12000;S.home=true;S.hp=clamp(S.hp+8);log("🏠 내 집 마련 성공! 매달 생활비가 줄어요.","good")}],
+    ["아직은 현금을 쥐고 있는다",()=>{log("내 집 마련은 다음으로 미뤘어요.")}]]));
+  if(S.age>=40)L.push(()=>ask("부모님이 편찮으세요","부모님이 입원하셨다는 연락을 받았어요.",[
+    ["휴직하고 곁을 지킨다 (2개월)",()=>{S.leaveMonths=2;S.rep=clamp(S.rep+2);log("🏥 휴직하고 부모님 곁을 지켰어요. 마음은 편합니다.")}],
+    ["간병인을 고용한다 (1,500만 원)",()=>{S.cash-=1500;log("🏥 간병인을 모셨어요. 주말마다 병원에 갑니다.")}],
+    ["일과 간병을 병행한다",()=>{S.hp=clamp(S.hp-20);log("🏥 일과 간병을 병행했어요. 몸이 많이 지쳤어요.","bad")}]]));
+  if((S.kids||0)>0&&S.age>=46)L.push(()=>ask("자녀 입시","아이가 고3이 됐어요. 학원비와 관심이 필요한 시기입니다.",[
+    ["학원비 전폭 지원 (2,000만 원)",()=>{S.cash-=2000;log("📚 아이 입시를 든든히 지원했어요.")}],
+    ["주말엔 일을 줄이고 함께한다",()=>{S.leaveMonths=1;S.hp=clamp(S.hp+5);log("📚 주말마다 아이와 시간을 보냈어요.")}],
+    ["믿고 맡긴다",()=>{S.hp=clamp(S.hp-5);log("📚 아이를 믿기로 했어요. 마음 한편이 불편합니다.")}]]));
+  if(S.cash>=5000)L.push(()=>ask("동창의 투자 제안","동창이 “자동차 구독 스타트업”에 3,000만 원 투자를 제안합니다.",[
+    ["투자한다",()=>{S.cash-=3000;if(Math.random()<.4){S.cash+=7500;log("📈 투자 대박! 7,500만 원이 돌아왔어요.","good")}else log("📉 스타트업이 문을 닫았어요. 투자금을 잃었어요.","bad")}],
+    ["정중히 거절한다",()=>{log("투자 제안을 거절했어요.")}]]));
+  if(!L.length)return false;pick(L)();return true;
+}
+
+// ───── 업계 대형 사건 ─────
+function industryEvent(){
+  const b=BRANDS[S.brand],E=[];
+  const sib=DEALERS.filter(d=>d.mk===b.mk&&d.id!==S.brand);
+  if(sib.length)E.push(()=>{const t=BRANDS[pick(sib).id];ask(b.origin==="수입"?"딜러사 합병":"지점 통폐합",`${b.name}이(가) ${t.name}에 흡수된다는 발표가 났어요. 회사가 흔들립니다.`,[
+    [`${t.name}로 따라간다`,()=>{moveTo({d:t,sign:0,promote:false});S.switched--;log(`🏢 합병으로 ${t.name} 소속이 됐어요.`)}],
+    ["이 기회에 이적 시장으로",()=>{setTimeout(()=>transferMarket("합병 소식에 헤드헌터들이 움직였어요"),0)}]])});
+  E.push(()=>ask("대규모 리콜 사태",`${b.maker} 주력 차종에 대규모 리콜이 터졌어요. 고객 전화가 빗발칩니다.`,[
+    ["고객 전원에게 직접 연락 (체력 -15)",()=>{S.hp=clamp(S.hp-15);S.rep=clamp(S.rep+4);log("📞 고객 한 명 한 명에게 직접 연락했어요. 신뢰가 쌓였어요.","good")}],
+    ["본사 대응을 기다린다",()=>{S.rep=clamp(S.rep-8);log("📞 대응이 늦어 고객 불만이 커졌어요.","bad")}]]));
+  E.push(()=>{const up=Math.random()<.5,c=CYCLES.find(x=>x.name===(up?"수입차 관세 인상":"수입차 관세 인하"));S.cycle=c;
+    ask(c.name,`정부 발표로 ${c.name}이(가) 결정됐어요. ${up?"수입차 문의가 줄고 국산차가 반사이익을 봅니다.":"수입차 문의가 크게 늘어납니다."}`,[["알겠습니다",()=>log(`📰 업계 흐름: ${c.name}`,(b.origin==="수입")===up?"bad":"good")]])});
+  E.push(()=>{S.cycle=CYCLES.find(x=>x.name==="온라인 직판 확산");ask("온라인 직판 확산","제조사가 온라인 직접 판매를 늘린다고 발표했어요. 딜러의 역할이 줄어들 수도 있어요.",[
+    ["디지털 역량을 키운다",()=>{S.know=clamp(S.know+6);S.hp=clamp(S.hp-6);log("💻 온라인 상담과 콘텐츠를 공부했어요.","good")}],
+    ["오프라인 관계로 승부한다",()=>{S.net=clamp(S.net+6);log("🤝 단골 관리에 더 집중하기로 했어요.","good")}]])});
+  pick(E)();
+}
+
+
+const MEDAL_TIER={yearTop:"g",grand:"g",golden:"g",hof:"g",month:"s",quarter:"s",rookie:"s",cs:"s",nego:"s",team:"s",c100:"b",c500:"b",c1000:"b",loyal:"b",iron:"b"};
+function medal(k){
+  const t=MEDAL_TIER[k]||"s",c={g:["#D9BE8A","#A8854A","#7A5E2E"],s:["#E3E8EF","#AEB8C6","#6F7B8C"],b:["#E2B996","#B07A52","#7A4E2E"]}[t];
+  const ch=AWARDS[k][1].replace(/[0-9]/g,"").trim()[0]||"상";
+  return `<svg viewBox="0 0 46 56" aria-hidden="true"><path d="M13 0h8l4 14h-8z" fill="#1B2B4A"/><path d="M25 0h8l-4 14h-8z" fill="#2D7A6E"/><circle cx="23" cy="34" r="17" fill="${c[1]}"/><circle cx="23" cy="34" r="13.5" fill="${c[0]}" stroke="${c[2]}" stroke-width="1"/><text x="23" y="39.5" text-anchor="middle" font-size="14" font-family="Noto Sans KR, sans-serif" font-weight="800" fill="${c[2]}">${ch}</text></svg>`;
+}
+const AWARDS={
+  month:["🏆","월간 판매왕"],quarter:["🎖️","분기 MVP"],rookie:["🌱","신인상"],yearTop:["🥇","연간 TOP 딜러"],
+  grand:["💎","브랜드 대상"],cs:["😊","고객만족 대상"],golden:["👑","3년 연속 골든 딜러"],nego:["🤝","정가 협상왕"],
+  team:["👥","이달의 우수 팀"],c100:["🥉","100대 클럽"],c500:["🥈","500대 클럽"],c1000:["🏅","1000대 클럽"],
+  hof:["🏛️","명예의 전당"],loyal:["🪪","10년 장기근속"],iron:["💪","무쇠 체력상"]
+};
+let S=null,chosen=null,CAP=null,skipping=false,busy=false;
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
+const won=v=>Math.abs(v)>=10000?(v/10000).toFixed(1).replace(/\.0$/,"")+"억":Math.round(v).toLocaleString()+"만";
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function rankIdx(p){let i=0;RANKS.forEach(([n,t],k)=>{if(p>=t)i=k});return i}
+function rankOf(p){return RANKS[rankIdx(p)][0]}
+
+// 시작 화면
+initBg();
+const sel=$("makerSel");
+sel.innerHTML='<option value="">브랜드를 고르세요</option>'+["국산","수입","수입 하이엔드","전기차"].map(o=>`<optgroup label="${o}">`+Object.entries(MAKERS).filter(([k,m])=>(m.group||m.origin)===o).map(([k,m])=>`<option value="${k}">${m.maker} · 소속사 ${DEALERS.filter(d=>d.mk===k).length}곳</option>`).join("")+"</optgroup>").join("");
+sel.onchange=()=>{chosen=null;chk();showDealers(sel.value)};
+function showDealers(mk){
+  const w=$("dealers");w.innerHTML="";
+  DEALERS.filter(d=>d.mk===mk).forEach(d=>{const b=BRANDS[d.id];
+    const el=document.createElement("button");el.className="card";el.setAttribute("aria-pressed","false");
+    el.innerHTML=`<h3>${b.name}</h3><small>${b.type}</small><p style="font-size:13px;margin:6px 0 0">${b.desc}</p>
+    <dl><dt>기본급</dt><dd>월 ${b.base}만</dd><dt>수당률</dt><dd>차값의 ${(b.rate*100).toFixed(1)}%</dd><dt>차값</dt><dd>${won(b.pmin)}~${won(b.pmax)}원</dd><dt>주력 차종</dt><dd>${b.cars.slice(0,3).join(", ")}</dd></dl>`;
+    el.onclick=()=>{chosen=d.id;[...w.children].forEach(c=>c.setAttribute("aria-pressed","false"));el.setAttribute("aria-pressed","true");chk()};
+    w.appendChild(el)});
+}
+const chk=()=>$("startBtn").disabled=!(chosen&&$("pname").value.trim());
+$("pname").oninput=chk;
+$("startBtn").onclick=()=>{
+  S={name:$("pname").value.trim(),brand:chosen,age:28,year:2027,month:1,cash:300,talk:30,know:30,net:20,rep:10,hp:100,
+     pts:0,total:0,history:[],trophy:{},yearSales:0,married:false,burnouts:0,snsCarry:0,switched:0,best:0,earned:0,
+     baseBonus:0,target:null,prep:0,lastOfferAt:-99,lastHunt:-99,path:[`${BRANDS[chosen].maker} ${BRANDS[chosen].name}`],
+     cycle:CYCLES.find(c=>c.name==="평년"),team:null,teamTotal:0,topStreak:0,negoWins:0,joinedYear:2027,firstYear:true,ach:{},recentScen:[],
+     rival:{name:pick(NAMES),brand:chosen,pts:0,total:0,year:0,mwins:0,last:0}};
+  S.bg=BGS[$("bgSel").value]?$("bgSel").value:"normal";BGS[S.bg].f();fixStats();S.joinedAge=S.age;
+  $("start").hidden=true;$("game").hidden=false;
+  log(`[${BGS[S.bg].n}] ${S.name} 님, ${BRANDS[S.brand].maker} ${BRANDS[S.brand].name}에 입사했습니다.`,"good");
+  log(`같은 날 입사한 동기 ${S.rival.name}. 앞으로 30년, 이 사람이 라이벌입니다.`);
+  render();
+};
+
+function award(key,detail=""){
+  S.trophy[key]=(S.trophy[key]||0)+1;
+  const [e,n]=AWARDS[key];const pk=AWARD_PERK[key];log(`${e} ${n}${detail?" "+detail:""}${pk?" → 혜택: "+pk[0]:""}`,"award");
+  if(pk&&pk[1])pk[1]();fixStats();
+  if(key==="month"&&S.trophy.month===10)addTitle("판매왕 단골");if(key==="golden")addTitle("골든 딜러");if(key==="hof")addTitle("살아있는 전설");
+}
+
+// 화면
+function gauge(label,v,color,d){
+  const r=26,c=Math.PI*r*1.5,f=c*v/100;
+  return `<div class="gauge"><svg viewBox="0 0 70 62" aria-hidden="true"><circle cx="35" cy="35" r="${r}" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="7" stroke-dasharray="${c} 999" transform="rotate(135 35 35)" stroke-linecap="round"/><circle cx="35" cy="35" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-dasharray="${f} 999" transform="rotate(135 35 35)" stroke-linecap="round"/><text x="35" y="40" text-anchor="middle" fill="#EEF1F6" font-size="15" font-family="Noto Sans KR, sans-serif" font-weight="800">${Math.round(v)}</text></svg><b>${label}${d?` <i class="${d>0?"up":"dn"}">${d>0?"▲":"▼"}${Math.abs(d)}</i>`:""}</b></div>`;
+}
+function render(){
+  const b=BRANDS[S.brand];
+  $("odo").innerHTML=`<span>${S.year}</span><span>${String(S.month).padStart(2,"0")}월</span>`;
+  $("who").textContent=`${S.name} · ${S.age}세 · ${b.maker} ${b.name} ${RANKS[myRank()][0]}`;
+  $("cycle").textContent=`업계 흐름: ${S.cycle.name}`;
+  const ri=myRank(),tier=ri>=6?3:ri>=4?2:ri>=2?1:0;
+  document.querySelector(".dash").dataset.tier=tier;
+  const lv=assetLv();
+  $("assets").textContent=`${CARS_OWN[lv[0]]} · ${HOMES[lv[1]]}`;
+  const phone="010-"+String(1000+(S.name.length*977)%9000)+"-"+String(1000+(S.name.charCodeAt(0)*31)%9000);
+  $("biz").dataset.tier=tier;
+  $("biz").innerHTML=`<div class="co">${b.maker} · ${b.name}</div><div><div class="nm">${S.name}</div><div class="rk">${RANKS[myRank()][0]}${S.team?" · 팀 "+S.team.length+"명":""}${S.titles&&S.titles.length?"<br>「"+S.titles[S.titles.length-1]+"」":""}</div></div><div class="ph">${phone} · ${b.type}</div>`;
+  const nx=RANKS[ri+1];
+  $("next").innerHTML=nx?`<h3>다음 직급: ${nx[0]}</h3><div class="prog"><i style="width:${Math.min(100,(S.pts-RANKS[ri][1])/(nx[1]-RANKS[ri][1])*100)}%;background:var(--marker)"></i></div><small>승진 포인트 ${Math.round(S.pts)} / ${nx[1]} · ${gateText(ri+1)||"직급이 오르면 명함과 계기판이 바뀌어요"}</small>`:`<h3>최고 직급 달성</h3><small>지점장의 명함은 금박입니다.</small>`;
+  $("next").innerHTML+=`<div class="tierRow">${["사원·주임","대리·과장","차장·팀장","지점장"].map((t,i)=>`<span class="${i<=tier?"on":""}">${t}</span>`).join("")}</div>`;
+  $("money").textContent=`₩ ${won(S.cash)}`;
+  $("career").textContent=`누적 ${S.total}대 · 올해 ${S.yearSales}대`;
+  const hpc=S.hp<30?"#F08A82":S.hp<55?"#D9BE8A":"#7FD3BF";
+  const D=S.lastDelta||{};$("gauges").innerHTML=gauge("화술",S.talk,"#C9D3E6",D.talk)+gauge("상품지식",S.know,"#C9D3E6",D.know)+gauge("인맥",S.net,"#C9D3E6",D.net)+gauge("평판",S.rep,"#D9BE8A",D.rep)+gauge("체력",S.hp,hpc,D.hp);$("statHelp").innerHTML=statHelpHtml();
+  $("actions").innerHTML="";
+  ACTIONS.filter(a=>!a.mgr||S.team).forEach(a=>{const e=document.createElement("button");e.className="key";e.innerHTML=`<b>${a.name}</b><span>${a.desc}</span>`;e.onclick=()=>play(a);$("actions").appendChild(e)});
+  $("retireBtn").hidden=S.age<50;
+  // 커리어
+  const mv=Math.round(marketValue()),cd=6-(S.history.length-S.lastHunt);
+  $("careerInfo").innerHTML=S.target
+    ?`<b>🎯 ${BRANDS[S.target].maker} ${BRANDS[S.target].name}</b> 준비 중 ${Math.round(S.prep)}%<div class="prog"><i style="width:${S.prep}%"></i></div><small style="color:var(--sub)">매달 퇴근 후 조금씩 준비해요 (체력 -3). 100%면 면접.</small>`
+    :`<b>내 몸값 지수 ${mv}</b><br><small style="color:var(--sub)">가고 싶은 회사를 정하면 매달 이직 준비가 쌓여요. 잘하면 경쟁사가 먼저 연락합니다.</small>`;
+  $("tgtBtn").textContent=S.target?"목표 바꾸기·포기":"목표 회사 정하기";
+  $("huntBtn").disabled=cd>0;$("huntBtn").textContent=cd>0?`헤드헌터 (${cd}개월 후)`:"헤드헌터 만나기";
+  // 팀
+  $("teamPanel").hidden=!S.team;
+  if(S.team)$("team").innerHTML=S.team.map(m=>`<div class="mate"><b>${m.name}<small style="display:block" title="${(ROLES[m.role]||{}).d||""}">${(ROLES[m.role]||{}).n||""} · 지난달 ${m.last??0}대</small></b><div><small>실력 ${Math.round(m.skill)}</small><div class="prog"><i style="width:${m.skill}%;background:var(--marker)"></i></div></div><div><small>사기 ${Math.round(m.morale)}</small><div class="prog"><i style="width:${m.morale}%"></i></div></div></div>`).join("");
+  // 보드
+  const h=S.history.slice(-36),mx=Math.max(5,...h.map(x=>x.n));
+  $("bars").innerHTML=h.map(x=>`<div class="${x.top?"top":""}" style="height:${Math.max(2,x.n/mx*100)}%" title="${x.label}: ${x.n}대"></div>`).join("");
+  const last=h[h.length-1];
+  $("boardNote").textContent=last?(last.top?`${last.label} 판매왕! 이 기세로!`:`이번 달 목표 ${b.top}대!`):`첫 달 목표 ${b.top}대!`;
+  // 진열장
+  renderExtra();
+  $("shelf").innerHTML=Object.entries(AWARDS).map(([k,[e,n]])=>{const c=S.trophy[k]||0;return `<div class="trophy ${c?"":"off"}" title="${n}"><div class="t">${medal(k)}</div><div class="n">${n}</div><div class="c">${c?"× "+c:"-"}</div><div class="pk">${AWARD_PERK[k][0]}</div></div>`}).join("");
+}
+const CARS_OWN=["대중교통","중고 준중형","신차 SUV","수입 세단","드림카"];
+const HOMES=["원룸 월세","투룸 전세","아파트 전세","아파트 자가","한강뷰 자가"];
+function assetLv(){const c=S.cash;return[c<1500?0:c<4000?1:c<12000?2:c<35000?3:4,c<3000?0:c<10000?1:c<30000?2:c<80000?3:4]}
+function checkAssets(){const [a,h]=assetLv();S.assetMax=S.assetMax||[0,0];if(a>S.assetMax[0]){S.assetMax[0]=a;log(`🔑 자산이 늘어 차를 바꿨어요: ${CARS_OWN[a]}`,"good")}if(h>S.assetMax[1]){S.assetMax[1]=h;log(`🏠 이사했어요: ${HOMES[h]}`,"good")}}
+function autoPick(opts,st){
+  if(st==="safe")return opts.reduce((x,y)=>y.p>x.p?y:x);
+  if(st==="bold")return opts.reduce((x,y)=>y.p<x.p?y:x);
+  const ok=opts.filter(o=>o.p>=.4&&o.p<.95);return ok.length?ok.reduce((x,y)=>y.p<x.p?y:x):opts.reduce((x,y)=>y.p>x.p?y:x);
+}
+const GUIDES={safe:"안전 위주: 실패는 거의 없지만 판매·성장 보너스도 작아요. 판매왕이나 승진을 노린다면 아쉬운 1년이 될 수 있어요.",bal:"균형: 성공 예감이 ‘해볼 만함’ 이상인 선택지 중 보상이 큰 쪽을 골라요. 무난한 성장 루트예요.",bold:"공격적: 항상 가장 큰 보상을 노려요. 대박도 크고 평판·체력 손실도 커요. 체력이 낮을 땐 위험해요."};
+function syncAuto(){const on=$("auto12").checked;$("autoStyle").hidden=!on;$("autoGuide").hidden=!on;$("autoGuide").textContent=GUIDES[$("autoStyle").value]}
+$("auto12").onchange=syncAuto;$("autoStyle").onchange=syncAuto;
+const EMO=/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu;
+const clean=t=>String(t).replace(EMO,"").replace(/\s{2,}/g," ").trim();
+function log(t,c=""){t=clean(t);if(CAP)CAP.push({t,c});if(S){S.logs=S.logs||[];S.logs.push([t,c]);if(S.logs.length>100)S.logs.shift()}const li=document.createElement("li");li.className=c;li.textContent=t;li.title=t;$("log").prepend(li);while($("log").children.length>100)$("log").lastChild.remove()}
+
+// 한 달 진행
+function turn(a,deal){
+  const b=BRANDS[S.brand];
+  for(const [k,v] of Object.entries(a.eff))S[k]=clamp(S[k]+v*rnd(.6,1.4));
+  if(a.id==="sns")S.snsCarry+=1.5;
+  let interviewNow=false;
+  if(S.target){
+    S.prep=Math.min(100,S.prep+rnd(10,18)+S.know/25);S.hp=clamp(S.hp-3);
+    if(S.prep>=100)interviewNow=true;
+    if(Math.random()<.05){S.rep=clamp(S.rep-4);log("👀 팀장님이 모니터에 띄운 이력서를 봤어요… 평판 하락","bad")}
+  }
+  S.hp=clamp(S.hp+a.hp+(a.hp<0&&S.trophy.golden?2:0)+(a.hp<0&&S.bg==="athlete"?2:0)+(a.id==="rest"&&has("rich")?10:0)+(a.id!=="rest"?rnd(-2,2):0));
+  const ageFactor=S.age>50?.9:S.age>40?1:1.05;
+  const cyc=S.cycle.mul*(b.origin==="수입"&&S.cycle.imp?S.cycle.imp:1)*(b.ev?(S.cycle.ev<1&&has("toEv")?(1+S.cycle.ev)/2:S.cycle.ev):1);
+  let leads=b.leads*a.lead*MONTH_MOD[S.month-1]*(1+S.rep/120+S.net/200)*ageFactor*cyc*(S.team?.75:1)*(1+(S.trophy.hof?.1:0)+(has("topBrand")?.05:0)+(S.team?S.team.filter(m=>m.role==="digital").length*.08:0))+S.snsCarry;
+  S.snsCarry*=.6;
+  if(S.leaveMonths>0){leads*=.1;S.leaveMonths--;S.hp=clamp(S.hp+15);log("🏠 휴직 중이라 영업을 거의 못 했어요.")}
+  const hpPenalty=S.hp<25?.5:S.hp<45?.8:1;
+  const conv=clamp((.18+(S.talk+S.know)/350)*b.conv*hpPenalty+(has("allround")?.03:0)+(has("dom2imp")&&b.origin==="수입"?.03:0),0,.85);
+  let sold=0;for(let i=0;i<Math.round(leads*rnd(.7,1.3));i++)if(Math.random()<conv)sold++;
+  let dealComm=0;
+  if(deal){
+    const ok=Math.random()<deal.p,r=ok?deal.win:(deal.lose||{});
+    let add=r.sold||0;if(add>0&&b.ptPer>=6)add=Math.random()<.3*add?1:0;sold=Math.max(0,sold+add);dealComm+=b.comm*(r.comm||0);applyFx(r);
+    log(`${ok?"✅":"❌"} ${deal.title}: ${r.t||(ok?"성공":"실패")}`,ok?"good":"bad");
+    if(ok&&deal.full){S.negoWins++;if(S.negoWins%10===0)award("nego",`(정가 계약 ${S.negoWins}건)`)}
+  }
+  const ev=Math.random();
+  if(ev<.05&&(b.ptPer<6||Math.random()<.3)){sold+=b.ptPer>=6?1:Math.ceil(rnd(2,6)*(b.ptPer>1?.5:1));log("🎉 법인 단체 계약 성사! 추가 판매가 붙었어요.","good")}
+  else if(ev<.09){const l=Math.min(sold,Math.ceil(rnd(1,3)));sold-=l;log(`⚠️ 출고 지연으로 ${l}대가 다음으로 넘어갔어요.`,"bad")}
+  else if(ev<.12){S.rep=clamp(S.rep-6);log("😣 고객 클레임이 커뮤니티에 올라갔어요. 평판 하락.","bad")}
+  else if(ev<.15){S.rep=clamp(S.rep+5);log(`🚘 신차 ${pick(b.cars)} 부분변경 출시! 문의가 늘었어요.`,"good")}
+  let teamSales=0;
+  if(S.team){
+    teamSales=teamMonth(b,cyc,a);
+    const q=S.team.find(m=>m.morale<25&&Math.random()<.35);
+    if(q){S.team=S.team.filter(m=>m!==q);S.team.push(newMate());S.rep=clamp(S.rep-3);log(`😢 ${q.name} 팀원이 퇴사했어요. 신입이 들어옵니다.`,"bad")}
+    S.teamTotal+=teamSales;
+    if(teamSales>=b.top*S.team.length)award("team",`(팀 ${teamSales}대)`);
+  }
+  const ri=myRank();
+  const salary=b.base*(1+ri*.12)*(1+(S.baseBonus||0));
+  const mix=sellMix(b,sold);const commission=(mix.comm+dealComm)*(1+S.rep/300)+teamSales*b.comm*.12;
+  const living=180+(S.married?120:0)+(S.kids||0)*60-(S.home?60:0);
+  S.cash+=salary+commission-living;S.earned+=salary+commission;
+  const prevTotal=S.total;
+  S.total+=sold;S.yearSales+=sold;S.best=Math.max(S.best,sold);
+  S.pts+=sold*b.ptPer+teamSales*b.ptPer*.2;tryPromote();
+  let top=sold>=b.top+ri*.5*(b.ptPer>1?.4:1);
+  top=rivalMonth(b,cyc,top,sold);
+  S.history.push({n:sold,top,label:`${S.year}.${S.month}`});
+  S.last={sold,leads:Math.round(leads),top,teamSales};
+  log(`${S.year}.${S.month} ${a.name} → ${sold}대${S.team?` · 팀 ${teamSales}대`:""}, 수입 ${won(salary+commission)}원`,sold?"":"bad");
+  if(mix.text)log(`🚗 판매 차종: ${mix.text} (판매액 ${won(mix.rev)}원)`);
+  if(top)award("month",`(${S.month}월 ${sold}대)`);
+  if(S.month%3===0){const q=S.history.slice(-3).reduce((s,x)=>s+x.n,0);if(q>=b.top*3*.85)award("quarter",`(${S.month/3}분기 ${q}대)`)}
+  [[100,"c100"],[500,"c500"],[1000,"c1000"]].forEach(([n,k])=>{if(prevTotal<n&&S.total>=n)award(k)});
+  ensureTeam();
+  if(!S.hof&&S.total>=b.hof){S.hof=true;award("hof",`(누적 ${S.total}대)`)}
+  if(S.hp<=0){S.burnouts++;S.hp=50;S.cash-=300;log(`🏥 과로로 쓰러졌어요. 치료비 300만 원. (번아웃 ${S.burnouts}회)`,"bad");
+    if(S.burnouts>=3+(has("survivor")?1:0)){endGame("건강 악화로 은퇴");return true}}
+  // 시간
+  S.month++;
+  if(S.month>12){
+    log(`🎤 ${S.year}년 연말 시상식`,"");
+    rivalYear();
+    const yt=b.top*12*.85;let any=false;
+    if(S.firstYear&&S.yearSales>=b.top*12*.5){award("rookie",`(${S.yearSales}대)`);any=true}
+    if(S.yearSales>=yt){award("yearTop",`(${S.yearSales}대)`);S.cash+=b.comm*10;S.rep=clamp(S.rep+5);S.topStreak++;any=true;
+      if(S.topStreak===3)award("golden")}else S.topStreak=0;
+    if(S.yearSales>=b.top*12*1.1){award("grand",`(${b.maker})`);S.cash+=b.comm*15;any=true}
+    if(S.rep>=80){award("cs");any=true}
+    if(S.year-S.joinedYear+1===10){award("loyal",`(${b.name})`);any=true}
+    if(S.age===44&&S.burnouts===0){award("iron");any=true}
+    if(!any)log("올해는 수상하지 못했어요. 내년을 노려봅시다.","bad");
+    S.lastYearSales=S.yearSales;S.firstYear=false;S.month=1;S.year++;S.age++;S.yearSales=0;
+    if(S.age>45)S.hp=clamp(S.hp-3);
+    S.net=clamp(S.net+1);
+    if(Math.random()<.4){const c=pick(CYCLES.filter(c=>c!==S.cycle&&!c.special));S.cycle=c;log(`📰 ${S.year}년 업계 흐름: ${c.name}`,c.mul<1||c.ev<1?"bad":"good")}
+    if(S.age>=60){endGame("정년 은퇴");return true}
+    if(!S.married&&S.age>=30&&S.age<=38&&Math.random()<.35){ask("결혼 제안","오랜 연인과 결혼 이야기가 나왔어요. 생활비는 늘지만 마음이 든든해집니다.",
+      [["결혼한다",()=>{S.married=true;S.cash-=3000;S.hp=clamp(S.hp+20);log("💍 결혼했습니다. 축하해요!","good")}],["아직은",()=>{}]]);return true}
+    if(Math.random()<.2){industryEvent();return true}
+    if(Math.random()<.3&&lifeEvent())return true;
+    if(marketValue()>=25&&Math.random()<.5){transferMarket("새해 이적 시장이 열렸어요");return true}
+  }
+  if(S.month===2&&S.year>2027&&S.salaryYear!==S.year){S.salaryYear=S.year;salaryTalk();return true}
+  if(S.month===7&&Math.random()<.35&&lifeEvent())return true;
+  if(interviewNow){interview();return true}
+  if((top||marketValue()>=55)&&S.history.length-S.lastOfferAt>=6&&Math.random()<(top?.35:.12)){
+    transferMarket(top?"판매왕 소식을 들은 경쟁사에서 연락이 왔어요":"업계에 소문이 나서 스카우트 제안이 들어왔어요");return true}
+  return false;
+}
+
+// 이직
+function marketValue(){if(!S)return 0;const b=BRANDS[S.brand];const r=S.history.slice(-12).reduce((s,x)=>s+x.n,0);return r*b.ptPer/3+S.rep/2+myRank()*4+(S.team?6:0)}
+function moveCost(from,to){return to.mk===from.mk?0:to.origin===from.origin?1:2}
+const COST_TXT=["같은 브랜드 내 이동: 단골 일부가 따라와요","브랜드 변경: 인맥·상품지식 일부 손실","업종 전환(국산·수입·전기차): 인맥·상품지식 크게 손실"];
+function transferMarket(reason){
+  const cur=BRANDS[S.brand],mv=marketValue();S.lastOfferAt=S.history.length;
+  const pool=DEALERS.filter(d=>d.id!==S.brand).map(d=>({d:BRANDS[d.id],w:(d.mk===cur.mk?1.5:0)+(BRANDS[d.id].origin===cur.origin?.5:0)+Math.random()*1.5})).sort((x,y)=>y.w-x.w);
+  const n=mv>=60?3:mv>=30?2:1;
+  const offers=pool.slice(0,n).map(({d})=>({d,sign:Math.round(d.comm*rnd(4,9)*(1+mv/80)*(has("bird")?1.3:1)/10)*10,promote:mv>=45&&Math.random()<.5&&myRank()<RANKS.length-1}));
+  const html=`${reason}. 지금 내 몸값 지수는 <b>${Math.round(mv)}</b>입니다.<br><br>`+offers.map(o=>`<b>${o.d.maker} ${o.d.name}</b> (${o.d.type})<br>사이닝 보너스 ${won(o.sign)}원 · 대당 수당 ${o.d.comm}만${o.promote?" · 한 직급 위로 영입":""}<br><small>${COST_TXT[moveCost(cur,o.d)]}</small>`).join("<br><br>")+`<br><br><small>남으면 ${cur.name}에서 기본급을 10% 올려준답니다.</small>`;
+  const opts=offers.map(o=>[`${o.d.name}로 이적`,()=>moveTo(o)]);
+  opts.push(["잔류하기",()=>{S.baseBonus=(S.baseBonus||0)+.1;S.rep=clamp(S.rep+2);log(`🤝 ${cur.name}에 남았습니다. 기본급 10% 인상.`,"good")}]);
+  ask("이적 시장",html,opts);
+}
+$("huntBtn").onclick=()=>{if(busy)return;S.lastHunt=S.history.length;transferMarket("헤드헌터가 제안서를 들고 왔어요")};
+$("tgtBtn").onclick=()=>{if(busy)return;pickTarget()};
+function pickTarget(){
+  const opts=Object.entries(MAKERS).map(([k,m])=>{const ds=DEALERS.filter(d=>d.mk===k&&d.id!==S.brand);return ds.length?`<optgroup label="${m.maker} (${m.origin})">`+ds.map(d=>`<option value="${d.id}" ${d.id===S.target?"selected":""}>${d.name} · ${d.type}</option>`).join("")+"</optgroup>":""}).join("");
+  $("modalBody").innerHTML=`<h2 style="font-size:26px">어디로 가고 싶나요?</h2><p>목표 회사를 정하면 매달 퇴근 후 이직 준비가 쌓이고, 100%가 되면 면접을 봅니다. 업종을 바꿀수록 면접이 어려워요.</p>
+  <select id="tgtSel" aria-label="목표 회사">${opts}</select><p id="tgtInfo" style="font-size:13px;color:var(--sub)"></p>
+  <div class="row"><button class="go" id="tgtOk">이 회사로 준비</button>${S.target?'<button class="ghost" id="tgtDrop">준비 포기</button>':""}<button class="ghost" id="tgtNo">닫기</button></div>`;
+  const info=()=>{const d=BRANDS[$("tgtSel").value];$("tgtInfo").textContent=`${d.desc} 기본급 ${d.base}만 · 대당 수당 ${d.comm}만 · ${COST_TXT[moveCost(BRANDS[S.brand],d)]}`};
+  $("tgtSel").onchange=info;info();
+  const close=()=>{$("modal").hidden=true;render()};
+  $("tgtOk").onclick=()=>{const t=$("tgtSel").value;if(t!==S.target){S.target=t;S.prep=0;log(`🎯 목표 회사: ${BRANDS[t].name}. 준비를 시작합니다.`)}close()};
+  if(S.target)$("tgtDrop").onclick=()=>{S.target=null;S.prep=0;log("이직 준비를 접었습니다.");close()};
+  $("tgtNo").onclick=close;
+  $("modal").hidden=false;$("tgtSel").focus();
+}
+function interview(){
+  const t=BRANDS[S.target],cur=BRANDS[S.brand];
+  const diff=[0,10,25][moveCost(cur,t)]+(t.ptPer>=6?10:0);
+  const score=marketValue()+S.talk/2+S.know/2-diff+rnd(-15,15);
+  const clear=()=>{S.target=null;S.prep=0};
+  if(score>=60){
+    const o={d:t,sign:Math.round(t.comm*rnd(2,5)/10)*10,promote:score>=95&&myRank()<RANKS.length-1};
+    ask("최종 합격!",`<b>${t.maker} ${t.name}</b>에서 함께하자는 연락이 왔어요.<br>입사 축하금 ${won(o.sign)}원 · 대당 수당 ${t.comm}만${o.promote?" · 한 직급 위로 입사":""}`,
+      [["입사한다",()=>{moveTo(o);clear()}],["거절하고 남는다",()=>{clear();log(`${t.name} 합격을 거절하고 남았습니다.`)}]]);
+  }else{
+    ask("불합격",`${t.name} 면접에서 떨어졌어요. ${diff>=25?"업종을 바꾸는 이직이라 상품지식을 더 보여줘야 했어요.":"실적과 평판을 조금 더 쌓아보세요."}`,
+      [["다시 준비한다",()=>{S.prep=40;log(`${t.name} 재도전 준비 (40%부터)`)}],["포기한다",()=>{clear();log("이직 준비를 접었습니다.")}]]);
+  }
+}
+function moveTo(o){
+  const cur=BRANDS[S.brand],d=o.d,c=moveCost(cur,d);
+  if(c===0){S.net=clamp(S.net-4);S.snsCarry+=3}
+  else if(c===1){S.net=clamp(S.net-12);S.know=clamp(S.know-10)}
+  else{S.net=clamp(S.net-20);S.know=clamp(S.know-18);S.rep=clamp(S.rep-5)}
+  if(o.promote&&gateOk(myRank()+1)){S.rank=myRank()+1;S.pts=Math.max(S.pts,RANKS[S.rank][1]);grantTitles()}
+  if(cur.origin==="국산"&&d.origin==="수입")unlock("dom2imp");
+  if(cur.origin!=="전기차"&&d.origin==="전기차")unlock("toEv");
+  S.cash+=o.sign;S.brand=d.id;S.switched++;S.baseBonus=0;S.path.push(`${d.maker} ${d.name}`);S.team=null;S.target=null;S.prep=0;S.joinedYear=S.year;
+  log(`🔁 ${d.maker} ${d.name}로 이적! 사이닝 보너스 ${won(o.sign)}원${o.promote?", "+RANKS[myRank()][0]+"(으)로 영입":""}`,"award");
+  ensureTeam(true);
+  if(S.switched>=4){S.rep=clamp(S.rep-6);log("🐦 잦은 이직으로 '철새 딜러'라는 소문이 돕니다. 평판 하락.","bad")}
+}
+
+// 모달
+function ask(title,text,opts){
+  render();
+  $("modalBody").innerHTML=`<h2>${clean(title)}</h2><p>${text}</p><div class="row" id="mopts"></div>`;
+  opts.forEach(([l,f],i)=>{const btn=document.createElement("button");btn.className=i?"ghost":"go";btn.textContent=l;btn.onclick=()=>{$("modal").hidden=true;f();if(S&&!S.over)render()};$("mopts").appendChild(btn)});
+  $("modal").hidden=false;
+}
+$("retireBtn").onclick=()=>ask("조기 은퇴",`${S.age}세에 영업 일선을 떠날까요?`,[["은퇴한다",()=>endGame("조기 은퇴")],["더 뛴다",()=>{}]]);
+
+// 연출
+const fast=()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
+const w=ms=>(skipping||fast())?Promise.resolve():sleep(ms);
+function addLine(t,c=""){const p=document.createElement("p");p.className=c;p.textContent=clean(t);$("stageLines").appendChild(p)}
+function stOpen(tag){skipping=false;$("autoTag").textContent=tag||"";$("stopBtn").hidden=!tag;$("stageLines").innerHTML="";$("stageOut").innerHTML="";$("choices").innerHTML="";$("stageNum").textContent="";$("stageNum").className="";$("stageOk").hidden=true;$("skipHint").hidden=false;$("stage").hidden=false}
+$("stage").onclick=()=>{skipping=true};
+$("stopBtn").onclick=e=>{e.stopPropagation();S.stopAuto=true;$("stopBtn").textContent="이번 달까지만 진행";};
+
+function narr(a){
+  const b=BRANDS[S.brand],car=pick(b.cars),L=[],m=S.month;
+  L.push(m===3?"3월 신차 시즌, 전시장이 북적입니다.":m===12?"연말 프로모션 마감 주간. 다들 막판 스퍼트 중입니다.":(m===1||m===8)?"비수기라 전시장이 한산합니다…":`${m}월, ${RANKS[myRank()][0]} ${S.name}의 한 달이 시작됩니다.`);
+  L.push({floor:b.ev?`${car} 시승 예약 고객을 맞이합니다.`:`${car} 앞에서 손님을 기다립니다.`,pioneer:"명함 한 뭉치를 들고 거래처를 돕니다.",sns:`${car} 시승 영상을 찍어 올립니다.`,study:`신형 ${car} 금융 프로그램을 파고듭니다.`,coach:"팀원들과 롤플레이로 상담 연습을 합니다.",rest:"오랜만에 휴대폰을 무음으로 돌려둡니다."}[a.id]);
+  if(S.cycle.name!=="평년")L.push(b.ev&&S.cycle.ev!==1?`전기차 시장 분위기: ${S.cycle.name}. 문의 전화가 ${S.cycle.ev>1?"쏟아집니다":"뚝 끊겼습니다"}.`:`업계는 ${S.cycle.name}. 고객들 지갑이 ${S.cycle.mul>=1?"열려 있어요":"닫혀 있어요"}.`);
+  if(S.hp<30)L.push("며칠째 야근이 이어져 눈꺼풀이 무겁습니다…");
+  else if(S.hp>85)L.push("컨디션 최상. 오늘따라 말이 잘 풀릴 것 같습니다.");
+  if(S.target)L.push(`퇴근 후엔 ${BRANDS[S.target].name} 면접 준비. 아무에게도 말하지 않았습니다.`);
+  if(S.rep>=60&&a.id!=="rest")L.push("“영상 보고 왔어요” 하는 손님이 문을 엽니다.");
+  if(S.net>=60&&a.id==="pioneer")L.push("예전 고객이 회사 동료를 소개해 줬습니다.");
+  if(S.team&&S.team.some(t=>t.morale<35))L.push("팀 분위기가 가라앉아 있습니다. 누군가 퇴사를 고민하는 눈치예요.");
+  if(S.married&&Math.random()<.3)L.push("집에서 응원 문자가 옵니다. 힘내자.");
+  const r=S.history[S.history.length-1];
+  if(r&&!r.top&&r.n>=b.top-2)L.push(`지난달 ${r.n}대, 판매왕까지 한 끗이었습니다. 이번엔…`);
+  if(m===12)L.push(`올해 지금까지 ${S.yearSales}대. 연말 시상식이 걸린 마지막 달입니다.`);
+  if(S.age>=55)L.push("정년이 보입니다. 남은 시간이 아깝습니다.");
+  return L;
+}
+// ───── 행동별 선택 이벤트 ─────
+// cost: 선택 즉시 적용 / win·lose: 결과에 따라 적용
+// sold: 추가 판매, comm: 대당 수당 대비 추가 수당 배수, fx: 능력치 변화, cash: 만원, team: 팀 효과
+function scenario(a){
+  const b=BRANDS[S.brand],car=pick(b.cars),imp=b.ptPer>1,q=n=>imp?Math.max(1,Math.round(n/2)):n;
+  const T=S.talk,K=S.know,N=S.net,R=S.rep,H=S.hp;
+  const P={
+    floor:b.ev?[
+      {title:"보조금 문의",text:`${car} 계약을 고민하는 고객. “보조금 이번 달 안에 나오는 거 맞죠?”`,opts:[
+        {l:"지자체별 보조금 일정을 정확히 안내",s:"상품지식",p:.25+K/150,win:{sold:1,fx:{rep:2},t:"꼼꼼한 안내에 바로 주문"},lose:{t:"정보가 틀려 고객이 망설여요",fx:{rep:-2}}},
+        {l:"즉시 출고 가능한 재고를 찾아본다",s:"인맥",p:.2+N/150,win:{sold:1,t:"재고 확보 성공, 이번 달 출고"},lose:{t:"재고가 없었어요"}},
+        {l:"다음 차수 보조금까지 기다리시라 권유",s:"평판",p:.3+R/200,win:{fx:{rep:3},t:"신뢰를 얻어 다음 달 재방문 약속"},lose:{t:"고객이 연락을 끊었어요"}}]},
+      {title:"자율주행 질문",text:`시승 중인 고객. “이거 진짜 혼자 운전하는 거예요?”`,opts:[
+        {l:"기능의 한계까지 솔직하게 설명",s:"상품지식",p:.3+K/160,win:{sold:1,fx:{rep:3},t:"정직함이 통했어요"},lose:{t:"기대보다 별로라며 돌아갔어요"}},
+        {l:"직접 고속도로로 시승을 연장",s:"체력",cost:{fx:{hp:-6}},p:.3+H/220,win:{sold:1,t:"직접 경험하고 바로 주문"},lose:{t:"차가 막혀 체험을 못 했어요"}},
+        {l:"차주 커뮤니티 후기를 보여준다",s:"인맥",p:.25+N/170,win:{sold:1,fx:{net:2},t:"차주 소개로 계약"},lose:{t:"부정적인 후기도 같이 봐버렸어요"}}]}
+    ]:[
+      {title:"가격 협상",text:`${pick(["법인 대표","신혼부부","3대째 단골 가족","개원 준비 중인 의사"])}가 ${car} 견적서를 봅니다. “조금만 더 빼주시면 오늘 계약할게요.”`,opts:[
+        {l:"크게 할인해 준다",s:"확률 높음 · 수당 60% 감소",p:.9,win:{sold:1,comm:-.6,t:"계약은 했지만 남는 게 없어요"},lose:{t:"그래도 안 됐어요"}},
+        {l:"용품·서비스로 방어",s:"화술",p:.4+T/220,win:{sold:1,comm:-.15,t:"썬팅·블랙박스로 마무리"},lose:{t:"다른 지점 견적을 받으러 갔어요"}},
+        {l:"정가로 밀고 간다",s:"화술 + 평판",p:.12+(T+R)/280,full:true,win:{sold:1,comm:.2,fx:{rep:3},t:"정가 계약 성공"},lose:{t:"너무 비싸다며 나갔어요",fx:{rep:-1}}}]},
+      {title:"경쟁사 비교 고객",text:`“옆 매장에서 비슷한 차를 더 싸게 준다던데요?”`,opts:[
+        {l:"사양·잔존가치를 숫자로 비교해 준다",s:"상품지식",p:.25+K/140,win:{sold:1,fx:{know:1},t:"비교표에 설득됐어요"},lose:{t:"결국 숫자 싸움에서 밀렸어요"}},
+        {l:`${car} 시승부터 해보시라 권한다`,s:"체력",cost:{fx:{hp:-5}},p:.3+H/230,win:{sold:1,t:"운전해 보더니 마음이 바뀌었어요"},lose:{t:"시승은 좋았는데 가격이 걸린대요"}},
+        {l:"“천천히 비교해 보세요” 하고 보낸다",s:"평판",p:.2+R/180,win:{fx:{rep:2},sold:1,t:"며칠 뒤 다시 와서 계약"},lose:{t:"연락이 없어요"}}]},
+      {title:"할부 상담",text:`“월 납입금이 부담돼서요… 방법이 없을까요?”`,opts:[
+        {l:"금융 프로그램을 맞춤 설계",s:"상품지식",p:.2+K/130,win:{sold:1,comm:.15,t:"금융 수수료까지 챙겼어요"},lose:{t:"승인이 거절됐어요"}},
+        {l:"한 단계 아래 트림을 제안",s:"화술",p:.45+T/260,win:{sold:1,comm:-.3,t:"하위 트림으로 계약"},lose:{t:"원하는 차가 아니라며 보류"}},
+        {l:"타던 차 매입처를 연결해 준다",s:"인맥",p:.2+N/140,win:{sold:1,fx:{net:2},t:"중고차 처분까지 해결"},lose:{t:"매입가가 기대보다 낮았어요"}}]}
+    ],
+    pioneer:[
+      {title:"법인차 교체 건",text:`거래처 중소기업이 업무용 차 ${q(3)}대를 바꾼다고 합니다.`,opts:[
+        {l:"대표를 직접 만나 설득",s:"화술",p:.15+T/150,win:{sold:q(3),t:"한 번에 일괄 계약!"},lose:{t:"다른 딜러가 먼저 다녀갔어요"}},
+        {l:"총무팀 지인 라인을 탄다",s:"인맥",p:.15+N/130,win:{sold:q(3),fx:{net:2},t:"내부 추천으로 계약"},lose:{t:"지인이 힘이 없었어요"}},
+        {l:"플릿 할인 견적을 먼저 던진다",s:"확률 높음 · 수당 크게 감소",p:.75,win:{sold:q(2),comm:-q(2)*.5,t:"계약은 했지만 마진은 얇아요"},lose:{t:"더 싼 곳이 있었어요"}}]},
+      {title:"동창회 자리",text:"오랜만의 동창회. 차 바꿀 때 된 친구들이 몇 보입니다.",opts:[
+        {l:"자연스럽게 명함을 돌린다",s:"평판",p:.25+R/170,win:{sold:1,fx:{net:3},t:"친구 한 명이 바로 연락해 왔어요"},lose:{t:"영업한다고 뒷말이 나왔어요",fx:{rep:-2}}},
+        {l:"2차, 3차까지 끝까지 함께한다",s:"체력 · 인맥",cost:{fx:{hp:-12}},p:.25+(N+H)/300,win:{sold:q(2),fx:{net:5},t:"새벽에 계약 2건 약속"},lose:{t:"숙취만 남았어요"}},
+        {l:"일찍 빠져서 쉰다",s:"안전",p:1,win:{fx:{hp:5,net:-1},t:"푹 쉬었어요"}}]},
+      {title:"옛 고객의 불만",text:"2년 전 차를 판 고객이 잔고장 때문에 화가 많이 났다는 소식이 들립니다.",opts:[
+        {l:"직접 찾아가 사과하고 해결",s:"화술",cost:{fx:{hp:-5}},p:.35+T/180,win:{fx:{rep:5,net:3},sold:1,t:"감동한 고객이 지인을 소개했어요"},lose:{fx:{rep:-2},t:"사과는 받았지만 마음은 안 풀렸어요"}},
+        {l:"서비스센터 담당자를 연결",s:"상품지식",p:.3+K/170,win:{fx:{rep:3},t:"빠르게 수리됐어요"},lose:{fx:{rep:-3},t:"수리가 늦어져 더 화가 났어요"}},
+        {l:"이미 끝난 건이라 넘긴다",s:"평판이 높으면 버팀",p:R/130,win:{t:"별일 없이 지나갔어요"},lose:{fx:{rep:-7},t:"커뮤니티에 실명 후기가 올라왔어요"}}]}
+    ],
+    sns:[
+      {title:"영상 반응 폭발",text:`올린 ${car} 리뷰 영상 조회수가 갑자기 오르고 있어요.`,opts:[
+        {l:"후속 롱폼 영상을 밤새 만든다",s:"상품지식 · 체력",cost:{fx:{hp:-8}},p:.2+(K+H)/260,win:{fx:{rep:5},carry:5,t:"구독자 급증! 문의가 몰려요"},lose:{t:"후속편은 반응이 미지근했어요"}},
+        {l:"라이브 상담 방송을 연다",s:"화술",p:.2+T/150,win:{sold:1,fx:{rep:3},carry:3,t:"라이브 중 계약 성사"},lose:{fx:{rep:-1},t:"말이 꼬여 댓글이 시끄러웠어요"}},
+        {l:"광고비 100만 원을 태운다",s:"자금",cost:{cash:-100},p:.75,win:{carry:4,t:"광고 효과로 리드 확보"},lose:{t:"돈만 썼어요"}}]},
+      {title:"악성 댓글",text:"“딜러가 사기 친다”는 댓글이 달리고 공유되기 시작했어요.",opts:[
+        {l:"영상으로 정면 해명",s:"화술 + 평판",p:.15+(T+R)/250,win:{fx:{rep:6},t:"오히려 팬이 늘었어요"},lose:{fx:{rep:-6},t:"해명이 역효과를 냈어요"}},
+        {l:"영상을 조용히 내린다",s:"안전",p:1,win:{fx:{rep:-2},t:"잠잠해졌지만 구독자가 조금 줄었어요"}},
+        {l:"단골 고객들이 대신 반박해 준다",s:"인맥",p:.2+N/140,win:{fx:{rep:4,net:2},t:"고객들이 나서서 지켜줬어요"},lose:{fx:{rep:-4},t:"아무도 나서지 않았어요"}}]}
+    ],
+    study:[
+      {title:"브랜드 인증 시험",text:`${b.maker} 공식 세일즈 인증 시험이 다음 주입니다.`,opts:[
+        {l:"밤새 공부한다",s:"체력",cost:{fx:{hp:-10}},p:.3+H/180,win:{fx:{know:6,rep:3},cash:100,t:"합격! 자격 수당 100만 원"},lose:{fx:{know:2},t:"아깝게 떨어졌어요"}},
+        {l:"기출 위주로 효율 있게",s:"상품지식",p:.2+K/120,win:{fx:{know:4,rep:2},cash:100,t:"합격! 자격 수당 100만 원"},lose:{t:"기출에 없던 문제가 나왔어요"}},
+        {l:"선배 노트를 빌린다",s:"인맥",p:.2+N/140,win:{fx:{know:3,net:2},cash:100,t:"합격하고 선배와도 가까워졌어요"},lose:{t:"노트가 구버전이었어요"}}]},
+      {title:"금융 세미나",text:"캐피탈사가 리스·렌트 신상품 세미나를 엽니다.",opts:[
+        {l:"끝까지 듣고 담당자와 명함 교환",s:"화술",p:.35+T/200,win:{fx:{know:3,net:3},t:"캐피탈 담당자와 라인을 텄어요"},lose:{fx:{know:2},t:"내용만 챙겼어요"}},
+        {l:"배운 내용으로 고객 리스트에 전화",s:"상품지식",p:.2+K/140,win:{sold:1,fx:{know:2},t:"리스 갈아타기 고객 계약"},lose:{t:"다들 아직 만기가 남았대요"}},
+        {l:"자료만 챙기고 일찍 쉰다",s:"안전",p:1,win:{fx:{know:1,hp:5},t:"쉬면서 자료를 읽었어요"}}]}
+    ],
+    coach:[
+      {title:"슬럼프 팀원",text:"한 팀원이 석 달째 0대입니다. 표정이 어둡습니다.",opts:[
+        {l:"저녁 먹으며 1:1 면담",s:"화술",p:.3+T/170,win:{team:{morale:12,skill:4},t:"다시 의욕을 찾았어요"},lose:{team:{morale:-5},t:"속마음은 듣지 못했어요"}},
+        {l:"내 고객 한 명을 넘겨준다",s:"인맥",p:.35+N/180,win:{team:{morale:10,skill:6},sold:-1,t:"첫 계약으로 자신감 회복"},lose:{sold:-1,t:"고객도 놓치고 팀원도 그대로예요"}},
+        {l:"실적 압박으로 정신 차리게 한다",s:"평판",p:.15+R/200,win:{team:{skill:5,morale:-4},t:"이를 악물고 따라왔어요"},lose:{team:{morale:-15},t:"팀 분위기가 싸늘해졌어요"}}]},
+      {title:"고객 쟁탈전",text:"두 팀원이 같은 고객을 서로 자기 고객이라고 다툽니다.",opts:[
+        {l:"기록을 보고 원칙대로 판정",s:"상품지식",p:.3+K/160,win:{team:{morale:5},fx:{rep:2},t:"모두 결과에 승복했어요"},lose:{team:{morale:-6},t:"한쪽이 불만을 품었어요"}},
+        {l:"반반 나누게 중재",s:"화술",p:.35+T/170,win:{team:{morale:8},t:"웃으며 마무리됐어요"},lose:{team:{morale:-4},t:"둘 다 서운해해요"}},
+        {l:"내가 직접 맡아 계약한다",s:"화술",p:.4+T/200,win:{sold:1,team:{morale:-8},t:"계약은 했지만 팀원들 눈치가…"},lose:{team:{morale:-10},t:"고객까지 놓쳤어요"}}]}
+    ],
+    rest:[
+      {title:"휴가 중 걸려온 전화",text:"휴가 첫날, 오래된 단골에게서 전화가 옵니다.",opts:[
+        {l:"받아서 원격으로 계약까지",s:"인맥 · 체력",cost:{fx:{hp:-10}},p:.3+(N+H)/300,win:{sold:1,fx:{net:2},t:"휴가지에서 계약 성공"},lose:{t:"통화만 길어졌어요"}},
+        {l:"믿을 만한 동료에게 넘긴다",s:"평판",p:.3+R/170,win:{fx:{rep:3,hp:5},t:"동료가 잘 처리했고 고마워해요"},lose:{fx:{net:-2},t:"동료가 놓쳐버렸어요"}},
+        {l:"휴대폰을 끈다",s:"안전",p:1,win:{fx:{hp:10,net:-2},t:"제대로 쉬었어요"}}]},
+      {title:"휴가 계획",text:S.married?"가족들이 이번엔 꼭 여행 가자고 합니다.":"오랜만에 생긴 긴 휴가입니다.",opts:[
+        {l:"해외여행 (200만 원)",s:"자금",cost:{cash:-200},p:1,win:{fx:{hp:20,talk:2},t:"완전히 충전됐어요"}},
+        {l:"운동과 건강검진",s:"체력",p:.6+H/300,win:{fx:{hp:15},t:"몸이 가벼워졌어요"},lose:{fx:{hp:6},t:"무리해서 근육통이 왔어요"}},
+        {l:"집에서 차 유튜브 정주행",s:"안전",p:1,win:{fx:{hp:8,know:2},t:"쉬면서 공부도 조금"}}]}
+    ]
+  };
+  // 조건부 이벤트
+  if(S.rival&&S.rival.brand===S.brand)P.floor.push({title:"라이벌의 견제",text:`라이벌 ${S.rival.name}이(가) 내가 상담하던 고객에게 더 싼 견적을 냈대요.`,opts:[
+    {l:"고객에게 직접 전화해 마음을 잡는다",s:"화술 + 인맥",p:.15+(T+N)/260,win:{sold:1,fx:{rep:2},t:"고객이 끝까지 내 편이었어요"},lose:{t:"라이벌에게 계약을 뺏겼어요"}},
+    {l:"팀장에게 공정한 배분을 요청",s:"평판",p:.2+R/170,win:{sold:1,t:"원칙대로 내 고객으로 인정됐어요"},lose:{fx:{rep:-2},t:"고자질한다는 소문만 났어요"}},
+    {l:"쿨하게 넘기고 다른 고객에 집중",s:"안전",p:1,win:{fx:{talk:1},t:"마음은 쓰리지만 다음을 노립니다"}}]});
+  if(b.ptPer>=6)P.floor.push({title:"VIP 의전",text:"재력가 고객이 프라이빗 출고 행사를 원합니다.",opts:[
+    {l:"샴페인과 꽃까지 완벽한 출고식",s:"자금",cost:{cash:-150},p:.75,win:{sold:1,comm:.3,fx:{rep:4},t:"고객이 지인 두 명을 소개했어요"},lose:{t:"일정이 꼬여 감동이 반감됐어요"}},
+    {l:"차량 지식으로 승부하는 1:1 브리핑",s:"상품지식",p:.15+K/130,win:{sold:1,fx:{know:2},t:"전문성에 반해 계약"},lose:{t:"취향이 아니었대요"}},
+    {l:"골프 라운딩에 동행",s:"인맥 · 체력",cost:{fx:{hp:-10}},p:.2+(N+H)/280,win:{sold:2,fx:{net:5},t:"라운딩 멤버까지 계약!"},lose:{t:"스코어만 나빴어요"}}]});
+  if(b.ev)P.floor.push({title:"리콜 공지",text:"소프트웨어 리콜 소식에 출고 대기 고객들의 문의가 빗발칩니다.",opts:[
+    {l:"고객 전원에게 직접 상황을 설명",s:"화술 · 체력",cost:{fx:{hp:-8}},p:.25+(T+H)/280,win:{fx:{rep:6},t:"신뢰가 오히려 올라갔어요"},lose:{fx:{rep:-4},t:"취소가 몇 건 나왔어요"}},
+    {l:"기술 FAQ를 정리해 단톡방에 공유",s:"상품지식",p:.25+K/150,win:{fx:{rep:4,know:2},t:"정리 자료가 커뮤니티에 퍼졌어요"},lose:{fx:{rep:-2},t:"오히려 질문이 더 늘었어요"}},
+    {l:"본사 공지만 전달한다",s:"안전",p:1,win:{fx:{rep:-1},t:"조용히 지나갔어요"}}]});
+  if(S.team)P.coach.push({title:"본사 실적 회의",text:"본사에서 지점 실적이 부진하다며 대책을 요구합니다.",opts:[
+    {l:"데이터로 반론하고 지원을 요청",s:"상품지식 + 평판",p:.15+(K+R)/260,win:{fx:{rep:4},team:{morale:8},t:"프로모션 예산을 따냈어요"},lose:{fx:{rep:-3},t:"변명으로 들렸나 봐요"}},
+    {l:"팀원들과 특별 판매 주간을 연다",s:"화술 · 체력",cost:{fx:{hp:-8}},p:.3+(T+H)/300,win:{sold:2,team:{skill:3},t:"팀 전체 실적이 반등했어요"},lose:{team:{morale:-6},t:"팀원들이 지쳐버렸어요"}},
+    {l:"내가 책임지고 직접 판다",s:"화술",p:.3+T/200,win:{sold:2,t:"직접 메꿨어요"},lose:{team:{morale:-3},t:"혼자서는 역부족이었어요"}}]});
+  if(S.age>=45)P.floor.push({title:"세대교체",text:"젊은 고객이 “요즘 앱으로 다 비교해 봤어요”라며 신입 딜러를 찾습니다.",opts:[
+    {l:"경험에서 나온 노하우로 승부",s:"화술 + 평판",p:.2+(T+R)/260,win:{sold:1,fx:{rep:2},t:"“역시 다르시네요” 계약"},lose:{t:"결국 신입에게 갔어요"}},
+    {l:"신입과 함께 상담하고 실적을 나눈다",s:"인맥",p:.5+N/250,win:{sold:1,comm:-.5,fx:{net:2},t:"후배도 고객도 만족"},lose:{t:"고객이 부담스러워했어요"}},
+    {l:"앱 비교 화면을 같이 보며 설명",s:"상품지식",p:.2+K/140,win:{sold:1,fx:{know:2},t:"디지털도 되는 베테랑"},lose:{t:"앱 가격이 더 쌌어요"}}]});
+  // ── 추가 상황 ──
+  const car2=pick(b.cars);
+  if(!b.ev)P.floor.push(
+    {title:"노부부의 마지막 차",text:`“우리 나이에 마지막 차일 것 같아서요.” 노부부가 ${car2}를 둘러봅니다.`,opts:[
+      {l:"편의·안전 사양을 천천히 하나씩 설명",s:"상품지식",p:.3+K/150,win:{sold:1,comm:.1,fx:{rep:3},t:"상위 트림으로 계약하고 손을 꼭 잡아 주셨어요"},lose:{t:"자녀와 상의해 보겠대요"}},
+      {l:"자녀분께 영상통화로 함께 설명",s:"화술",p:.3+T/170,win:{sold:1,fx:{net:3},t:"자녀까지 고객이 됐어요"},lose:{t:"자녀가 다른 차를 권했대요"}},
+      {l:"한 단계 아래 모델로 부담을 낮춰 드림",s:"확률 높음",p:.75,win:{sold:1,comm:-.25,t:"부담 없이 계약하셨어요"},lose:{t:"그래도 고민하신대요"}}]},
+    {title:"시승 사고 직전",text:"시승 중 고객이 급정거를 했어요. 다친 사람은 없지만 분위기가 얼어붙었습니다.",opts:[
+      {l:"차분하게 안전 기능 덕분이었다고 설명",s:"상품지식",p:.25+K/150,win:{sold:1,fx:{know:1},t:"오히려 안전성에 반했어요"},lose:{t:"놀란 마음에 그냥 돌아갔어요"}},
+      {l:"고객 마음부터 진정시키고 커피 한 잔",s:"화술",p:.3+T/180,win:{sold:1,fx:{rep:2},t:"마음이 풀려 계약까지"},lose:{t:"오늘은 그만하자고 하네요"}},
+      {l:"시승 코스를 바꾸자고 본사에 건의",s:"평판",p:.3+R/200,win:{fx:{rep:4},t:"지점 시승 코스가 개선됐어요"},lose:{t:"건의가 묻혔어요"}}]},
+    {title:"출고 지연 항의",text:"계약 고객이 “두 달째 차가 안 나온다”며 전시장에 찾아왔습니다.",opts:[
+      {l:"전시차·재고를 수소문해 당겨 준다",s:"인맥",p:.2+N/140,win:{fx:{rep:5,net:1},t:"다음 주 출고로 해결"},lose:{fx:{rep:-3},t:"재고가 없어 화만 더 났어요"}},
+      {l:"보상 용품을 내 돈으로 챙겨 준다",s:"자금",cost:{cash:-60},p:.8,win:{fx:{rep:3},t:"마음을 풀었어요"},lose:{t:"용품보다 차가 필요하대요"}},
+      {l:"솔직하게 일정만 다시 안내",s:"화술 + 평판",p:.15+(T+R)/260,win:{fx:{rep:2},t:"정직함을 믿어 줬어요"},lose:{fx:{rep:-5},t:"계약 취소 이야기가 나왔어요"}}]},
+    {title:"외국인 고객",text:"한국어가 서툰 외국인 주재원이 장기 렌트와 구매 사이에서 고민 중입니다.",opts:[
+      {l:"번역 앱으로 금융 조건을 꼼꼼히 비교",s:"상품지식",p:.2+K/140,win:{sold:1,comm:.1,t:"리스 조건까지 맞춰 계약"},lose:{t:"조건 비교가 복잡하다며 보류"}},
+      {l:"주재원 커뮤니티 소개를 부탁한다",s:"인맥",p:.2+N/150,win:{sold:q(2),fx:{net:4},t:"동료 주재원까지 계약!"},lose:{t:"계약만 하고 소개는 없었어요"}},
+      {l:"바디랭귀지와 열정으로 승부",s:"화술 · 체력",cost:{fx:{hp:-4}},p:.2+(T+H)/300,win:{sold:1,fx:{talk:2},t:"웃으며 계약서에 사인"},lose:{t:"서로 오해만 쌓였어요"}}]},
+    {title:"아이와 함께 온 가족",text:"아이 둘이 전시장을 뛰어다니고, 부모는 정신이 없습니다.",opts:[
+      {l:"아이들을 키즈존에서 직접 놀아 준다",s:"체력",cost:{fx:{hp:-6}},p:.35+H/220,win:{sold:1,fx:{rep:2},t:"부모님이 편하게 상담하고 계약"},lose:{t:"아이들이 지쳐 일찍 떠났어요"}},
+      {l:"카시트·적재 공간을 실물로 보여 준다",s:"상품지식",p:.3+K/160,win:{sold:1,t:"패밀리카로 확정!"},lose:{t:"트렁크가 작다고 느꼈대요"}},
+      {l:"짧게 핵심만 말하고 견적 문자 발송",s:"화술",p:.25+T/200,win:{sold:1,t:"집에 가서 바로 연락이 왔어요"},lose:{t:"문자에 답이 없어요"}}]}
+  );
+  if(b.ev)P.floor.push(
+    {title:"충전 걱정",text:"“아파트에 충전기가 두 대뿐인데 괜찮을까요?”",opts:[
+      {l:"동네 충전소 지도를 같이 찾아본다",s:"상품지식",p:.3+K/150,win:{sold:1,t:"생각보다 많다며 계약"},lose:{t:"그래도 불안하대요"}},
+      {l:"같은 아파트 차주를 연결해 준다",s:"인맥",p:.2+N/140,win:{sold:1,fx:{net:3},t:"이웃 차주 말에 확신"},lose:{t:"이웃이 불만이 많았어요"}},
+      {l:"홈 충전기 설치 혜택을 안내",s:"확률 높음",p:.7,win:{sold:1,comm:-.2,t:"설치 혜택으로 계약"},lose:{t:"관리사무소가 반대한대요"}}]},
+    {title:"중고 시세 질문",text:"“전기차는 중고값이 확 떨어진다던데요?”",opts:[
+      {l:"배터리 보증 조건으로 설명",s:"상품지식",p:.25+K/140,win:{sold:1,fx:{know:1},t:"보증 조건에 안심"},lose:{t:"그래도 내연기관이 낫겠대요"}},
+      {l:"리스 상품으로 위험을 덜어 준다",s:"화술",p:.3+T/180,win:{sold:1,comm:.1,t:"리스로 계약"},lose:{t:"리스는 싫대요"}},
+      {l:"솔직히 단점도 인정한다",s:"평판",p:.2+R/160,win:{sold:1,fx:{rep:3},t:"믿음이 간다며 계약"},lose:{t:"고민이 더 깊어졌어요"}}]},
+    {title:"주문 취소 위기",text:"신모델 루머에 계약 고객이 “조금 기다릴까” 흔들립니다.",opts:[
+      {l:"루머와 사실을 차분히 구분해 준다",s:"상품지식",p:.25+K/150,win:{fx:{rep:3},t:"계약 유지"},lose:{sold:-1,t:"결국 취소했어요"}},
+      {l:"지금 받을 수 있는 혜택을 강조",s:"화술",p:.3+T/180,win:{fx:{talk:1},t:"지금 사기로 했어요"},lose:{sold:-1,t:"혜택보다 신모델이래요"}},
+      {l:"원하시는 대로 기다리시라 한다",s:"안전",p:1,win:{fx:{rep:2},sold:-1,t:"이번 달 실적은 줄었지만 신뢰는 얻었어요"}}]},
+    {title:"법인 전기차 전환",text:"한 스타트업이 법인차를 전부 전기차로 바꾸겠다고 합니다.",opts:[
+      {l:"법인 세제 혜택까지 정리해 제안",s:"상품지식",p:.15+K/140,win:{sold:q(3),t:"한 번에 일괄 주문!"},lose:{t:"경쟁 브랜드로 갔어요"}},
+      {l:"대표와 직접 시승 데이트",s:"화술 · 체력",cost:{fx:{hp:-6}},p:.15+(T+H)/280,win:{sold:q(3),fx:{net:3},t:"대표가 팬이 됐어요"},lose:{t:"시승만 즐기고 끝났어요"}},
+      {l:"한 대만이라도 먼저 시범 도입 제안",s:"확률 높음",p:.75,win:{sold:1,t:"시범 1대 계약"},lose:{t:"그것도 어렵대요"}}]},
+    {title:"소프트웨어 업데이트 문의",text:"차주가 “업데이트 후에 기능이 이상해졌다”며 전화가 왔어요.",opts:[
+      {l:"원격으로 하나씩 같이 확인",s:"상품지식",p:.3+K/140,win:{fx:{rep:4},t:"해결! 지인을 소개해 줬어요",sold:1},lose:{t:"서비스센터로 넘겼어요"}},
+      {l:"차주 커뮤니티 해결법을 공유",s:"인맥",p:.3+N/160,win:{fx:{rep:3,net:2},t:"빠르게 해결"},lose:{t:"방법이 안 통했어요"}},
+      {l:"서비스센터 번호만 안내",s:"안전",p:1,win:{fx:{rep:-1},t:"무난히 넘어갔어요"}}]}
+  );
+  P.pioneer.push(
+    {title:"관공서 입찰",text:"시청에서 업무용 차량 입찰 공고가 떴어요.",opts:[
+      {l:"서류를 밤새 완벽하게 준비",s:"상품지식 · 체력",cost:{fx:{hp:-10}},p:.15+(K+H)/280,win:{sold:q(4),fx:{rep:3},t:"입찰 성공! 대량 계약"},lose:{t:"가격에서 밀렸어요"}},
+      {l:"지역 인맥으로 정보를 먼저 듣는다",s:"인맥",p:.15+N/140,win:{sold:q(3),t:"조건을 미리 맞춰 낙찰"},lose:{fx:{rep:-2},t:"오해를 살 뻔했어요"}},
+      {l:"이번엔 패스",s:"안전",p:1,win:{fx:{hp:3},t:"다른 고객에 집중했어요"}}]},
+    {title:"아파트 입주 박람회",text:"신축 아파트 입주 박람회에 부스를 낼 기회가 생겼어요.",opts:[
+      {l:"부스비 내고 시승차까지 전시",s:"자금",cost:{cash:-120},p:.7,win:{sold:q(2),carry:3,t:"입주민 문의가 쏟아졌어요"},lose:{t:"다른 부스에 묻혔어요"}},
+      {l:"입주민 단톡방 관리자와 친해진다",s:"인맥 · 화술",p:.15+(N+T)/270,win:{sold:1,fx:{net:4},t:"공동구매 형식으로 계약"},lose:{t:"광고 금지라며 강퇴당했어요"}},
+      {l:"전단지만 놓고 온다",s:"안전",p:1,win:{carry:1,t:"몇 통 문의가 왔어요"}}]},
+    {title:"택시 조합",text:"개인택시 조합에서 차량 교체 상담 요청이 왔어요.",opts:[
+      {l:"연비·유지비 자료로 설득",s:"상품지식",p:.25+K/150,win:{sold:q(3),t:"조합원 여러 명이 계약"},lose:{t:"다른 브랜드가 더 쌌어요"}},
+      {l:"조합장님과 막걸리 한 잔",s:"인맥 · 체력",cost:{fx:{hp:-8}},p:.2+(N+H)/280,win:{sold:q(2),fx:{net:4},t:"형님 동생 사이가 됐어요"},lose:{t:"숙취만 남았어요"}},
+      {l:"한 분만 먼저 성공 사례로 만든다",s:"화술",p:.4+T/220,win:{sold:1,carry:2,t:"입소문이 시작됐어요"},lose:{t:"그분도 망설이네요"}}]},
+    {title:"동네 카센터 사장님",text:"단골 카센터 사장님이 “손님 소개해 줄까?” 하고 묻습니다.",opts:[
+      {l:"소개 수수료를 정식으로 제안",s:"자금",cost:{cash:-50},p:.7,win:{sold:1,fx:{net:2},t:"꾸준한 소개 루트가 생겼어요"},lose:{t:"소개받은 손님이 안 샀어요"}},
+      {l:"정기적으로 들러 관계를 쌓는다",s:"인맥",p:.3+N/160,win:{sold:1,fx:{net:4},t:"사장님이 직접 차를 바꾸셨어요"},lose:{t:"바쁘다며 다음에 보재요"}},
+      {l:"고맙다고만 하고 넘긴다",s:"안전",p:1,win:{t:"별일 없었어요"}}]},
+    {title:"골프 모임 초대",text:"고객이 주말 골프 모임에 초대했어요. 사업가들이 많이 온대요.",opts:[
+      {l:"라운딩 내내 분위기 메이커",s:"화술 · 체력",cost:{fx:{hp:-8},cash:-40},p:.15+(T+H)/270,win:{sold:q(2),fx:{net:5},t:"클럽하우스에서 계약 약속"},lose:{t:"공만 잃어버렸어요"}},
+      {l:"명함만 돌리고 일찍 빠진다",s:"평판",p:.2+R/170,win:{sold:1,fx:{net:2},t:"한 분이 연락을 줬어요"},lose:{t:"기억을 못 하시네요"}},
+      {l:"정중히 사양한다",s:"안전",p:1,win:{fx:{hp:6},t:"주말에 푹 쉬었어요"}}]}
+  );
+  P.sns.push(
+    {title:"인플루언서 협업 제안",text:"팔로워 많은 인플루언서가 협업 영상을 찍자고 연락해 왔어요.",opts:[
+      {l:"출연료를 내고 정식 협업",s:"자금",cost:{cash:-150},p:.7,win:{carry:6,fx:{rep:4},t:"영상이 터졌어요!"},lose:{t:"반응이 생각보다 약했어요"}},
+      {l:"내가 차량 전문가로 출연만",s:"상품지식",p:.25+K/140,win:{carry:4,fx:{rep:5,know:1},t:"전문가 이미지가 생겼어요"},lose:{fx:{rep:-2},t:"댓글에서 틀린 정보를 지적당했어요"}},
+      {l:"회사 홍보 규정이 걸려 정중히 거절",s:"안전",p:1,win:{t:"아무 일도 없었어요"}}]},
+    {title:"출고 후기 이벤트",text:"고객 출고 사진으로 후기 이벤트를 열어 볼까요?",opts:[
+      {l:"상품권을 걸고 크게 연다",s:"자금",cost:{cash:-80},p:.75,win:{carry:4,fx:{net:3},t:"후기가 줄줄이 올라왔어요"},lose:{t:"참여가 적었어요"}},
+      {l:"고객에게 한 명씩 직접 부탁",s:"인맥",p:.3+N/160,win:{carry:3,fx:{rep:3},t:"진정성 있는 후기가 모였어요"},lose:{t:"다들 바쁘대요"}},
+      {l:"내 출고 사진만 정리해 올린다",s:"안전",p:1,win:{carry:1,t:"조용히 쌓아 갑니다"}}]},
+    {title:"숏폼 챌린지",text:"자동차 숏폼 챌린지가 유행입니다. 찍어 볼까요?",opts:[
+      {l:"망가지더라도 재밌게 찍는다",s:"화술",p:.2+T/150,win:{carry:5,fx:{rep:3},t:"알고리즘을 탔어요!"},lose:{fx:{rep:-2},t:"동료들이 놀려요"}},
+      {l:"차 기능 꿀팁 숏폼으로 비튼다",s:"상품지식",p:.25+K/150,win:{carry:4,fx:{know:1},t:"저장 수가 폭발"},lose:{t:"너무 진지했나 봐요"}},
+      {l:"유행은 패스",s:"안전",p:1,win:{t:"평소처럼 올렸어요"}}]},
+    {title:"블로그 체험단",text:"블로그 체험단 업체에서 유료 리뷰를 제안합니다.",opts:[
+      {l:"광고 표기를 하고 진행",s:"자금 · 평판",cost:{cash:-70},p:.4+R/250,win:{carry:3,t:"검색 유입이 늘었어요"},lose:{t:"광고 티가 나서 반응이 없었어요"}},
+      {l:"실제 고객 리뷰를 부탁한다",s:"인맥",p:.25+N/150,win:{carry:3,fx:{rep:3},t:"진짜 후기가 신뢰를 줬어요"},lose:{t:"부탁할 사람이 없었어요"}},
+      {l:"광고 표기 없이 몰래 진행",s:"모험",cost:{cash:-70},p:.35,win:{carry:4,t:"들키지 않고 효과를 봤어요"},lose:{fx:{rep:-8},t:"뒷광고 논란이 터졌어요"}}]},
+    {title:"라이브 커머스 섭외",text:"쇼핑 라이브 방송에서 차량 판매 코너 진행자로 섭외가 왔어요.",opts:[
+      {l:"대본 없이 애드리브로 진행",s:"화술",p:.15+T/140,win:{sold:q(2),carry:4,fx:{rep:4},t:"방송 중 상담 예약 폭주!"},lose:{fx:{rep:-3},t:"방송 사고가 났어요"}},
+      {l:"스펙 비교표를 철저히 준비",s:"상품지식 · 체력",cost:{fx:{hp:-6}},p:.25+(K+H)/280,win:{sold:1,carry:3,t:"알찬 방송이었다는 평"},lose:{t:"지루하다는 댓글이…"}},
+      {l:"후배에게 기회를 넘긴다",s:"안전",p:1,win:{fx:{net:2},t:"후배가 고마워해요"}}]}
+  );
+  P.study.push(
+    {title:"신차 발표회",text:`본사에서 신형 ${car2} 발표회와 교육이 열립니다.`,opts:[
+      {l:"맨 앞자리에서 질문 공세",s:"화술",p:.35+T/200,win:{fx:{know:4,rep:2},t:"본사 교육팀 눈에 들었어요"},lose:{fx:{know:2},t:"질문이 너무 많다는 눈총"}},
+      {l:"경쟁차와 비교표를 직접 만든다",s:"상품지식",p:.3+K/150,win:{fx:{know:5},carry:2,t:"비교표가 지점 공식 자료가 됐어요"},lose:{fx:{know:2},t:"정리하다 시간만 갔어요"}},
+      {l:"동기들과 정보만 나눈다",s:"인맥",p:.4+N/200,win:{fx:{know:3,net:2},t:"서로 부족한 걸 채웠어요"},lose:{fx:{know:1},t:"잡담만 했어요"}}]},
+    {title:"영어 회화 학원",text:"외국인 고객 응대를 위해 영어 학원을 다녀 볼까요?",opts:[
+      {l:"3개월 새벽반 등록",s:"자금 · 체력",cost:{cash:-90,fx:{hp:-6}},p:.4+H/250,win:{fx:{talk:4,know:1},t:"외국인 고객이 두렵지 않아요"},lose:{fx:{talk:1},t:"새벽에 못 일어나 반만 다녔어요"}},
+      {l:"앱으로 출퇴근길에 공부",s:"안전",p:1,win:{fx:{talk:1},t:"조금씩 늘고 있어요"}},
+      {l:"외국인 고객과 실전 대화",s:"화술",p:.25+T/170,win:{fx:{talk:3},sold:1,t:"실전에서 계약까지!"},lose:{t:"말문이 막혔어요"}}]},
+    {title:"중고차 시세 공부",text:"보상 판매가 늘면서 중고차 시세 공부가 필요해졌어요.",opts:[
+      {l:"경매장에 직접 따라가 본다",s:"인맥 · 체력",cost:{fx:{hp:-5}},p:.3+(N+H)/300,win:{fx:{know:4,net:2},t:"매입 업자들과 라인이 생겼어요"},lose:{fx:{know:1},t:"분위기만 보고 왔어요"}},
+      {l:"시세 사이트를 매일 분석",s:"상품지식",p:.35+K/180,win:{fx:{know:4},t:"보상 판매 상담이 자신 있어요"},lose:{fx:{know:1},t:"데이터가 너무 많아요"}},
+      {l:"선배에게 감 잡는 법을 배운다",s:"화술",p:.4+T/220,win:{fx:{know:3,net:1},t:"현장 노하우를 얻었어요"},lose:{t:"선배가 바빴어요"}}]},
+    {title:"세일즈 자격증",text:"자동차 판매 관련 민간 자격증 과정이 열렸어요.",opts:[
+      {l:"수강료 내고 정식 취득",s:"자금",cost:{cash:-60},p:.6+K/300,win:{fx:{know:3,rep:3},t:"명함에 자격증 한 줄 추가"},lose:{t:"시험에서 떨어졌어요"}},
+      {l:"독학으로 도전",s:"상품지식",p:.25+K/140,win:{fx:{know:4,rep:2},t:"독학 합격!"},lose:{fx:{know:1},t:"한 문제 차이로 탈락"}},
+      {l:"필요 없다고 판단",s:"안전",p:1,win:{fx:{hp:3},t:"실전으로 승부합니다"}}]},
+    {title:"고객 데이터 정리",text:"쌓인 고객 명단을 정리하면 재구매 시기를 예측할 수 있을 것 같아요.",opts:[
+      {l:"엑셀로 출고일·만기일을 전부 정리",s:"상품지식 · 체력",cost:{fx:{hp:-5}},p:.3+(K+H)/280,win:{carry:4,fx:{know:2},t:"재구매 타이밍 고객 리스트 완성"},lose:{t:"반쯤 하다 지쳤어요"}},
+      {l:"오래된 고객에게 안부 문자",s:"인맥",p:.35+N/180,win:{sold:1,fx:{net:3},t:"마침 차를 바꾸려던 고객이!"},lose:{t:"답장이 별로 없어요"}},
+      {l:"다음에 하기로",s:"안전",p:1,win:{t:"미뤘어요"}}]}
+  );
+  if(S.team)P.coach.push(
+    {title:"신입 롤플레이",text:"신입이 고객 앞에서 계속 말을 더듬습니다.",opts:[
+      {l:"하루 종일 롤플레이 특훈",s:"화술 · 체력",cost:{fx:{hp:-6}},p:.3+(T+H)/280,win:{team:{skill:6,morale:4},t:"눈빛이 달라졌어요"},lose:{team:{morale:-4},t:"오히려 주눅 들었어요"}},
+      {l:"내 상담에 옆자리 동석",s:"화술",p:.4+T/200,win:{team:{skill:4},sold:1,t:"보면서 배우고 계약도 했어요"},lose:{t:"고객이 불편해했어요"}},
+      {l:"스스로 깨닫게 둔다",s:"안전",p:1,win:{team:{skill:1},t:"천천히 크고 있어요"}}]},
+    {title:"팀 회식",text:"분기 마감 후 팀 회식, 어디로 갈까요?",opts:[
+      {l:"법인카드 넘어 내 돈까지 쓴 고급 회식",s:"자금",cost:{cash:-80},p:.8,win:{team:{morale:12},t:"팀장님 최고라는 소리를 들었어요"},lose:{team:{morale:4},t:"다들 피곤해 일찍 갔어요"}},
+      {l:"방탈출·볼링 같은 액티비티",s:"화술",p:.4+T/200,win:{team:{morale:10},t:"팀워크가 확 올랐어요"},lose:{team:{morale:-2},t:"승부욕 때문에 싸웠어요"}},
+      {l:"회식 대신 조기 퇴근",s:"안전",p:1,win:{team:{morale:6},t:"다들 좋아해요"}}]},
+    {title:"스카우트 당하는 팀원",text:"우리 팀 에이스에게 경쟁사가 손을 내밀었다는 소문이 돕니다.",opts:[
+      {l:"본사에 처우 개선을 건의",s:"평판",p:.2+R/150,win:{team:{morale:8},fx:{rep:2},t:"인센티브를 따내 붙잡았어요"},lose:{team:{morale:-6},t:"본사가 거절했어요"}},
+      {l:"솔직하게 1:1로 이야기",s:"화술",p:.3+T/170,win:{team:{morale:6},t:"남기로 했어요"},lose:{team:{morale:-8},t:"마음이 이미 떠났대요"}},
+      {l:"가는 사람 안 잡는다",s:"안전",p:1,win:{team:{morale:-3},t:"팀이 조금 술렁였어요"}}]},
+    {title:"월말 마감 독려",text:"월말인데 팀 실적이 목표에 조금 못 미칩니다.",opts:[
+      {l:"팀원 고객을 함께 클로징",s:"화술 · 체력",cost:{fx:{hp:-8}},p:.3+(T+H)/280,win:{sold:2,team:{morale:5},t:"막판 역전으로 목표 달성"},lose:{team:{morale:-3},t:"아쉽게 못 미쳤어요"}},
+      {l:"달성 시 포상을 약속",s:"자금",cost:{cash:-60},p:.6,win:{sold:1,team:{morale:8,skill:2},t:"동기부여 성공"},lose:{team:{morale:-2},t:"포상만 나갔어요"}},
+      {l:"다음 달을 기약한다",s:"안전",p:1,win:{team:{morale:2},t:"무리하지 않았어요"}}]},
+    {title:"고객 클레임 책임",text:"팀원의 실수로 큰 고객 클레임이 들어왔어요.",opts:[
+      {l:"내가 대신 고객을 만나 사과",s:"화술",p:.3+T/170,win:{fx:{rep:3},team:{morale:8},t:"팀원이 감동했어요"},lose:{fx:{rep:-3},t:"고객 화가 안 풀렸어요"}},
+      {l:"팀원이 직접 해결하게 코칭",s:"상품지식",p:.3+K/170,win:{team:{skill:5},t:"팀원이 한 뼘 성장"},lose:{fx:{rep:-4},team:{morale:-4},t:"일이 커졌어요"}},
+      {l:"본사 CS팀에 넘긴다",s:"안전",p:1,win:{fx:{rep:-1},t:"조용히 처리됐어요"}}]}
+  );
+  P.rest.push(
+    {title:"건강검진 결과",text:"건강검진에서 “스트레스 관리 필요” 소견이 나왔어요.",opts:[
+      {l:"헬스장 PT 등록",s:"자금",cost:{cash:-100},p:.75,win:{fx:{hp:18},t:"체력이 확 올라왔어요"},lose:{fx:{hp:6},t:"몇 번 가다 말았어요"}},
+      {l:"매일 아침 동네 산책",s:"안전",p:1,win:{fx:{hp:10},t:"잠이 잘 와요"}},
+      {l:"그냥 버틴다",s:"모험",p:.3,win:{fx:{hp:4},t:"별일 없었어요"},lose:{fx:{hp:-8},t:"몸이 더 무거워졌어요"}}]},
+    {title:"동창 결혼식",text:"주말에 대학 동창 결혼식이 있어요. 오랜만에 다 모인대요.",opts:[
+      {l:"가서 근황을 나눈다",s:"인맥",p:.4+N/200,win:{fx:{net:4,hp:4},t:"친구가 차 상담을 부탁했어요",carry:1},lose:{fx:{net:2},t:"반갑기만 했어요"}},
+      {l:"축의금만 보내고 쉰다",s:"안전",cost:{cash:-10},p:1,win:{fx:{hp:10},t:"푹 쉬었어요"}},
+      {l:"뒤풀이까지 달린다",s:"체력",cost:{fx:{hp:-6}},p:.3+H/200,win:{fx:{net:6},t:"새벽까지 웃었어요"},lose:{t:"월요일이 힘들었어요"}}]},
+    {title:"취미 찾기",text:"일 말고 나만의 취미를 가져 보라는 조언을 들었어요.",opts:[
+      {l:"캠핑 장비를 장만한다",s:"자금",cost:{cash:-150},p:.8,win:{fx:{hp:15,know:1},t:"캠핑카 고객과 말이 통해요"},lose:{fx:{hp:5},t:"장비만 쌓였어요"}},
+      {l:"독서 모임에 나간다",s:"화술",p:.4+T/200,win:{fx:{hp:8,talk:2},t:"말솜씨가 더 늘었어요"},lose:{fx:{hp:4},t:"책만 샀어요"}},
+      {l:"집에서 낮잠",s:"안전",p:1,win:{fx:{hp:12},t:"최고의 취미는 잠"}}]},
+    {title:"부모님 댁 방문",text:"오랜만에 부모님 댁에 가기로 했어요.",opts:[
+      {l:"부모님 차도 봐 드린다",s:"상품지식",p:.4+K/200,win:{fx:{hp:8},sold:1,t:"부모님 친구분까지 차를 바꾸셨어요"},lose:{fx:{hp:8},t:"부모님은 아직 괜찮대요"}},
+      {l:"일 얘기는 하지 않고 푹 쉰다",s:"안전",p:1,win:{fx:{hp:14},t:"마음까지 충전됐어요"}},
+      {l:"동네 어르신들께 명함 인사",s:"인맥",p:.3+N/170,win:{fx:{net:4,hp:5},t:"고향 인맥이 생겼어요"},lose:{fx:{hp:5},t:"쑥스럽기만 했어요"}}]},
+    {title:"갑작스러운 비상 연락",text:"휴가 중 지점에서 “큰 계약 고객이 당신만 찾는다”는 연락이 왔어요.",opts:[
+      {l:"휴가를 중단하고 복귀",s:"체력",cost:{fx:{hp:-12}},p:.5+H/250,win:{sold:q(2),fx:{rep:3},t:"큰 계약을 성사시켰어요"},lose:{t:"복귀했는데 고객이 마음을 바꿨어요"}},
+      {l:"영상통화로 응대",s:"화술",p:.3+T/170,win:{sold:1,t:"휴가지에서 계약 마무리"},lose:{t:"화면으로는 부족했대요"}},
+      {l:"휴가가 먼저다",s:"안전",p:1,win:{fx:{hp:12},t:"고객은 다음 기회에"}}]}
+  );
+  const pool=P[a.id];if(!pool)return null;
+  S.recentScen=S.recentScen||[];
+  const fresh=pool.filter(x=>!S.recentScen.includes(x.title));
+  const sc=pick(fresh.length?fresh:pool);
+  S.recentScen.push(sc.title);if(S.recentScen.length>10)S.recentScen.shift();
+  sc.opts.forEach(o=>{o.p=clamp(o.p*(H<30&&o.p<1?.8:1),0,.97)});
+  return sc;
+}
+function applyFx(r){
+  if(!r)return;
+  if(r.fx)for(const [k,v] of Object.entries(r.fx))S[k]=clamp(S[k]+v);
+  if(r.cash)S.cash+=r.cash;
+  if(r.carry)S.snsCarry+=r.carry;
+  if(r.team&&S.team){if(r.team.morale)S.team.forEach(m=>m.morale=clamp(m.morale+r.team.morale));if(r.team.skill){const m=S.team.reduce((x,y)=>x.skill<y.skill?x:y);m.skill=clamp(m.skill+r.team.skill)}}
+}
+function choose(sc){
+  const feel=p=>p>=.95?"확정":p>=.7?"자신 있음":p>=.45?"해볼 만함":p>=.25?"모험":"무모함";
+  return new Promise(res=>{
+    addLine(`[${sc.title}] ${sc.text}`,"q");
+    $("skipHint").hidden=true;
+    sc.opts.forEach(o=>{const btn=document.createElement("button");btn.className="key";
+      btn.innerHTML=`<b>${o.l}</b><span>${o.s} · 예감: ${feel(o.p)}</span>`;
+      btn.onclick=e=>{e.stopPropagation();$("choices").innerHTML="";addLine(`→ ${o.l}`,"dim");$("skipHint").hidden=false;skipping=false;applyFx(o.cost);res({...o,title:sc.title})};
+      $("choices").appendChild(btn)});
+    $("choices").firstChild.focus();
+  });
+}
+
+async function reveal(res,events,autoNext){
+  const t=autoNext?.45:1;
+  if(res.leads>0){addLine(`상담 고객 ${res.leads}명. 견적서를 뽑습니다…`);await w(800*t);addLine("계약서 서명을 기다리는 중…","dim");await w(900*t)}
+  else{addLine("이번 달은 찾아온 손님이 거의 없었습니다…","dim");await w(700*t)}
+  for(let i=0;i<=res.sold;i++){$("stageNum").textContent=i+"대";await w(Math.min(200,1300/Math.max(1,res.sold))*t)}
+  $("stageNum").textContent=res.sold+"대";if(res.top)$("stageNum").className="hot";
+  events.forEach(e=>{const p=document.createElement("p");p.className=e.c;p.textContent=clean(e.t);$("stageOut").appendChild(p)});
+  if(autoNext){$("skipHint").hidden=true;await sleep(skipping||fast()?250:1300);return}
+  $("skipHint").hidden=true;$("stageOk").hidden=false;$("stageOk").focus();
+  await new Promise(r=>$("stageOk").onclick=e=>{e.stopPropagation();$("stage").hidden=true;r()});
+}
+async function play(a){
+  if(busy)return;busy=true;
+  const n=$("auto12").checked?12:1;S.stopAuto=false;$("stopBtn").textContent="여기서 멈추기";
+  try{
+    for(let i=0;i<n;i++){
+      if(S.over)break;
+      const auto=n>1;
+      const snap=snapStats();
+      stOpen(auto?`연속 진행 ${i+1} / ${n}개월 · ${{safe:"안전",bal:"균형",bold:"공격"}[$("autoStyle").value]}`:"");
+      const L=narr(a);
+      for(const l of (auto?L.slice(0,3):L)){addLine(l);await w(auto?320:750)}
+      let deal=null;
+      const sc=scenario(a);
+      if(sc){
+        if(!auto)deal=await choose(sc);
+        else{const o=autoPick(sc.opts,$("autoStyle").value);addLine(`[${sc.title}] → ${o.l}`,"dim");applyFx(o.cost);deal={...o,title:sc.title}}
+      }
+      CAP=[];const stop=turn(a,deal);checkAssets();checkAch();const ev=CAP;CAP=null;
+      const dl=statDelta(snap);if(dl){log(dl);ev.push({t:dl,c:"dim"})}
+      const more=auto&&!stop&&!S.over&&!S.stopAuto&&i<n-1;
+      if(S.over){$("stage").hidden=true;break}
+      render();
+      await reveal(S.last,ev,more);
+      if(!more)break;
+    }
+  }finally{CAP=null;busy=false;$("stage").hidden=true}
+  if(S&&!S.over)render();
+}
+
+// ───── 저장 ─────
+const SAVE_KEY="dealerSim.save.v1";
+function saveGame(){try{if(S&&!S.over)localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+function clearSave(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}}
+function loadSave(){try{const t=localStorage.getItem(SAVE_KEY);return t?JSON.parse(t):null}catch(e){return null}}
+function initContinue(){
+  const sv=loadSave();if(!sv||!sv.brand||!BRANDS[sv.brand])return;
+  $("contBox").hidden=false;
+  $("contInfo").textContent=`${sv.name} · ${sv.age}세 · ${BRANDS[sv.brand].maker} ${BRANDS[sv.brand].name} · 누적 ${sv.total}대 (${sv.year}년 ${sv.month}월)`;
+  $("contBtn").onclick=()=>{
+    S=sv;S.cycle=CYCLES.find(c=>c.name===(S.cycle&&S.cycle.name))||CYCLES[0];
+    $("start").hidden=true;$("game").hidden=false;
+    const logs=S.logs||[];S.logs=[];logs.forEach(([t,c])=>log(t,c));
+    log("💾 저장된 커리어를 이어서 시작합니다.");render();
+  };
+  $("newBtn").onclick=()=>{clearSave();$("contBox").hidden=true};
+}
+initContinue();
+
+// ───── 라이벌 ─────
+function rivalMonth(b,cyc,myTop,sold){
+  const rv=S.rival;if(!rv)return myTop;
+  const rb=BRANDS[rv.brand];
+  const rs=Math.max(0,Math.round(rb.top*rnd(.45,1.15)*MONTH_MOD[S.month-1]*(rb.ev?S.cycle.ev:S.cycle.mul)));
+  rv.last=rs;rv.total+=rs;rv.year+=rs;rv.pts+=rs*rb.ptPer;
+  if(rv.brand===S.brand&&rs>=b.top){
+    if(myTop&&rs>sold){log(`😤 라이벌 ${rv.name}이(가) ${rs}대로 판매왕을 가져갔어요.`,"bad");rv.mwins++;return false}
+    if(!myTop){rv.mwins++;if(Math.random()<.5)log(`라이벌 ${rv.name}이(가) 이번 달 판매왕(${rs}대). 자극이 됩니다.`)}
+  }
+  return myTop;
+}
+function rivalYear(){
+  const rv=S.rival;if(!rv)return;
+  const rb=BRANDS[rv.brand],b=BRANDS[S.brand];
+  const me=S.yearSales*b.ptPer,them=rv.year*rb.ptPer;
+  if(me>=them){S.rivalW=(S.rivalW||0)+1;log(`⚔️ 올해 라이벌전 승리! 나 ${S.yearSales}대 vs ${rv.name} ${rv.year}대`,"good")}
+  else{S.rivalL=(S.rivalL||0)+1;log(`⚔️ 올해 라이벌전 패배… 나 ${S.yearSales}대 vs ${rv.name} ${rv.year}대`,"bad")}
+  rv.year=0;
+  if(Math.random()<.18){const d=pick(DEALERS.filter(x=>x.id!==rv.brand));rv.brand=d.id;
+    log(d.id===S.brand?`😮 라이벌 ${rv.name}이(가) 우리 회사로 이적해 왔어요!`:`📣 라이벌 ${rv.name}이(가) ${BRANDS[d.id].maker} ${d.name}로 이적했대요.`)}
+}
+
+// ───── 업적 도감 ─────
+const ACH={
+  first:["첫 계약","첫 차를 팔았다"],
+  dom2imp:["수입차의 문","국산에서 수입 딜러사로 이적 성공"],
+  toEv:["전기차 전도사","전기차 회사로 업종 전환"],
+  loyal15:["한 우물","한 회사에서 15년"],
+  bird:["철새 딜러","네 번 이상 이적"],
+  rich:["10억 딜러","자산 10억 달성"],
+  dry:["빈손의 계절","3개월 연속 0대"],
+  allround:["만능 딜러","모든 능력치 70 이상"],
+  mentor:["명장","팀원 실력 90 달성"],
+  survivor:["오뚝이","번아웃 두 번을 딛고 계속 영업"],
+  rivalKing:["라이벌 압승","라이벌전 10승"],
+  porsche:["드림카 세일즈","포르세 딜러로 근무"],
+  topBrand:["판매 기계","월 판매 30대 이상 (국산 기준)"],
+  fire:["파이어족","52세 이하 조기 은퇴 + 자산 10억"],
+  iron:["강철 커리어","번아웃 0회로 정년 은퇴"]
+};
+function unlock(k){S.ach=S.ach||{};if(S.ach[k])return;S.ach[k]=`${S.year}.${S.month}`;const pk=ACH_PERK[k];log(`🔓 업적 달성: ${ACH[k][0]}${pk?" → 혜택: "+pk[0]:""}`,"award");if(pk&&pk[1])pk[1]();fixStats()}
+function checkAch(){
+  if(!S)return;const b=BRANDS[S.brand];
+  if(S.total>0)unlock("first");
+  if(S.switched>=4)unlock("bird");
+  if(S.cash>=100000)unlock("rich");
+  const h=S.history.slice(-3);if(h.length===3&&h.every(x=>x.n===0))unlock("dry");
+  if(["talk","know","net","rep"].every(k=>S[k]>=70)&&S.hp>=70)unlock("allround");
+  if(S.team&&S.team.some(m=>m.skill>=90))unlock("mentor");
+  if(S.burnouts>=2)unlock("survivor");
+  if((S.rivalW||0)>=10)unlock("rivalKing");
+  if(b.mk==="porsche")unlock("porsche");
+  if(b.ptPer===1&&S.best>=30)unlock("topBrand");
+  if(S.year-S.joinedYear>=15)unlock("loyal15");
+}
+
+// ───── 인생 2막 · 결과 카드 · 랭킹 ─────
+const SECOND=[
+  {k:"used",name:"중고차 사업",req:()=>S.net>=55||S.cash>=30000,need:"인맥 55 이상 또는 자산 3억",bonus:300,
+   ep:()=>`쌓아온 인맥으로 중고차 상사를 열었다. ${S.net>=75?"옛 고객들이 차를 맡기러 줄을 섰다.":"처음 2년은 고전했지만 결국 자리를 잡았다."}`},
+  {k:"lease",name:"리스·렌트 에이전시",req:()=>S.know>=60,need:"상품지식 60 이상",bonus:300,
+   ep:()=>`캐피탈사 인맥과 금융 지식으로 리스 에이전시를 차렸다. 법인 고객이 먼저 찾아왔다.`},
+  {k:"tube",name:"자동차 유튜버",req:()=>S.rep>=60,need:"평판 60 이상",bonus:350,
+   ep:()=>`“전직 ${BRANDS[S.brand].maker} 딜러가 알려주는 차 사는 법” 채널이 ${S.rep>=85?"구독자 50만을 넘겼다.":"꾸준히 성장했다."}`},
+  {k:"teach",name:"영업 강사",req:()=>Object.values(S.trophy).reduce((a,c)=>a+c,0)>=12||S.talk>=75,need:"수상 12회 또는 화술 75",bonus:350,
+   ep:()=>`수상 경력을 앞세워 딜러사 신입 교육을 맡았다. 후배들은 그를 ‘전설’이라 불렀다.`},
+  {k:"rest",name:"조용한 은퇴",req:()=>true,need:"",bonus:0,
+   ep:()=>`${S.married?"가족과 함께":"오랜만에 혼자"} 느긋한 일상을 시작했다. 가끔 전시장 앞을 지나면 웃음이 난다.`}
+];
+function endGame(reason){
+  S.over=true;clearSave();$("stage").hidden=true;
+  if(S.burnouts===0&&S.age>=60)unlock("iron");
+  if(S.age<=52&&S.cash>=100000)unlock("fire");
+  checkAch();
+  $("modalBody").innerHTML=`<span class="plateBig">${reason}</span><h2 style="font-size:28px;margin-top:12px">인생 2막을 고르세요</h2><p style="color:var(--sub)">지금까지의 능력치와 기록에 따라 열리는 길이 달라요.</p><div id="acts" style="display:grid;gap:8px"></div>`;
+  SECOND.forEach(o=>{const ok=o.req();const btn=document.createElement("button");btn.className="key";btn.disabled=!ok;btn.style.opacity=ok?1:.45;
+    btn.innerHTML=`<b>${o.name}</b><span>${ok?"선택 가능":"잠김 · "+o.need}</span>`;
+    btn.onclick=()=>finalCard(reason,o);$("acts").appendChild(btn)});
+  $("modal").hidden=false;
+}
+function careerScore(extra){
+  const b=BRANDS[S.brand],c=k=>S.trophy[k]||0;
+  return Math.round(S.total*b.ptPer+S.teamTotal*.3+c("month")*20+c("quarter")*40+c("yearTop")*100+c("grand")*200+c("golden")*300+(S.hof?500:0)+Object.keys(S.ach||{}).length*40+(S.rivalW||0)*15+extra);
+}
+function gradeOf(s){return s>4500?"전설의 딜러":s>3000?"업계 레전드":s>1800?"베테랑 판매왕":s>800?"믿음직한 딜러":"성실한 영업인"}
+function finalCard(reason,o){
+  const score=careerScore(o.bonus),grade=gradeOf(score),T=S.trophy;
+  const totalAwards=Object.values(T).reduce((a,c)=>a+c,0);
+  const best0=Object.entries(T).sort((x,y)=>y[1]-x[1]).slice(0,5).map(([k,c])=>`${AWARDS[k][1]} ×${c}`).join("<br>")||"수상 기록 없음";const best=best0;
+  S.final={score,grade,ending:o.name,epilogue:o.ep(),reason};
+  $("modalBody").innerHTML=`<span class="plateBig">${reason}</span>
+  <h2 style="font-size:28px;margin-top:12px">${S.name}의 딜러 인생</h2>
+  <div class="big" style="margin:8px 0">${grade}</div>
+  <p class="hand" style="font-size:24px;line-height:1.25;color:var(--marker);margin:6px 0 10px">인생 2막: ${o.name}. ${S.final.epilogue}</p>
+  <div class="grid2">
+    <div class="kv"><small>최종 직급</small><b>${RANKS[myRank()][0]}</b></div>
+    <div class="kv"><small>은퇴 나이</small><b>${S.age}세</b></div>
+    <div class="kv"><small>누적 판매</small><b>${S.total}대</b></div>
+    <div class="kv"><small>총 수상</small><b>${totalAwards}회</b></div>
+    <div class="kv"><small>업적</small><b>${Object.keys(S.ach||{}).length} / ${Object.keys(ACH).length}</b></div>
+    <div class="kv"><small>라이벌전</small><b>${S.rivalW||0}승 ${S.rivalL||0}패</b></div>
+  </div>
+  <p style="font-size:14px;margin:12px 0 0"><b>대표 수상</b><br>${best}</p>
+  ${S.titles&&S.titles.length?`<p style="font-size:14px;margin:12px 0 0"><b>칭호</b><br>${S.titles.map(t=>"「"+t+"」").join(" ")}</p>`:""}
+  <p style="font-size:14px;margin:12px 0 0"><b>경력</b> (이적 ${S.switched}회)<br>${S.path.join(" → ")}</p>
+  <p style="color:var(--sub);font-size:14px">커리어 점수 ${score.toLocaleString()}점</p>
+  <div class="row"><button class="go" id="rankBtn">랭킹 등록</button><button class="ghost" id="cardBtn">결과 카드 저장</button><button class="ghost" id="again">새 인생 시작</button></div>
+  <p id="endMsg" style="font-size:13px;color:var(--sub);margin:8px 0 0"></p>`;
+  $("again").onclick=()=>location.reload();
+  $("cardBtn").onclick=saveCard;
+  $("rankBtn").onclick=submitRank;
+}
+async function saveCard(){
+  const msg=$("endMsg");
+  try{
+        try{await document.fonts.ready}catch(e){}
+    const c=document.createElement("canvas");c.width=1080;c.height=1350;const x=c.getContext("2d");
+    const F=(s,f="Noto Sans KR")=>`800 ${s}px "${f}", "Apple SD Gothic Neo", serif`;
+    const g=x.createLinearGradient(0,0,0,1350);g.addColorStop(0,"#1B2B4A");g.addColorStop(1,"#13203A");x.fillStyle=g;x.fillRect(0,0,1080,1350);
+    x.strokeStyle="#A8854A";x.lineWidth=3;x.strokeRect(40,40,1000,1270);
+    x.fillStyle="#fff";x.fillRect(90,100,330,74);x.strokeStyle="#111";x.lineWidth=5;x.strokeRect(90,100,330,74);
+    x.fillStyle="#111";x.font=F(44);x.fillText("12가 3456",120,152);
+    x.fillStyle="#8D99A8";x.font=F(36);x.fillText("나는 자동차 딜러다",90,250);
+    x.fillStyle="#E9EEF3";x.font=F(96);x.fillText(S.name,90,370);
+    x.fillStyle="#D9BE8A";x.font=F(76);x.fillText(S.final.grade,90,470);
+    x.fillStyle="#E9EEF3";x.font=F(40);
+    const rows=[["최종 직급",RANKS[myRank()][0]],["누적 판매",S.total+"대"],["총 수상",Object.values(S.trophy).reduce((a,c)=>a+c,0)+"회"],["업적",Object.keys(S.ach||{}).length+" / "+Object.keys(ACH).length],["라이벌전",`${S.rivalW||0}승 ${S.rivalL||0}패`],["커리어 점수",S.final.score.toLocaleString()+"점"]];
+    rows.forEach(([k,v],i)=>{const cx=90+(i%2)*470,cy=580+Math.floor(i/2)*120;x.fillStyle="#8D99A8";x.font=F(30);x.fillText(k,cx,cy);x.fillStyle="#E9EEF3";x.font=F(52);x.fillText(v,cx,cy+56)});
+    x.fillStyle="#D9BE8A";x.font=F(40);x.fillText("인생 2막: "+S.final.ending,90,1000);
+    x.fillStyle="#B9C4D2";x.font=F(30,"Noto Sans KR");
+    const path=S.path.join(" → ");let line="",y=1070;
+    for(const ch of path){if(x.measureText(line+ch).width>900){x.fillText(line,90,y);line="";y+=44;if(y>1240)break}line+=ch}
+    if(y<=1240)x.fillText(line,90,y);
+    const blob=await new Promise(r=>c.toBlob(r,"image/png"));
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`딜러인생_${S.name}.png`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+    msg.textContent="결과 카드를 저장했어요. SNS에 자랑해 보세요!";
+  }catch(e){msg.textContent=e&&e.code==="cancelled"?"저장을 취소했어요.":"카드 저장에 실패했어요. 잠시 후 다시 시도해 주세요."}
+}
+const REC_KEY="dealerSim.records.v1";
+function loadRecords(){try{return JSON.parse(localStorage.getItem(REC_KEY)||"[]")}catch(e){return[]}}
+async function submitRank(){
+  const msg=$("endMsg");
+  try{
+    const r=loadRecords();
+    r.push({name:S.name,score:S.final.score,grade:S.final.grade,company:`${BRANDS[S.brand].maker} ${BRANDS[S.brand].name}`,ending:S.final.ending,at:Date.now()});
+    r.sort((a,b)=>b.score-a.score);localStorage.setItem(REC_KEY,JSON.stringify(r.slice(0,10)));
+    msg.textContent="이 기기의 명예의 전당에 기록했어요. 첫 화면에서 확인할 수 있어요.";$("rankBtn").disabled=true;
+  }catch(e){msg.textContent="기록 저장에 실패했어요."}
+}
+(function loadRanks(){
+  const r=loadRecords();if(!r.length)return;
+  $("rankBox").hidden=false;$("rankList").innerHTML="";
+  r.forEach((x,i)=>{const li=document.createElement("li");li.textContent=`${i+1}위  ${x.name} · ${x.grade} · ${Number(x.score).toLocaleString()}점 · ${x.company} · ${x.ending}`;$("rankList").appendChild(li)});
+})();
+
+function renderExtra(){
+  const rv=S.rival;
+  if(rv){const rb=BRANDS[rv.brand],same=rv.brand===S.brand;
+    $("rival").innerHTML=`<div class="vs"><div><small>나</small><b>${S.yearSales}대</b><small>올해</small></div><div class="vsMid hand">대</div><div><small>${rv.name} · ${rankOf(rv.pts)}</small><b>${rv.year}대</b><small>${rb.maker} ${rb.name}${same?" (같은 회사)":""}</small></div></div>
+    <small style="color:var(--sub)">라이벌전 ${S.rivalW||0}승 ${S.rivalL||0}패 · 지난달 라이벌 ${rv.last??0}대 · 연말에 판매 포인트로 승부해요.</small>`}
+  S.ach=S.ach||{};
+  $("achGrid").innerHTML=Object.entries(ACH).map(([k,[n,d]])=>S.ach[k]?`<div class="ach on"><b>${n}</b><small>${d}</small><small class="pkx">혜택: ${ACH_PERK[k][0]}</small><small>${S.ach[k]}</small></div>`:`<div class="ach"><b>???</b><small>${d}</small><small>혜택: ${ACH_PERK[k][0]}</small></div>`).join("");
+  $("achCount").textContent=`${Object.keys(S.ach).length} / ${Object.keys(ACH).length}`;
+  saveGame();
+}
+
+</script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+// ───── 구글 로그인 · 클라우드 저장 · 전체 랭킹 (Firebase) ─────
+let FB=null,USER=null,lastCloud=0,cloudTimer=null;
+const CFG=window.FIREBASE_CONFIG||{};
+function setCloudState(t){const el=document.getElementById("cloudState");if(el){el.textContent=t;el.hidden=!t}}
+function renderAuth(){
+  const box=$("authBox");if(!box)return;
+  if(!FB){box.innerHTML='<span style="font-size:13px;color:var(--sub)">로그인 없이 이 기기에만 저장돼요.</span>';return}
+  if(USER){
+    box.innerHTML=`<span style="font-size:14px">${(USER.displayName||"플레이어").replace(/[<>&]/g,"")} 님 · 진행 상황이 계정에 저장돼요</span><button class="ghost" id="logoutBtn" style="padding:6px 12px;font-size:13px">로그아웃</button>`;
+    $("logoutBtn").onclick=()=>FB.auth.signOut();
+  }else{
+    box.innerHTML='<button class="go" id="loginBtn">Google로 로그인</button><span style="font-size:13px;color:var(--sub)">로그인하면 다른 기기에서도 이어하고 전체 랭킹에 오를 수 있어요.</span>';
+    $("loginBtn").onclick=login;
+  }
+}
+async function login(){
+  const p=new firebase.auth.GoogleAuthProvider();
+  try{await FB.auth.signInWithPopup(p)}
+  catch(e){if(e&&(e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment"))FB.auth.signInWithRedirect(p);else if(e&&e.code!=="auth/popup-closed-by-user")alert("로그인에 실패했어요. 잠시 후 다시 시도해 주세요.")}
+}
+async function cloudWrite(){
+  if(!FB||!USER||!S||S.over)return;
+  try{
+    await FB.db.collection("saves").doc(USER.uid).set({data:JSON.stringify(S),savedAt:S.savedAt||Date.now(),summary:`${S.name} · ${S.age}세 · ${BRANDS[S.brand].name} · 누적 ${S.total}대`});
+    lastCloud=Date.now();setCloudState("☁ 저장됨");
+  }catch(e){setCloudState("저장 실패 · 이 기기에는 저장됨")}
+}
+function cloudSave(){
+  if(!FB||!USER)return;
+  clearTimeout(cloudTimer);
+  const wait=Math.max(0,30000-(Date.now()-lastCloud));
+  setCloudState("☁ 저장 대기");
+  cloudTimer=setTimeout(cloudWrite,wait);
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&cloudTimer){clearTimeout(cloudTimer);cloudTimer=null;cloudWrite()}});
+async function cloudClear(){if(FB&&USER){try{await FB.db.collection("saves").doc(USER.uid).delete()}catch(e){}}}
+async function checkCloudSave(){
+  if(!FB||!USER||!$("game").hidden)return;
+  try{
+    const d=await FB.db.collection("saves").doc(USER.uid).get();if(!d.exists)return;
+    const c=d.data(),local=loadSave();
+    if(!local||(c.savedAt||0)>(local.savedAt||0)){localStorage.setItem(SAVE_KEY,c.data)}
+    initContinue();
+    if($("contInfo").textContent)$("contInfo").textContent="☁ 계정 저장 · "+$("contInfo").textContent.replace(/^☁ 계정 저장 · /,"");
+  }catch(e){}
+}
+async function loadGlobalRanks(){
+  if(!FB)return;
+  try{
+    const snap=await FB.db.collection("ranks").orderBy("score","desc").limit(10).get();
+    $("globalBox").hidden=false;const ul=$("globalList");ul.innerHTML="";
+    if(snap.empty){ul.innerHTML="<li>아직 등록된 기록이 없어요. 첫 번째 전설이 되어 보세요.</li>";return}
+    snap.docs.forEach((d,i)=>{const r=d.data()||{};const li=document.createElement("li");li.textContent=`${i+1}위  ${r.name||"?"} · ${r.grade||""} · ${Number(r.score||0).toLocaleString()}점 · ${r.company||""} · ${r.ending||""}`;ul.appendChild(li)});
+  }catch(e){}
+}
+// 기존 함수에 클라우드 연결
+const _saveGame=saveGame;saveGame=function(){if(S&&!S.over)S.savedAt=Date.now();_saveGame();cloudSave()};
+const _clearSave=clearSave;clearSave=function(){_clearSave();cloudClear()};
+const _submit=submitRank;submitRank=async function(){
+  await _submit();
+  const msg=$("endMsg");
+  if(!FB){return}
+  if(!USER){msg.textContent+=" 전체 랭킹에 올리려면 첫 화면에서 Google로 로그인해 주세요.";return}
+  try{
+    const ref=FB.db.collection("ranks").doc(USER.uid);const cur=await ref.get();const old=cur.exists?cur.data():null;
+    if(old&&old.score>=S.final.score){msg.textContent=`전체 랭킹의 내 최고 기록(${old.score.toLocaleString()}점)이 더 높아서 그대로 두었어요.`;return}
+    await ref.set({name:String(S.name).slice(0,10),score:Math.round(S.final.score),grade:S.final.grade,company:`${BRANDS[S.brand].maker} ${BRANDS[S.brand].name}`,ending:S.final.ending,at:Date.now()});
+    msg.textContent="전체 랭킹과 이 기기 기록에 모두 등록했어요!";
+  }catch(e){msg.textContent="이 기기에는 기록했지만, 전체 랭킹 등록에 실패했어요."}
+};
+(function initFB(){
+  if(!CFG.apiKey||typeof firebase==="undefined"){renderAuth();return}
+  try{
+    firebase.initializeApp(CFG);FB={auth:firebase.auth(),db:firebase.firestore()};
+    FB.auth.getRedirectResult().catch(()=>{});
+    FB.auth.onAuthStateChanged(u=>{USER=u;renderAuth();if(u){checkCloudSave();if(S&&!S.over)cloudSave()}});
+    loadGlobalRanks();
+  }catch(e){FB=null}
+  renderAuth();
+})();
+</script>
+
+</body></html>
