@@ -114,7 +114,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .tierRow span.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 
 /* 행동: 키 태그 */
-.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
 .key{position:relative;text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:12px 30px 30px 12px;padding:14px 18px 14px 40px;transition:border-color .15s,transform .15s}
 .key::before{content:"";position:absolute;left:15px;top:50%;width:11px;height:11px;margin-top:-5.5px;border-radius:50%;border:1.5px solid var(--gold);background:var(--bg)}
 .key b{display:block;font-size:15.5px;font-weight:600}
@@ -147,7 +147,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;text-align:center;margin:6px 0 10px}
 .vs b{display:block;font-family:var(--serif);font-weight:800;font-size:36px;line-height:1.1;color:var(--ink)}
 .vs small{display:block;color:var(--sub);font-size:12.5px}
-.vsMid{font-size:22px;color:var(--gold)}
+.vsMid{font-size:22px;color:var(--sub)}
 
 /* 업적 */
 .achGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
@@ -175,14 +175,13 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 #stage{z-index:30}
 #stage .sheet{min-height:380px}
 .stageHead{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.autoTag{font-family:var(--serif);font-weight:700;color:var(--gold);font-size:14px}
+.autoTag{font-family:var(--serif);font-weight:700;color:var(--sub);font-size:14px}
 #stageLines p{margin:7px 0;line-height:1.55}
 #stageLines .dim{color:var(--sub)}
 #stageLines .q{font-weight:600;border-left:3px solid var(--gold);padding-left:12px}
 #choices{display:grid;gap:8px;margin-top:10px}
-#stageNum{font-family:var(--serif);font-weight:800;font-size:84px;line-height:1;margin:14px 0 6px;min-height:84px;color:var(--ink);letter-spacing:-.03em}
-#stageNum.hot{color:var(--gold)}
-#stageNum.hot::after{content:"월간 판매왕";font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:0;color:var(--ink);background:var(--goldSoft);border-radius:999px;padding:4px 12px;margin-left:12px;vertical-align:middle}
+#stageNum{margin:10px 0 6px;min-height:150px;text-align:center}
+#stageNum.hot::after{display:inline-block;margin-top:4px;content:"월간 판매왕";font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:0;color:var(--ink);background:var(--goldSoft);border-radius:999px;padding:4px 12px;}
 #stageOut p{margin:4px 0;font-size:13.5px}
 #stageOut .dim{color:var(--sub)}
 .skiphint{font-size:12px;color:var(--sub);margin-top:12px}
@@ -192,6 +191,49 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .kv small{color:var(--sub);display:block;font-size:12px}.kv b{font-family:var(--serif);font-weight:800;font-size:20px}
 @media (prefers-reduced-motion:no-preference){#stageLines p{animation:typein .35s ease}@keyframes typein{from{opacity:0;transform:translateY(3px)}}#stageNum.hot{animation:pop .45s cubic-bezier(.2,1.4,.4,1)}@keyframes pop{from{transform:scale(.92)}}}
 @media (max-width:520px){.gauges{gap:2px}.gauge{font-size:11px}.odo{font-size:24px}.cash{font-size:22px}.mate{grid-template-columns:100px 1fr 1fr}}
+/* 자동차 테마: 계기판 경고등 · 주행거리계 */
+.lamps{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08)}
+.lamp{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:rgba(147,160,184,.45);transition:color .3s}
+.lamp svg{width:18px;height:18px;flex:none}
+.lamp.on{color:var(--dashText)}
+.lamp.on[data-c="warn"] svg{color:#F08A82;filter:drop-shadow(0 0 4px rgba(240,138,130,.7))}
+.lamp.on[data-c="good"] svg{color:#7FD3BF;filter:drop-shadow(0 0 4px rgba(127,211,191,.6))}
+.lamp.on[data-c="king"] svg{color:var(--needle);filter:drop-shadow(0 0 4px rgba(217,190,138,.7))}
+.odoMeter{display:inline-flex;gap:2px;margin-top:6px;padding:3px;border-radius:6px;background:#070C16;box-shadow:inset 0 1px 3px rgba(0,0,0,.6)}
+.odoMeter i{font-style:normal;font-weight:700;font-size:15px;line-height:1;width:15px;padding:4px 0;text-align:center;border-radius:3px;background:linear-gradient(#1A2336,#0E1524 50%,#1A2336);color:var(--dashText);font-variant-numeric:tabular-nums}
+.odoMeter i:last-child{background:linear-gradient(#EEF1F6,#C9D0DB 50%,#EEF1F6);color:#13203A}
+.odoUnit{font-size:12px;color:var(--dashSub);margin-left:6px}
+/* 행동 키: 아이콘 */
+.key.ic{padding-left:58px}
+.key.ic::before{display:none}
+.key .ico{position:absolute;left:14px;top:50%;width:32px;height:32px;margin-top:-16px;border-radius:50%;background:var(--sunk);color:var(--ink);display:grid;place-items:center}
+.key .ico svg{width:18px;height:18px}
+/* 내 차고 */
+.garage{display:flex;align-items:center;gap:14px;margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--rule)}
+.garage svg{width:96px;height:auto;flex:none;color:var(--ink)}
+.garage b{display:block;font-size:14.5px}
+.garage small{display:block;color:var(--sub);font-size:12.5px;line-height:1.45}
+.garage .prog{height:5px}
+/* 라이벌 레이스 */
+.track{position:relative;margin:4px 0 12px;padding:6px 34px 6px 0;border-radius:10px;background:var(--sunk)}
+.track::after{content:"";position:absolute;right:10px;top:6px;bottom:6px;width:12px;background:repeating-conic-gradient(var(--ink) 0 25%,var(--surface) 0 50%) 0 0/6px 6px;border-radius:2px;opacity:.75}
+.lane{position:relative;height:30px;border-bottom:1px dashed var(--rule)}
+.lane:last-child{border-bottom:0}
+.lane .rc{position:absolute;top:50%;transform:translate(-100%,-50%);display:flex;align-items:center;gap:6px;transition:left .6s ease;white-space:nowrap}
+.lane .rc svg{width:44px;height:auto}
+.lane .rc small{font-size:11.5px;color:var(--sub);font-weight:600}
+.lane.me .rc svg{color:var(--ink)}
+.lane.rv .rc svg{color:var(--sub)}
+/* 판매 현황: 판매왕 기준선 */
+.bars{position:relative}
+.bars .kingLine{position:absolute;left:0;right:0;height:0;border-top:1.5px dashed var(--gold);opacity:.9;pointer-events:none;flex:none;background:none;border-radius:0}
+/* 월간 결과 속도계 */
+#stageNum svg{display:block;width:100%;max-width:300px;margin:0 auto;color:var(--ink)}
+/* 시작 화면 도로 */
+.road{position:relative;height:34px;margin:6px 0 -6px;overflow:hidden}
+.road::before{content:"";position:absolute;left:0;right:0;bottom:6px;height:2px;background:repeating-linear-gradient(90deg,var(--sub) 0 22px,transparent 22px 40px);opacity:.45}
+.road svg{position:absolute;bottom:7px;left:0;width:72px;color:var(--ink)}
+@media (prefers-reduced-motion:no-preference){.road svg{animation:drive 2.6s cubic-bezier(.3,.1,.2,1) .3s both}@keyframes drive{from{transform:translateX(-90px)}to{transform:translateX(calc(min(100vw,960px) - 150px))}}}
 /* 모바일: 한글 단어 단위 줄바꿈, 계기판 압축, 입력창 확대 방지 */
 body{word-break:keep-all;overflow-wrap:anywhere}
 @media (max-width:640px){
@@ -217,12 +259,20 @@ body{word-break:keep-all;overflow-wrap:anywhere}
   .statHelp summary{font-size:12px}
   section{margin-top:22px}
   .key{padding:11px 16px 11px 38px}
+  .key.ic{padding-left:56px}
+  .keys{grid-template-columns:1fr}
+  .shelf{grid-template-columns:repeat(3,1fr);padding:12px 8px 6px;gap:4px 6px}
+  .trophy .n{font-size:12px}
   .achGrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
   .note{padding:4px 14px}
   .note li{white-space:normal}
   .vs b{font-size:30px}
   .sheet{padding:20px 18px}
-  #stageNum{font-size:68px;min-height:68px}
+  .lamps{gap:4px 10px}
+  .lamp{font-size:10.5px}
+  .lamp svg{width:16px;height:16px}
+  .odoMeter i{font-size:13px;width:13px;padding:3px 0}
+  .garage svg{width:80px}
 }
 
 .key:disabled{cursor:not-allowed}
@@ -236,6 +286,7 @@ body{word-break:keep-all;overflow-wrap:anywhere}
   <div class="hero">
     <span class="plateBig">12가 3456</span>
     <h1 class="title">나는 자동차 딜러다</h1>
+    <div class="road" aria-hidden="true" id="road"></div>
     <p class="lead">스물여덟, 첫 출근. 어느 브랜드 전시장에 설지 고르세요. 매달 영업하고, 상 받고, 이직하고, 예순에 은퇴합니다.</p>
   </div>
   <section class="board">
@@ -285,6 +336,7 @@ body{word-break:keep-all;overflow-wrap:anywhere}
       </div>
     </div>
     <div class="gauges" id="gauges"></div>
+    <div class="lamps" id="lamps"></div>
     <details class="statHelp"><summary>능력치는 어디에 쓰이나요? · 최근 변화 보기</summary><div id="statHelp"></div></details>
   </div>
 
@@ -327,7 +379,7 @@ body{word-break:keep-all;overflow-wrap:anywhere}
       <span class="boardNote" id="boardNote"></span>
     </div>
     <div class="bars" id="bars" aria-label="최근 36개월 판매 대수"></div>
-    <div style="font-size:12px;color:var(--sub);margin-top:4px">금색 막대는 월간 판매왕을 받은 달</div>
+    <div style="font-size:12px;color:var(--sub);margin-top:4px">금색 막대는 월간 판매왕을 받은 달 · 점선은 판매왕 기준 <span id="kingTxt"></span></div>
   </section>
 
   <section class="board">
@@ -662,7 +714,59 @@ function award(key,detail=""){
 // 화면
 function gauge(label,v,color,d){
   const r=26,c=Math.PI*r*1.5,f=c*v/100;
-  return `<div class="gauge"><svg viewBox="0 0 70 62" aria-hidden="true"><circle cx="35" cy="35" r="${r}" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="7" stroke-dasharray="${c} 999" transform="rotate(135 35 35)" stroke-linecap="round"/><circle cx="35" cy="35" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-dasharray="${f} 999" transform="rotate(135 35 35)" stroke-linecap="round"/><text x="35" y="40" text-anchor="middle" fill="#EEF1F6" font-size="15" font-family="Noto Sans KR, sans-serif" font-weight="800">${Math.round(v)}</text></svg><b>${label}${d?` <i class="${d>0?"up":"dn"}">${d>0?"▲":"▼"}${Math.abs(d)}</i>`:""}</b></div>`;
+  return `<div class="gauge"><svg viewBox="0 0 70 62" aria-hidden="true"><circle cx="35" cy="35" r="${r}" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="7" stroke-dasharray="${c} 999" transform="rotate(135 35 35)" stroke-linecap="round"/><circle cx="35" cy="35" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-dasharray="${f} 999" transform="rotate(135 35 35)" stroke-linecap="round"/>${[0,1,2,3,4,5,6].map(i=>{const a=(135+i*45)*Math.PI/180;return `<line x1="${35+33*Math.cos(a)}" y1="${35+33*Math.sin(a)}" x2="${35+30*Math.cos(a)}" y2="${35+30*Math.sin(a)}" stroke="rgba(255,255,255,.28)" stroke-width="1.2"/>`}).join("")}<text x="35" y="40" text-anchor="middle" fill="#EEF1F6" font-size="15" font-family="Noto Sans KR, sans-serif" font-weight="800">${Math.round(v)}</text></svg><b>${label}${d?` <i class="${d>0?"up":"dn"}">${d>0?"▲":"▼"}${Math.abs(d)}</i>`:""}</b></div>`;
+}
+// 자동차 테마 그림 (실루엣·아이콘은 직접 그린 단순 도형, 실제 차량 모델 아님)
+const CAR_SHAPES=[
+  {b:"M6 38V10q0-4 4-4h98q6 0 6 6v26z",w:"M11 11h96v11H11z",wh:[26,94]},
+  {b:"M14 38v-9q2-4 10-5l12-1 10-9q3-2 8-2h26q6 0 10 6l8 8q6 1 6 6v6z",w:"M40 23l8-9q2-1 6-1h24q5 0 8 5l5 5z",wh:[32,86]},
+  {b:"M8 38V26q0-4 6-4l16-1 8-10q2-2 8-2h46q6 0 8 4l6 9q8 1 8 7v9z",w:"M36 20l5-8q1-1 5-1h44q5 0 7 3l4 6z",wh:[30,92]},
+  {b:"M6 38v-7q2-4 12-5l18-1 14-9q5-2 12-2h18q6 0 10 4l8 7 12 2q6 2 6 6v5z",w:"M44 24l9-7q4-1 9-1h17q5 0 8 3l5 5z",wh:[30,94]},
+  {b:"M6 38v-6q2-3 12-4l22-2 16-8q4-2 10-2h12q8 0 14 6l8 5 12 2q4 1 4 5v4z",w:"M50 25l8-6q3-1 8-1h11q6 0 10 4l3 3z",wh:[30,94]}
+];
+function carSvg(i){const c=CAR_SHAPES[i]||CAR_SHAPES[1];
+  return `<svg viewBox="0 0 120 48" aria-hidden="true"><path d="${c.b}" fill="currentColor"/><path d="${c.w}" fill="var(--surface)" opacity=".85"/>${c.wh.map(x=>`<circle cx="${x}" cy="38" r="8" fill="currentColor"/><circle cx="${x}" cy="38" r="5" fill="var(--surface)"/><circle cx="${x}" cy="38" r="2" fill="currentColor"/>`).join("")}</svg>`}
+const ICO=d=>`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ACT_ICON={
+  floor:'<path d="M2 8l8-5 8 5"/><path d="M4 8v9h12V8"/><path d="M7 17v-5h6v5"/>',
+  pioneer:'<path d="M10 18s6-5.5 6-10a6 6 0 0 0-12 0c0 4.5 6 10 6 10z"/><circle cx="10" cy="8" r="2"/>',
+  sns:'<rect x="2" y="5" width="12" height="10" rx="2"/><path d="M14 9l4-2v6l-4-2"/>',
+  study:'<path d="M3 4h5a2 2 0 0 1 2 2v11a2 2 0 0 0-2-2H3z"/><path d="M17 4h-5a2 2 0 0 0-2 2v11a2 2 0 0 1 2-2h5z"/>',
+  coach:'<circle cx="7" cy="7" r="2.5"/><circle cx="14" cy="8" r="2"/><path d="M2.5 16c.5-3 2.3-4.5 4.5-4.5s4 1.5 4.5 4.5"/><path d="M12 12.2c2.6-.6 4.6.8 5.2 3.8"/>',
+  rest:'<path d="M4 8h10v4a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M14 9h1.5a2 2 0 0 1 0 4H14"/><path d="M7 2v3M10 2v3"/>'
+};
+const LAMP_ICON={
+  hp:'<rect x="2" y="6" width="14" height="9" rx="1.5"/><path d="M16 9h2v3h-2"/><path d="M5.5 10.5h3M12 9v3M10.5 10.5h3"/>',
+  king:'<path d="M3 15l1.5-8 4 4L10 5l1.5 6 4-4L17 15z"/>',
+  move:'<path d="M5 18V3"/><path d="M5 3h10l-2 3.5L15 10H5"/>',
+  cyc:'<path d="M2 15l5-5 3 3 7-7"/><path d="M13 6h4v4"/>',
+  team:'<circle cx="7" cy="7" r="2.5"/><circle cx="14" cy="8" r="2"/><path d="M2.5 16c.5-3 2.3-4.5 4.5-4.5s4 1.5 4.5 4.5"/><path d="M12 12.2c2.6-.6 4.6.8 5.2 3.8"/>'
+};
+$("road").innerHTML=carSvg(3);
+function kingAt(){const b=BRANDS[S.brand];return Math.ceil(b.top+myRank()*.5*(b.ptPer>1?.4:1))}
+function lampsHtml(){
+  const last=S.history[S.history.length-1],cy=S.cycle,mul=(BRANDS[S.brand].ev?cy.ev:cy.mul)||1;
+  const L=[
+    ["hp","체력 경고",S.hp<30,"warn",`체력 ${Math.round(S.hp)}: 30 아래면 번아웃 위험`],
+    ["king","판매왕",!!(last&&last.top),"king","지난달 월간 판매왕"],
+    ["cyc",mul>=1?"호황":"불황",cy.name!=="평년",mul>=1?"good":"warn",`업계 흐름: ${cy.name}`],
+    ["move","이직 준비",!!S.target,"good",S.target?`이직 준비 ${Math.round(S.prep)}%`:"목표 회사 없음"]
+  ];
+  if(S.team)L.push(["team","팀 사기",S.team.some(t=>t.morale<35),"warn","사기가 낮은 팀원이 있으면 켜져요"]);
+  return L.map(([k,n,on,c,t])=>`<span class="lamp${on?" on":""}" data-c="${c}" title="${t}" role="img" aria-label="${n} ${on?"켜짐":"꺼짐"}">${ICO(LAMP_ICON[k])}${n}</span>`).join("");
+}
+function odometer(n){return `<span class="odoMeter" aria-label="누적 판매 ${n}대">${String(Math.min(n,999999)).padStart(6,"0").split("").map(d=>`<i>${d}</i>`).join("")}</span><span class="odoUnit">대</span>`}
+function speedo(n,king,hot){
+  const max=Math.max(10,Math.ceil(Math.max(king*1.6,n)/5)*5),R=80,cx=100,cy=100,L=Math.PI*R;
+  const pt=(v,r)=>{const a=Math.PI*(1-Math.min(v,max)/max);return[cx+r*Math.cos(a),cy-r*Math.sin(a)]};
+  let ticks="";for(let i=0;i<=10;i++){const v=max*i/10,[x1,y1]=pt(v,R-12),[x2,y2]=pt(v,R-(i%2?17:21));ticks+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="currentColor" stroke-width="${i%2?1:2}" opacity=".5"/>`;if(i%2===0){const[tx,ty]=pt(v,R-32);ticks+=`<text x="${tx}" y="${ty+4}" text-anchor="middle" font-size="10" fill="var(--sub)">${Math.round(v)}</text>`}}
+  const [kx1,ky1]=pt(king,R+6),[kx2,ky2]=pt(king,R-8),[nx,ny]=pt(n,R-14),col=hot?"var(--gold)":"currentColor";
+  return `<svg viewBox="0 0 200 140" role="img" aria-label="이번 달 ${n}대 판매, 판매왕 기준 ${king}대">
+  <path d="M20 100A80 80 0 0 1 180 100" fill="none" stroke="var(--rule)" stroke-width="9" stroke-linecap="round"/>
+  <path d="M20 100A80 80 0 0 1 180 100" fill="none" stroke="${col}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${L*Math.min(n,max)/max} 999"/>
+  ${ticks}<line x1="${kx1}" y1="${ky1}" x2="${kx2}" y2="${ky2}" stroke="var(--gold)" stroke-width="3" stroke-linecap="round"/>
+  <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="var(--crimson)" stroke-width="3" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="6" fill="currentColor"/>
+  <text x="100" y="134" text-anchor="middle" font-size="26" font-weight="800" fill="${col}" font-family="Noto Sans KR, sans-serif">${n}대</text></svg>`;
 }
 function render(){
   const b=BRANDS[S.brand];
@@ -679,17 +783,19 @@ function render(){
   const nx=RANKS[ri+1];
   $("next").innerHTML=nx?`<h3>다음 직급: ${nx[0]}</h3><div class="prog"><i style="width:${Math.min(100,(S.pts-RANKS[ri][1])/(nx[1]-RANKS[ri][1])*100)}%;background:var(--marker)"></i></div><small>승진 포인트 ${Math.round(S.pts)} / ${nx[1]} · ${gateText(ri+1)||"직급이 오르면 명함과 계기판이 바뀌어요"}</small>`:`<h3>최고 직급 달성</h3><small>지점장의 명함은 금박입니다.</small>`;
   $("next").innerHTML+=`<div class="tierRow">${["사원·주임","대리·과장","차장·팀장","지점장"].map((t,i)=>`<span class="${i<=tier?"on":""}">${t}</span>`).join("")}</div>`;
+  const ci=lv[0],nextAt=[1500,4000,12000,35000][ci];
+  $("next").innerHTML+=`<div class="garage">${carSvg(ci)}<div style="flex:1;min-width:0"><small>내 차</small><b>${CARS_OWN[ci]}</b>${nextAt?`<small>${CARS_OWN[ci+1]}까지 ₩${won(Math.max(0,nextAt-S.cash))}</small><div class="prog"><i style="width:${Math.min(100,Math.max(0,S.cash)/nextAt*100)}%;background:var(--marker)"></i></div>`:"<small>더 바랄 게 없는 차고입니다.</small>"}</div></div>`;
   $("money").textContent=`₩ ${won(S.cash)}`;
-  $("career").textContent=`누적 ${S.total}대 · 올해 ${S.yearSales}대`;
+  $("career").innerHTML=`${odometer(S.total)}<div>올해 ${S.yearSales}대</div>`;
   const hpc=S.hp<30?"#F08A82":S.hp<55?"#D9BE8A":"#7FD3BF";
-  const D=S.lastDelta||{};$("gauges").innerHTML=gauge("화술",S.talk,"#C9D3E6",D.talk)+gauge("상품지식",S.know,"#C9D3E6",D.know)+gauge("인맥",S.net,"#C9D3E6",D.net)+gauge("평판",S.rep,"#D9BE8A",D.rep)+gauge("체력",S.hp,hpc,D.hp);$("statHelp").innerHTML=statHelpHtml();
+  const D=S.lastDelta||{};$("gauges").innerHTML=gauge("화술",S.talk,"#C9D3E6",D.talk)+gauge("상품지식",S.know,"#C9D3E6",D.know)+gauge("인맥",S.net,"#C9D3E6",D.net)+gauge("평판",S.rep,"#D9BE8A",D.rep)+gauge("체력",S.hp,hpc,D.hp);$("statHelp").innerHTML=statHelpHtml();$("lamps").innerHTML=lampsHtml();
   $("actions").innerHTML="";
-  ACTIONS.filter(a=>!a.mgr||S.team).forEach(a=>{const e=document.createElement("button");e.className="key";e.innerHTML=`<b>${a.name}</b><span>${a.desc}</span>`;e.onclick=()=>play(a);$("actions").appendChild(e)});
+  ACTIONS.filter(a=>!a.mgr||S.team).forEach(a=>{const e=document.createElement("button");e.className="key ic";e.innerHTML=`<span class="ico">${ICO(ACT_ICON[a.id]||"")}</span><b>${a.name}</b><span>${a.desc}</span>`;e.onclick=()=>play(a);$("actions").appendChild(e)});
   $("retireBtn").hidden=S.age<50;
   // 커리어
   const mv=Math.round(marketValue()),cd=6-(S.history.length-S.lastHunt);
   $("careerInfo").innerHTML=S.target
-    ?`<b>🎯 ${BRANDS[S.target].maker} ${BRANDS[S.target].name}</b> 준비 중 ${Math.round(S.prep)}%<div class="prog"><i style="width:${S.prep}%"></i></div><small style="color:var(--sub)">매달 퇴근 후 조금씩 준비해요 (체력 -3). 100%면 면접.</small>`
+    ?`<b>목표: ${BRANDS[S.target].maker} ${BRANDS[S.target].name}</b> 준비 중 ${Math.round(S.prep)}%<div class="prog"><i style="width:${S.prep}%"></i></div><small style="color:var(--sub)">매달 퇴근 후 조금씩 준비해요 (체력 -3). 100%면 면접.</small>`
     :`<b>내 몸값 지수 ${mv}</b><br><small style="color:var(--sub)">가고 싶은 회사를 정하면 매달 이직 준비가 쌓여요. 잘하면 경쟁사가 먼저 연락합니다.</small>`;
   $("tgtBtn").textContent=S.target?"목표 바꾸기·포기":"목표 회사 정하기";
   $("huntBtn").disabled=cd>0;$("huntBtn").textContent=cd>0?`헤드헌터 (${cd}개월 후)`:"헤드헌터 만나기";
@@ -697,10 +803,11 @@ function render(){
   $("teamPanel").hidden=!S.team;
   if(S.team)$("team").innerHTML=S.team.map(m=>`<div class="mate"><b>${m.name}<small style="display:block" title="${(ROLES[m.role]||{}).d||""}">${(ROLES[m.role]||{}).n||""} · 지난달 ${m.last??0}대</small></b><div><small>실력 ${Math.round(m.skill)}</small><div class="prog"><i style="width:${m.skill}%;background:var(--marker)"></i></div></div><div><small>사기 ${Math.round(m.morale)}</small><div class="prog"><i style="width:${m.morale}%"></i></div></div></div>`).join("");
   // 보드
-  const h=S.history.slice(-36),mx=Math.max(5,...h.map(x=>x.n));
-  $("bars").innerHTML=h.map(x=>`<div class="${x.top?"top":""}" style="height:${Math.max(2,x.n/mx*100)}%" title="${x.label}: ${x.n}대"></div>`).join("");
+  const h=S.history.slice(-36),ka=kingAt(),mx=Math.max(5,ka*1.15,...h.map(x=>x.n));
+  $("kingTxt").textContent=`(${ka}대)`;
+  $("bars").innerHTML=`<div class="kingLine" style="bottom:${117*ka/mx}px"></div>`+h.map(x=>`<div class="${x.top?"top":""}" style="height:${Math.max(2,x.n/mx*100)}%" title="${x.label}: ${x.n}대"></div>`).join("");
   const last=h[h.length-1];
-  $("boardNote").textContent=last?(last.top?`${last.label} 판매왕! 이 기세로!`:`이번 달 목표 ${b.top}대!`):`첫 달 목표 ${b.top}대!`;
+  $("boardNote").textContent=last?(last.top?`${last.label} 판매왕! 이 기세로!`:`이번 달 목표 ${ka}대!`):`첫 달 목표 ${ka}대!`;
   // 진열장
   renderExtra();
   $("shelf").innerHTML=Object.entries(AWARDS).map(([k,[e,n]])=>{const c=S.trophy[k]||0;return `<div class="trophy ${c?"":"off"}" title="${n}"><div class="t">${medal(k)}</div><div class="n">${n}</div><div class="c">${c?"× "+c:"-"}</div><div class="pk">${AWARD_PERK[k][0]}</div></div>`}).join("");
@@ -1201,8 +1308,9 @@ async function reveal(res,events,autoNext){
   const t=autoNext?.45:1;
   if(res.leads>0){addLine(`상담 고객 ${res.leads}명. 견적서를 뽑습니다…`);await w(800*t);addLine("계약서 서명을 기다리는 중…","dim");await w(900*t)}
   else{addLine("이번 달은 찾아온 손님이 거의 없었습니다…","dim");await w(700*t)}
-  for(let i=0;i<=res.sold;i++){$("stageNum").textContent=i+"대";await w(Math.min(200,1300/Math.max(1,res.sold))*t)}
-  $("stageNum").textContent=res.sold+"대";if(res.top)$("stageNum").className="hot";
+  const ka=kingAt();
+  for(let i=0;i<=res.sold;i++){$("stageNum").innerHTML=speedo(i,ka,false);await w(Math.min(200,1300/Math.max(1,res.sold))*t)}
+  $("stageNum").innerHTML=speedo(res.sold,ka,res.top);if(res.top)$("stageNum").className="hot";
   events.forEach(e=>{const p=document.createElement("p");p.className=e.c;p.textContent=clean(e.t);$("stageOut").appendChild(p)});
   if(autoNext){$("skipHint").hidden=true;await sleep(skipping||fast()?250:1300);return}
   $("skipHint").hidden=true;$("stageOk").hidden=false;$("stageOk").focus();
@@ -1416,7 +1524,8 @@ function renderExtra(){
   const rv=S.rival;
   if(rv){const rb=BRANDS[rv.brand],same=rv.brand===S.brand;
     $("rival").innerHTML=`<div class="vs"><div><small>나</small><b>${S.yearSales}대</b><small>올해</small></div><div class="vsMid hand">대</div><div><small>${rv.name} · ${rankOf(rv.pts)}</small><b>${rv.year}대</b><small>${rb.maker} ${rb.name}${same?" (같은 회사)":""}</small></div></div>
-    <small style="color:var(--sub)">라이벌전 ${S.rivalW||0}승 ${S.rivalL||0}패 · 지난달 라이벌 ${rv.last??0}대 · 연말에 판매 포인트로 승부해요.</small>`}
+    ${(()=>{const m=Math.max(S.yearSales,rv.year,1)*1.08,pos=v=>`calc(46px + (100% - 46px)*${(v/m).toFixed(3)})`;return `<div class="track" aria-label="올해 판매 레이스: 나 ${S.yearSales}대, ${rv.name} ${rv.year}대"><div class="lane me"><span class="rc" style="left:${pos(S.yearSales)}">${carSvg(3)}</span></div><div class="lane rv"><span class="rc" style="left:${pos(rv.year)}">${carSvg(1)}</span></div></div>`})()}
+    <small style="color:var(--sub)">위 차선이 나, 아래가 ${rv.name}. 라이벌전 ${S.rivalW||0}승 ${S.rivalL||0}패 · 지난달 라이벌 ${rv.last??0}대 · 연말에 판매 포인트로 승부해요.</small>`}
   S.ach=S.ach||{};
   $("achGrid").innerHTML=Object.entries(ACH).map(([k,[n,d]])=>S.ach[k]?`<div class="ach on"><b>${n}</b><small>${d}</small><small class="pkx">혜택: ${ACH_PERK[k][0]}</small><small>${S.ach[k]}</small></div>`:`<div class="ach"><b>???</b><small>${d}</small><small>혜택: ${ACH_PERK[k][0]}</small></div>`).join("");
   $("achCount").textContent=`${Object.keys(S.ach).length} / ${Object.keys(ACH).length}`;
@@ -1452,14 +1561,14 @@ async function cloudWrite(){
   if(!FB||!USER||!S||S.over)return;
   try{
     await FB.db.collection("saves").doc(USER.uid).set({data:JSON.stringify(S),savedAt:S.savedAt||Date.now(),summary:`${S.name} · ${S.age}세 · ${BRANDS[S.brand].name} · 누적 ${S.total}대`});
-    lastCloud=Date.now();setCloudState("☁ 저장됨");
+    lastCloud=Date.now();setCloudState("클라우드 저장됨");
   }catch(e){setCloudState("저장 실패 · 이 기기에는 저장됨")}
 }
 function cloudSave(){
   if(!FB||!USER)return;
   clearTimeout(cloudTimer);
   const wait=Math.max(0,30000-(Date.now()-lastCloud));
-  setCloudState("☁ 저장 대기");
+  setCloudState("클라우드 저장 대기");
   cloudTimer=setTimeout(cloudWrite,wait);
 }
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&cloudTimer){clearTimeout(cloudTimer);cloudTimer=null;cloudWrite()}});
@@ -1471,7 +1580,7 @@ async function checkCloudSave(){
     const c=d.data(),local=loadSave();
     if(!local||(c.savedAt||0)>(local.savedAt||0)){localStorage.setItem(SAVE_KEY,c.data)}
     initContinue();
-    if($("contInfo").textContent)$("contInfo").textContent="☁ 계정 저장 · "+$("contInfo").textContent.replace(/^☁ 계정 저장 · /,"");
+    if($("contInfo").textContent)$("contInfo").textContent="계정 저장 · "+$("contInfo").textContent.replace(/^계정 저장 · /,"");
   }catch(e){}
 }
 async function loadGlobalRanks(){
