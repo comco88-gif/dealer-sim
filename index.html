@@ -9,7 +9,6 @@
 <meta property="og:description" content="국산·수입·하이엔드·전기차, 어느 전시장에서 시작할까요? 30년 딜러 인생 시뮬레이션">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#13203A">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2313203A'/%3E%3Ccircle cx='32' cy='36' r='18' fill='none' stroke='%23D9BE8A' stroke-width='5' stroke-dasharray='85 200' transform='rotate(135 32 36)'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -1371,7 +1370,7 @@ async function submitRank(){
     const r=loadRecords();
     r.push({name:S.name,score:S.final.score,grade:S.final.grade,company:`${BRANDS[S.brand].maker} ${BRANDS[S.brand].name}`,ending:S.final.ending,at:Date.now()});
     r.sort((a,b)=>b.score-a.score);localStorage.setItem(REC_KEY,JSON.stringify(r.slice(0,10)));
-    msg.textContent="이 기기의 명예의 전당에 기록했어요. 첫 화면에서 확인할 수 있어요.";$("rankBtn").disabled=true;
+    msg.textContent="이 기기의 명예의 전당에 기록했어요.";$("rankBtn").disabled=true;
   }catch(e){msg.textContent="기록 저장에 실패했어요."}
 }
 (function loadRanks(){
