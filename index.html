@@ -234,6 +234,23 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .road::before{content:"";position:absolute;left:0;right:0;bottom:6px;height:2px;background:repeating-linear-gradient(90deg,var(--sub) 0 22px,transparent 22px 40px);opacity:.45}
 .road svg{position:absolute;bottom:7px;left:0;width:72px;color:var(--ink)}
 @media (prefers-reduced-motion:no-preference){.road svg{animation:drive 2.6s cubic-bezier(.3,.1,.2,1) .3s both}@keyframes drive{from{transform:translateX(-90px)}to{transform:translateX(calc(min(100vw,960px) - 150px))}}}
+/* 브랜드 카드 */
+.makers{display:grid;gap:16px;margin-top:12px}
+.mkGroup h3{font-size:14px;font-weight:700;color:var(--sub);display:flex;align-items:center;gap:8px;margin:0 0 8px}
+.mkGroup h3 svg{width:42px;height:auto;color:var(--sub)}
+.mkRow{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.mk{text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;transition:border-color .15s}
+.mk b{display:block;font-size:15px;font-weight:700}
+.mk small{display:block;color:var(--sub);font-size:12px;line-height:1.4;margin-top:2px}
+.mk:hover{border-color:var(--sub)}
+.mk[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 3px 0 0 var(--gold)}
+/* 트로피: 받은 상만 진열, 나머지는 접기 */
+.shelfEmpty{grid-column:1/-1;margin:4px 0 8px;color:var(--sub);font-size:14px;text-align:center}
+.lockedBox{margin-top:10px}
+.lockedBox summary{cursor:pointer;font-size:13.5px;color:var(--sub);padding:6px 2px;list-style:none}
+.lockedBox summary::before{content:"+ "}
+.lockedBox[open] summary::before{content:"− "}
+.lockedBox .shelf{margin-top:6px}
 /* 모바일: 한글 단어 단위 줄바꿈, 계기판 압축, 입력창 확대 방지 */
 body{word-break:keep-all;overflow-wrap:anywhere}
 @media (max-width:640px){
@@ -273,6 +290,15 @@ body{word-break:keep-all;overflow-wrap:anywhere}
   .lamp svg{width:16px;height:16px}
   .odoMeter i{font-size:13px;width:13px;padding:3px 0}
   .garage svg{width:80px}
+  .me{gap:14px}
+  .mkRow{grid-template-columns:repeat(3,1fr);gap:6px}
+  .mk{padding:8px 9px}
+  .mk b{font-size:13.5px;letter-spacing:-.02em}
+  .mk small{font-size:11px}
+  .mkN{display:none}
+  .makers{gap:12px}
+  .biz{aspect-ratio:auto;padding:14px 16px;gap:12px}
+  .biz .nm{font-size:24px}
 }
 
 .key:disabled{cursor:not-allowed}
@@ -300,7 +326,8 @@ body{word-break:keep-all;overflow-wrap:anywhere}
   </section>
   <section class="board">
     <h2><span class="magnet"></span>입사 지원</h2>
-    <div class="row"><select id="makerSel" aria-label="브랜드 선택"></select></div>
+    <select id="makerSel" aria-label="브랜드 선택" hidden></select>
+    <div class="makers" id="makerCards"></div>
     <div class="dealers" id="dealers"></div>
     <div class="row" style="margin-top:18px">
       <select id="bgSel" aria-label="시작 배경" style="max-width:260px"></select>
@@ -390,6 +417,7 @@ body{word-break:keep-all;overflow-wrap:anywhere}
   <section>
     <h2 style="font-size:24px;margin-bottom:8px">트로피 진열장</h2>
     <div class="shelf" id="shelf"></div>
+    <details class="lockedBox" id="lockedBox"><summary id="lockedSum"></summary><div class="shelf" id="shelfOff"></div></details>
   </section>
 
   <section>
@@ -743,6 +771,15 @@ const LAMP_ICON={
   team:'<circle cx="7" cy="7" r="2.5"/><circle cx="14" cy="8" r="2"/><path d="M2.5 16c.5-3 2.3-4.5 4.5-4.5s4 1.5 4.5 4.5"/><path d="M12 12.2c2.6-.6 4.6.8 5.2 3.8"/>'
 };
 $("road").innerHTML=carSvg(3);
+(function makerCards(){
+  const G=[["국산",1,"차값이 낮고 많이 팔아요"],["수입",3,"대당 포인트 3배"],["수입 하이엔드",4,"한 대가 크지만 드물게 팔려요"],["전기차",2,"보조금·업계 흐름을 크게 타요"]];
+  $("makerCards").innerHTML=G.map(([g,ci,d])=>`<div class="mkGroup"><h3>${carSvg(ci)}<span>${g} · <span style="font-weight:500">${d}</span></span></h3><div class="mkRow">`+
+    Object.entries(MAKERS).filter(([k,m])=>(m.group||m.origin)===g).map(([k,m])=>`<button class="mk" aria-pressed="false" data-k="${k}"><b>${m.maker}</b><small>포인트 ×${m.ptPer}<span class="mkN"> · 소속사 ${DEALERS.filter(d=>d.mk===k).length}곳</span></small></button>`).join("")+`</div></div>`).join("");
+  $("makerCards").onclick=e=>{const b=e.target.closest(".mk");if(!b)return;
+    $("makerCards").querySelectorAll(".mk").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+    sel.value=b.dataset.k;sel.onchange();
+    $("dealers").scrollIntoView({behavior:fast()?"auto":"smooth",block:"nearest"})};
+})();
 function kingAt(){const b=BRANDS[S.brand];return Math.ceil(b.top+myRank()*.5*(b.ptPer>1?.4:1))}
 function lampsHtml(){
   const last=S.history[S.history.length-1],cy=S.cycle,mul=(BRANDS[S.brand].ev?cy.ev:cy.mul)||1;
@@ -810,7 +847,10 @@ function render(){
   $("boardNote").textContent=last?(last.top?`${last.label} 판매왕! 이 기세로!`:`이번 달 목표 ${ka}대!`):`첫 달 목표 ${ka}대!`;
   // 진열장
   renderExtra();
-  $("shelf").innerHTML=Object.entries(AWARDS).map(([k,[e,n]])=>{const c=S.trophy[k]||0;return `<div class="trophy ${c?"":"off"}" title="${n}"><div class="t">${medal(k)}</div><div class="n">${n}</div><div class="c">${c?"× "+c:"-"}</div><div class="pk">${AWARD_PERK[k][0]}</div></div>`}).join("");
+  const tro=([k,[e,n]])=>{const c=S.trophy[k]||0;return `<div class="trophy ${c?"":"off"}" title="${n}"><div class="t">${medal(k)}</div><div class="n">${n}</div><div class="c">${c?"× "+c:"-"}</div><div class="pk">${AWARD_PERK[k][0]}</div></div>`};
+  const AW=Object.entries(AWARDS),got=AW.filter(([k])=>S.trophy[k]),lock=AW.filter(([k])=>!S.trophy[k]);
+  $("shelf").innerHTML=got.length?got.map(tro).join(""):`<p class="shelfEmpty">아직 받은 상이 없어요. 첫 월간 판매왕을 노려 보세요.</p>`;
+  $("lockedBox").hidden=!lock.length;$("lockedSum").textContent=`아직 못 받은 상 ${lock.length}개 · 받으면 생기는 혜택 보기`;$("shelfOff").innerHTML=lock.map(tro).join("");
 }
 const CARS_OWN=["대중교통","중고 준중형","신차 SUV","수입 세단","드림카"];
 const HOMES=["원룸 월세","투룸 전세","아파트 전세","아파트 자가","한강뷰 자가"];
