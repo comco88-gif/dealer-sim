@@ -229,12 +229,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .bars .kingLine{position:absolute;left:0;right:0;height:0;border-top:1.5px dashed var(--gold);opacity:.9;pointer-events:none;flex:none;background:none;border-radius:0}
 /* 월간 결과 속도계 */
 #stageNum svg{display:block;width:100%;max-width:300px;margin:0 auto;color:var(--ink)}
-/* 시작 화면 도로 */
-.road{position:relative;height:34px;margin:6px 0 -6px;overflow:hidden}
-.road::before{content:"";position:absolute;left:0;right:0;bottom:6px;height:2px;background:repeating-linear-gradient(90deg,var(--sub) 0 22px,transparent 22px 40px);opacity:.45}
-.road svg{position:absolute;bottom:7px;left:0;width:72px;color:var(--ink)}
-@media (prefers-reduced-motion:no-preference){.road svg{animation:drive 2.6s cubic-bezier(.3,.1,.2,1) .3s both}@keyframes drive{from{transform:translateX(-90px)}to{transform:translateX(calc(min(100vw,960px) - 150px))}}}
-/* 브랜드 카드 */
+@media (prefers-reduced-motion:no-preference){/* 브랜드 카드 */
 .makers{display:grid;gap:16px;margin-top:12px}
 .mkGroup h3{font-size:14px;font-weight:700;color:var(--sub);display:flex;align-items:center;gap:8px;margin:0 0 8px}
 .mkGroup h3 svg{width:42px;height:auto;color:var(--sub)}
@@ -254,6 +249,25 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 /* 피드백 메일 안내 */
 .fbBox{margin-top:22px;font-size:13.5px;color:var(--sub);background:var(--sunk);border-radius:10px;padding:12px 14px;line-height:1.6}
 .fbBox a{color:var(--ink);font-weight:600;text-underline-offset:3px}
+/* 3D 쇼룸 */
+.showroom{position:relative;height:290px;margin:4px 0 0;border-radius:18px;overflow:hidden;cursor:grab;touch-action:pan-y;
+  background:radial-gradient(55% 40% at 50% 82%,rgba(255,255,255,.16),transparent 72%),radial-gradient(90% 70% at 50% 0%,#24365A,transparent 70%),linear-gradient(#1B2B4A,#0B1322)}
+.showroom::before{content:"";position:absolute;left:0;right:0;top:64%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent)}
+.showroom:active{cursor:grabbing}
+.showroom canvas,.g3d canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block}
+.srTag{position:absolute;left:16px;top:12px;text-shadow:0 1px 6px rgba(0,0,0,.5);z-index:2;font-size:12.5px;color:var(--dashSub);pointer-events:none}
+.srTag b{display:block;color:var(--dashText);font-size:15px}
+.showroom.no3d{cursor:default;display:flex;align-items:center;justify-content:center}
+.showroom.no3d svg{width:58%;max-width:320px;color:#C9D3E6}
+.g3d{position:relative;flex:none;width:180px;height:104px;border-radius:10px;overflow:hidden;background:radial-gradient(70% 60% at 50% 80%,#fff,var(--sunk))}
+.g3d.no3d{display:grid;place-items:center}
+.g3d.no3d svg{width:96px}
+/* 명함: 3D 기울기와 승진 회전 */
+.me{perspective:1000px}
+.biz{transform-style:preserve-3d;transition:transform .25s ease;will-change:transform;position:relative}
+.biz::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(120% 80% at var(--gx,30%) var(--gy,0%),rgba(255,255,255,.35),transparent 55%);opacity:var(--go,0);transition:opacity .25s}
+.biz.flip{animation:bizflip 1s cubic-bezier(.3,.7,.2,1)}
+@keyframes bizflip{0%{transform:rotateY(0)}50%{transform:rotateY(180deg) scale(1.04)}100%{transform:rotateY(360deg)}}
 /* 모바일: 한글 단어 단위 줄바꿈, 계기판 압축, 입력창 확대 방지 */
 body{word-break:keep-all;overflow-wrap:anywhere}
 @media (max-width:640px){
@@ -293,6 +307,8 @@ body{word-break:keep-all;overflow-wrap:anywhere}
   .lamp svg{width:16px;height:16px}
   .odoMeter i{font-size:13px;width:13px;padding:3px 0}
   .garage svg{width:80px}
+  .showroom{height:220px}
+  .g3d{width:128px;height:80px}
   .me{gap:14px}
   .mkRow{grid-template-columns:repeat(3,1fr);gap:6px}
   .mk{padding:8px 9px}
@@ -315,7 +331,7 @@ body{word-break:keep-all;overflow-wrap:anywhere}
   <div class="hero">
     <span class="plateBig">12가 3456</span>
     <h1 class="title">나는 자동차 딜러다</h1>
-    <div class="road" aria-hidden="true" id="road"></div>
+    <div class="showroom" id="showroom" role="img" aria-label="3D 전시장: 끌어서 차를 돌려 볼 수 있어요"><span class="srTag" id="srTag"><b>전시장</b>브랜드를 고르면 차가 바뀌어요 · 끌어서 돌려 보세요</span></div>
     <p class="lead">스물여덟, 첫 출근. 어느 브랜드 전시장에 설지 고르세요. 매달 영업하고, 상 받고, 이직하고, 예순에 은퇴합니다.</p>
   </div>
   <section class="board">
@@ -373,7 +389,9 @@ body{word-break:keep-all;overflow-wrap:anywhere}
 
   <section class="me">
     <div class="biz" id="biz"></div>
-    <div class="next" id="next"></div>
+    <div class="next"><div id="next"></div>
+      <div class="garage"><div class="g3d" id="g3d" role="img" aria-label="내 차 3D"></div><div style="flex:1;min-width:0" id="garageInfo"></div></div>
+    </div>
   </section>
 
   <section>
@@ -775,7 +793,123 @@ const LAMP_ICON={
   cyc:'<path d="M2 15l5-5 3 3 7-7"/><path d="M13 6h4v4"/>',
   team:'<circle cx="7" cy="7" r="2.5"/><circle cx="14" cy="8" r="2"/><path d="M2.5 16c.5-3 2.3-4.5 4.5-4.5s4 1.5 4.5 4.5"/><path d="M12 12.2c2.6-.6 4.6.8 5.2 3.8"/>'
 };
-$("road").innerHTML=carSvg(3);
+// ───── 3D 쇼룸 ─────
+// three.js를 필요할 때만 불러와 단순 도형으로 가상의 차를 그림 (실제 차량 모델·로고 아님)
+const Show3D=(()=>{
+  const SRC="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
+  const still=()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let loading=null,ok=null;const V=new Map();
+  // 옆모습 다각형(앞이 +x), 유리, 바퀴 x, 바퀴 반지름, 폭
+  const CARS={
+    sedan:{b:[[-2.3,.32],[2.3,.32],[2.36,.62],[2.25,.82],[1.05,.95],[.45,1.38],[-.8,1.4],[-1.5,1],[-2.3,.95],[-2.38,.6]],g:[[1.08,.97],[.45,1.35],[-.8,1.37],[-1.52,.99]],w:[1.45,-1.45],r:.36,wd:1.8},
+    hatch:{b:[[-1.95,.32],[1.95,.32],[2.02,.62],[1.92,.8],[.95,.92],[.3,1.42],[-1.4,1.42],[-1.95,1.02],[-2.02,.6]],g:[[.98,.94],[.3,1.39],[-1.4,1.39],[-1.84,1.04]],w:[1.25,-1.25],r:.34,wd:1.72},
+    suv:{b:[[-2.35,.42],[2.35,.42],[2.42,.75],[2.32,1.05],[1.25,1.15],[.65,1.75],[-2,1.78],[-2.36,1.4],[-2.42,.8]],g:[[1.28,1.17],[.65,1.72],[-2,1.75],[-2.3,1.42],[-2.3,1.2]],w:[1.5,-1.5],r:.42,wd:1.9},
+    sports:{b:[[-2.25,.28],[2.25,.28],[2.36,.5],[2.2,.66],[.8,.8],[.05,1.16],[-.9,1.16],[-2,.85],[-2.3,.8],[-2.36,.5]],g:[[.85,.82],[.05,1.13],[-.9,1.13],[-1.85,.86]],w:[1.45,-1.4],r:.36,wd:1.92},
+    bus:{b:[[-2.95,.35],[2.95,.35],[3,.6],[3,2.2],[2.85,2.35],[-2.85,2.35],[-3,2.2],[-3,.6]],g:[[3.02,1.25],[3.02,2.1],[-2.75,2.1],[-2.75,1.25]],w:[1.9,-1.9],r:.45,wd:2.3}
+  };
+  function webgl(){try{const c=document.createElement("canvas");return !!(window.WebGLRenderingContext&&(c.getContext("webgl")||c.getContext("experimental-webgl")))}catch(e){return false}}
+  function load(){
+    if(ok!==null)return Promise.resolve(ok);
+    if(!loading)loading=new Promise(res=>{
+      if(!webgl())return res(false);
+      if(window.THREE)return res(true);
+      const t=document.createElement("script");t.src=SRC;t.async=true;
+      t.onload=()=>res(!!window.THREE);t.onerror=()=>res(false);document.head.appendChild(t);
+      setTimeout(()=>res(!!window.THREE),12000);
+    }).then(v=>ok=v);
+    return loading;
+  }
+  function build(T,type,color){
+    const c=CARS[type]||CARS.sedan,g=new T.Group();
+    const shape=pts=>{const s=new T.Shape();pts.forEach(([x,y],i)=>i?s.lineTo(x,y):s.moveTo(x,y));s.closePath();return s};
+    const ext=(pts,d,bev)=>{const geo=new T.ExtrudeGeometry(shape(pts),{depth:d,bevelEnabled:bev,bevelThickness:.08,bevelSize:.06,bevelSegments:3,curveSegments:4});geo.translate(0,0,-d/2);return geo};
+    const paint=new T.MeshPhysicalMaterial({color,metalness:.35,roughness:.32,clearcoat:1,clearcoatRoughness:.08});
+    const body=new T.Mesh(ext(c.b,c.wd-.16,true),paint);body.castShadow=true;g.add(body);
+    const glass=new T.Mesh(ext(c.g,c.wd+.02,false),new T.MeshPhysicalMaterial({color:0x0E1726,metalness:.2,roughness:.05,clearcoat:1}));g.add(glass);
+    const tire=new T.MeshStandardMaterial({color:0x07090C,roughness:.9}),rim=new T.MeshStandardMaterial({color:0x8E97A3,metalness:.9,roughness:.3});
+    c.w.forEach(x=>[-1,1].forEach(sd=>{
+      const tg=new T.CylinderGeometry(c.r,c.r,.3,28);tg.rotateX(Math.PI/2);const t=new T.Mesh(tg,tire);t.position.set(x,c.r,sd*(c.wd/2-.08));t.castShadow=true;g.add(t);
+      const rg=new T.CylinderGeometry(c.r*.6,c.r*.6,.32,20);rg.rotateX(Math.PI/2);const r=new T.Mesh(rg,rim);r.position.copy(t.position);g.add(r);
+    }));
+    const xs=c.b.map(p=>p[0]),fx=Math.max(...xs),bx=Math.min(...xs),ly=type==="bus"?.85:c.r+.32;
+    const lamp=(x,col,em)=>[-1,1].forEach(sd=>{const m=new T.Mesh(new T.BoxGeometry(.08,.11,.36),new T.MeshStandardMaterial({color:col,emissive:em,emissiveIntensity:1.2}));m.position.set(x,ly,sd*(c.wd/2-.32));g.add(m)});
+    lamp(fx+.04,0xFFFFFF,0xDDE6F5);lamp(bx-.04,0x9B1C1C,0x8A1414);
+    const len=fx-bx,sc=4.7/Math.max(len,4.4);g.scale.setScalar(sc);g.position.x=-(fx+bx)/2*sc;
+    const wrap=new T.Group();wrap.add(g);return wrap;
+  }
+  function make(el,T){
+    const r=new T.WebGLRenderer({antialias:true,alpha:true});
+    r.setPixelRatio(Math.min(2,window.devicePixelRatio||1));r.shadowMap.enabled=true;r.shadowMap.type=T.PCFSoftShadowMap;
+    r.outputEncoding=T.sRGBEncoding;r.toneMapping=T.ACESFilmicToneMapping;r.toneMappingExposure=.95;
+    el.appendChild(r.domElement);
+    const sc=new T.Scene(),cam=new T.PerspectiveCamera(28,1,.1,60);
+    sc.add(new T.HemisphereLight(0xEEF3FF,0x1B2B4A,.85));
+    const key=new T.DirectionalLight(0xFFFFFF,1.3);key.position.set(4,7,5);key.castShadow=true;key.shadow.mapSize.set(1024,1024);
+    Object.assign(key.shadow.camera,{left:-4,right:4,top:4,bottom:-4,near:1,far:20});sc.add(key);
+    const rimL=new T.DirectionalLight(0xC9D8FF,.9);rimL.position.set(-5,3,-4);sc.add(rimL);
+    const fl=new T.Mesh(new T.PlaneGeometry(14,14),new T.ShadowMaterial({opacity:.38}));fl.rotation.x=-Math.PI/2;fl.receiveShadow=true;sc.add(fl);
+    if(el.dataset.drag){const tt=new T.Mesh(new T.CylinderGeometry(3.1,3.2,.06,64),new T.MeshStandardMaterial({color:0x0A1220,metalness:.15,roughness:.6}));tt.position.y=-.03;tt.receiveShadow=true;sc.add(tt);
+      const ring=new T.Mesh(new T.TorusGeometry(3.15,.015,8,96),new T.MeshBasicMaterial({color:0x8EA2C4}));ring.rotation.x=Math.PI/2;ring.position.y=.005;sc.add(ring);
+      const top=new T.SpotLight(0xFFFFFF,.45,30,.45,.7);top.position.set(0,9,1);sc.add(top)}
+    const v={el,r,sc,cam,car:null,rot:-.6,vel:0,drag:null,seen:true,enter:1,dist:+el.dataset.dist||9.6};
+    const size=()=>{const w=el.clientWidth,h=el.clientHeight;if(!w||!h)return;r.setSize(w,h,false);cam.aspect=w/h;
+      const d=v.dist*Math.max(1,2.1/cam.aspect);cam.position.set(d*.72,d*.3,d*.69);cam.lookAt(0,.62,0);cam.updateProjectionMatrix()};
+    size();if(window.ResizeObserver)new ResizeObserver(size).observe(el);
+    if(window.IntersectionObserver)new IntersectionObserver(e=>v.seen=e[0].isIntersecting).observe(el);
+    if(el.dataset.drag){
+      el.addEventListener("pointerdown",e=>{v.drag=e.clientX;v.vel=0;el.setPointerCapture&&el.setPointerCapture(e.pointerId)});
+      el.addEventListener("pointermove",e=>{if(v.drag==null)return;const dx=e.clientX-v.drag;v.drag=e.clientX;v.rot+=dx*.012;v.vel=dx*.012});
+      const up=()=>v.drag=null;el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);
+    }
+    return v;
+  }
+  let last=0;
+  function loop(t){
+    const dt=Math.min(.05,(t-last)/1000||0);last=t;
+    V.forEach(v=>{
+      if(!v.seen||document.hidden||!v.car)return;
+      if(v.drag==null){v.vel*=.92;v.rot+=v.vel+(still()?0:dt*.35)}
+      if(v.enter<1){v.enter=Math.min(1,(t-v.t0)/700);const k=1-Math.pow(1-v.enter,3);v.car.position.x=(1-k)*-7}
+      v.car.rotation.y=v.rot;v.r.render(v.sc,v.cam);
+    });
+    requestAnimationFrame(loop);
+  }
+  async function show(el,spec,o={}){
+    if(!el)return;const key=spec.type+spec.color;
+    if(el.dataset.k===key)return;el.dataset.k=key;
+    if(!(await load())){el.classList.add("no3d");if(o.fallback&&!el.querySelector("svg"))el.insertAdjacentHTML("beforeend",o.fallback);return}
+    const T=window.THREE;let v=V.get(el);
+    if(!v){v=make(el,T);V.set(el,v);if(V.size===1)requestAnimationFrame(loop)}
+    if(v.car){v.sc.remove(v.car);v.car.traverse(m=>{m.geometry&&m.geometry.dispose()})}
+    v.car=build(T,spec.type,spec.color);v.sc.add(v.car);v.enter=still()||!o.drive?1:0;v.t0=performance.now();
+    if(still()||document.hidden)v.r.render(v.sc,v.cam);
+  }
+  return {show};
+})();
+// 브랜드 그룹별 전시 차량 (차종·색은 분위기용)
+const SHOW_TYPE={"국산":"sedan","수입":"sedan","수입 하이엔드":"sports","전기차":"hatch"};
+const SHOW_CAR={hyundai:0xE8EBEF,kia:["suv",0x5C6B7F],genesis:0x23324D,kgn:["suv",0x6B7B5E],renault:["suv",0xD7DBE0],chevy:["suv",0xB23A2E],
+  mentz:0xC7CCD3,bnw:0x1F3A6B,audi:0x3A4554,volvo:["suv",0xE9ECEF],lexus:0x1A202B,
+  porsche:0xAEB4BC,bentley:["sedan",0x1F3B2E],ferrari:0xB3121B,lambo:0xE0A21A,rolls:["sedan",0x141A26],
+  byt:0x6F9FB8,polar:["sedan",0xD9DCE0],tesla:0xB9161E};
+const GARAGE_3D=[{type:"bus",color:0xC9D1DB},{type:"hatch",color:0xA9B3BF},{type:"suv",color:0xF2F4F6},{type:"sedan",color:0x1A202B},{type:"sports",color:0x8E1B1B}];
+function showBrand3D(k){
+  const m=MAKERS[k],c=SHOW_CAR[k]||0xE8EBEF,[type,color]=Array.isArray(c)?c:[SHOW_TYPE[m.group||m.origin],c];
+  Show3D.show($("showroom"),{type,color},{fallback:carSvg(3),drive:true});
+  $("srTag").innerHTML=`<b>${m.maker} 전시장</b>${m.group||m.origin} · 끌어서 돌려 보세요`;
+}
+$("showroom").dataset.drag="1";$("showroom").dataset.dist="9.2";$("g3d").dataset.dist="5.9";
+Show3D.show($("showroom"),{type:"sedan",color:0xE8EBEF},{fallback:carSvg(3),drive:true});
+// 명함: 기울기 효과와 승진 시 회전
+let lastTier=null;
+function bizTier(t){const el=$("biz");if(lastTier!==null&&t>lastTier&&!fast()){el.classList.remove("flip");void el.offsetWidth;el.classList.add("flip")}lastTier=t}
+(function bizTilt(){
+  const el=$("biz");
+  el.addEventListener("pointermove",e=>{if(e.pointerType!=="mouse"||fast()||el.classList.contains("flip"))return;const r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+    el.style.transform=`rotateX(${(.5-y)*10}deg) rotateY(${(x-.5)*14}deg)`;el.style.setProperty("--gx",x*100+"%");el.style.setProperty("--gy",y*100+"%");el.style.setProperty("--go",1)});
+  el.addEventListener("pointerleave",()=>{el.style.transform="";el.style.setProperty("--go",0)});
+  el.addEventListener("animationend",()=>el.classList.remove("flip"));
+})();
 // 피드백 메일: 주소는 나눠 적어 단순 수집기를 피하고, 진행 상황을 본문에 미리 채워 둠
 const FEEDBACK_MAIL=["comco88","gmail.com"].join("@");
 function feedbackHref(kind){
@@ -791,7 +925,7 @@ document.addEventListener("click",e=>{const a=e.target.closest("[data-fb]");if(!
     Object.entries(MAKERS).filter(([k,m])=>(m.group||m.origin)===g).map(([k,m])=>`<button class="mk" aria-pressed="false" data-k="${k}"><b>${m.maker}</b><small>포인트 ×${m.ptPer}<span class="mkN"> · 소속사 ${DEALERS.filter(d=>d.mk===k).length}곳</span></small></button>`).join("")+`</div></div>`).join("");
   $("makerCards").onclick=e=>{const b=e.target.closest(".mk");if(!b)return;
     $("makerCards").querySelectorAll(".mk").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
-    sel.value=b.dataset.k;sel.onchange();
+    sel.value=b.dataset.k;sel.onchange();showBrand3D(b.dataset.k);
     $("dealers").scrollIntoView({behavior:fast()?"auto":"smooth",block:"nearest"})};
 })();
 function kingAt(){const b=BRANDS[S.brand];return Math.ceil(b.top+myRank()*.5*(b.ptPer>1?.4:1))}
@@ -835,7 +969,9 @@ function render(){
   $("next").innerHTML=nx?`<h3>다음 직급: ${nx[0]}</h3><div class="prog"><i style="width:${Math.min(100,(S.pts-RANKS[ri][1])/(nx[1]-RANKS[ri][1])*100)}%;background:var(--marker)"></i></div><small>승진 포인트 ${Math.round(S.pts)} / ${nx[1]} · ${gateText(ri+1)||"직급이 오르면 명함과 계기판이 바뀌어요"}</small>`:`<h3>최고 직급 달성</h3><small>지점장의 명함은 금박입니다.</small>`;
   $("next").innerHTML+=`<div class="tierRow">${["사원·주임","대리·과장","차장·팀장","지점장"].map((t,i)=>`<span class="${i<=tier?"on":""}">${t}</span>`).join("")}</div>`;
   const ci=lv[0],nextAt=[1500,4000,12000,35000][ci];
-  $("next").innerHTML+=`<div class="garage">${carSvg(ci)}<div style="flex:1;min-width:0"><small>내 차</small><b>${CARS_OWN[ci]}</b>${nextAt?`<small>${CARS_OWN[ci+1]}까지 ₩${won(Math.max(0,nextAt-S.cash))}</small><div class="prog"><i style="width:${Math.min(100,Math.max(0,S.cash)/nextAt*100)}%;background:var(--marker)"></i></div>`:"<small>더 바랄 게 없는 차고입니다.</small>"}</div></div>`;
+  $("garageInfo").innerHTML=`<small>내 차</small><b>${CARS_OWN[ci]}</b>${nextAt?`<small>${CARS_OWN[ci+1]}까지 ₩${won(Math.max(0,nextAt-S.cash))}</small><div class="prog"><i style="width:${Math.min(100,Math.max(0,S.cash)/nextAt*100)}%;background:var(--marker)"></i></div>`:"<small>더 바랄 게 없는 차고입니다.</small>"}`;
+  Show3D.show($("g3d"),GARAGE_3D[ci],{fallback:carSvg(ci)});
+  bizTier(tier);
   $("money").textContent=`₩ ${won(S.cash)}`;
   $("career").innerHTML=`${odometer(S.total)}<div>올해 ${S.yearSales}대</div>`;
   const hpc=S.hp<30?"#F08A82":S.hp<55?"#D9BE8A":"#7FD3BF";
