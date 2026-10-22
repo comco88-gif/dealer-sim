@@ -192,6 +192,39 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .kv small{color:var(--sub);display:block;font-size:12px}.kv b{font-family:var(--serif);font-weight:800;font-size:20px}
 @media (prefers-reduced-motion:no-preference){#stageLines p{animation:typein .35s ease}@keyframes typein{from{opacity:0;transform:translateY(3px)}}#stageNum.hot{animation:pop .45s cubic-bezier(.2,1.4,.4,1)}@keyframes pop{from{transform:scale(.92)}}}
 @media (max-width:520px){.gauges{gap:2px}.gauge{font-size:11px}.odo{font-size:24px}.cash{font-size:22px}.mate{grid-template-columns:100px 1fr 1fr}}
+/* 모바일: 한글 단어 단위 줄바꿈, 계기판 압축, 입력창 확대 방지 */
+body{word-break:keep-all;overflow-wrap:anywhere}
+@media (max-width:640px){
+  .wrap{padding:12px 14px 56px}
+  .hero{padding:24px 0 10px}
+  .board{padding:18px 16px 20px}
+  select,input[type=text]{font-size:16px}
+  .dash{border-radius:18px;padding:12px 14px 8px;box-shadow:0 10px 24px -18px rgba(10,20,40,.6)}
+  .dashTop{flex-wrap:nowrap;align-items:flex-start}
+  .dashTop>div:first-child{min-width:0}
+  .odo{font-size:21px}
+  .dashSub{font-size:12px;margin-top:4px}
+  .chip{font-size:11px;padding:0 8px;margin-top:5px}
+  .cash{font-size:19px;white-space:nowrap}
+  .dashTop .dashSub[style]{white-space:nowrap}
+  .gauges{margin-top:8px;padding-top:6px}
+  .gauge svg{max-width:44px}
+  .gauge b{font-size:11px;margin-top:-4px;white-space:nowrap;letter-spacing:-.03em}
+  .gauge i{font-size:10px}
+  /* 휴대폰에서는 계기판이 화면의 1/3을 가려서 고정하지 않음 */
+  .dash{position:relative}
+  .statHelp{margin-top:4px}
+  .statHelp summary{font-size:12px}
+  section{margin-top:22px}
+  .key{padding:11px 16px 11px 38px}
+  .achGrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .note{padding:4px 14px}
+  .note li{white-space:normal}
+  .vs b{font-size:30px}
+  .sheet{padding:20px 18px}
+  #stageNum{font-size:68px;min-height:68px}
+}
+
 .key:disabled{cursor:not-allowed}
 [hidden]{display:none!important}
 </style>
@@ -294,7 +327,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <span class="boardNote" id="boardNote"></span>
     </div>
     <div class="bars" id="bars" aria-label="최근 36개월 판매 대수"></div>
-    <div style="font-size:12px;color:var(--sub);margin-top:4px">빨간 막대는 월간 판매왕을 받은 달</div>
+    <div style="font-size:12px;color:var(--sub);margin-top:4px">금색 막대는 월간 판매왕을 받은 달</div>
   </section>
 
   <section class="board">
