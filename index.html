@@ -251,6 +251,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .lockedBox summary::before{content:"+ "}
 .lockedBox[open] summary::before{content:"− "}
 .lockedBox .shelf{margin-top:6px}
+/* 피드백 메일 안내 */
+.fbBox{margin-top:22px;font-size:13.5px;color:var(--sub);background:var(--sunk);border-radius:10px;padding:12px 14px;line-height:1.6}
+.fbBox a{color:var(--ink);font-weight:600;text-underline-offset:3px}
 /* 모바일: 한글 단어 단위 줄바꿈, 계기판 압축, 입력창 확대 방지 */
 body{word-break:keep-all;overflow-wrap:anywhere}
 @media (max-width:640px){
@@ -346,6 +349,7 @@ body{word-break:keep-all;overflow-wrap:anywhere}
     <h2><span class="magnet"></span>내 명예의 전당 (이 기기)</h2>
     <ol class="ranks" id="rankList"></ol>
   </section>
+  <p class="fbBox" data-fbbox></p>
   <p class="lead" style="font-size:12.5px;margin-top:26px">회사·딜러사·차량 이름은 모두 가상이며 실제 기업과 관계없습니다. 로그인하지 않으면 진행 상황은 이 브라우저에만 저장돼요. 테스트 버전입니다.</p>
 </div>
 
@@ -428,6 +432,7 @@ body{word-break:keep-all;overflow-wrap:anywhere}
   <section>
     <h2 style="font-size:24px;margin-bottom:8px">영업 일지</h2>
     <div class="note"><ul id="log"></ul></div>
+    <p class="fbBox" data-fbbox></p>
   </section>
 </div>
 
@@ -771,6 +776,15 @@ const LAMP_ICON={
   team:'<circle cx="7" cy="7" r="2.5"/><circle cx="14" cy="8" r="2"/><path d="M2.5 16c.5-3 2.3-4.5 4.5-4.5s4 1.5 4.5 4.5"/><path d="M12 12.2c2.6-.6 4.6.8 5.2 3.8"/>'
 };
 $("road").innerHTML=carSvg(3);
+// 피드백 메일: 주소는 나눠 적어 단순 수집기를 피하고, 진행 상황을 본문에 미리 채워 둠
+const FEEDBACK_MAIL=["comco88","gmail.com"].join("@");
+function feedbackHref(kind){
+  let st="";if(S){const b=BRANDS[S.brand];st=`\n진행 상황: ${S.name} · ${S.age}세 · ${S.year}년 ${S.month}월 · ${b.maker} ${b.name} · ${RANKS[myRank()][0]} · 누적 ${S.total}대`}
+  const body=`${kind==="문제 신고"?"어떤 문제가 있었나요? (언제, 무엇을 눌렀을 때)":"하고 싶은 말을 적어 주세요."}\n\n\n---\n기기·브라우저: ${navigator.userAgent}${st}`;
+  return `mailto:${FEEDBACK_MAIL}?subject=${encodeURIComponent("[나는 자동차 딜러다] "+kind)}&body=${encodeURIComponent(body)}`;
+}
+document.querySelectorAll("[data-fbbox]").forEach(el=>el.innerHTML=`게임 의견이나 오류는 메일로 알려 주세요. <a href="#" data-fb="의견">의견 보내기</a> · <a href="#" data-fb="문제 신고">문제 신고</a><br><span style="font-size:12.5px">${FEEDBACK_MAIL}</span>`);
+document.addEventListener("click",e=>{const a=e.target.closest("[data-fb]");if(!a)return;e.preventDefault();location.href=feedbackHref(a.dataset.fb)});
 (function makerCards(){
   const G=[["국산",1,"차값이 낮고 많이 팔아요"],["수입",3,"대당 포인트 3배"],["수입 하이엔드",4,"한 대가 크지만 드물게 팔려요"],["전기차",2,"보조금·업계 흐름을 크게 타요"]];
   $("makerCards").innerHTML=G.map(([g,ci,d])=>`<div class="mkGroup"><h3>${carSvg(ci)}<span>${g} · <span style="font-weight:500">${d}</span></span></h3><div class="mkRow">`+
@@ -1511,7 +1525,7 @@ function finalCard(reason,o){
   ${S.titles&&S.titles.length?`<p style="font-size:14px;margin:12px 0 0"><b>칭호</b><br>${S.titles.map(t=>"「"+t+"」").join(" ")}</p>`:""}
   <p style="font-size:14px;margin:12px 0 0"><b>경력</b> (이적 ${S.switched}회)<br>${S.path.join(" → ")}</p>
   <p style="color:var(--sub);font-size:14px">커리어 점수 ${score.toLocaleString()}점</p>
-  <div class="row"><button class="go" id="rankBtn">랭킹 등록</button><button class="ghost" id="cardBtn">결과 카드 저장</button><button class="ghost" id="again">새 인생 시작</button></div>
+  <div class="row"><button class="go" id="rankBtn">랭킹 등록</button><button class="ghost" id="cardBtn">결과 카드 저장</button><button class="ghost" id="again">새 인생 시작</button><button class="ghost" data-fb="은퇴 후기">피드백 보내기</button></div>
   <p id="endMsg" style="font-size:13px;color:var(--sub);margin:8px 0 0"></p>`;
   $("again").onclick=()=>location.reload();
   $("cardBtn").onclick=saveCard;
