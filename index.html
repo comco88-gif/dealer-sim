@@ -291,6 +291,19 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .dexMore summary::before{content:"+ "}.dexMore[open] summary::before{content:"− "}
 .clientGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
 .era{display:block;margin-top:2px}
+/* 분기 브리핑 · 영업 강도 */
+.brief{display:grid;gap:2px;background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--ink);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:13.5px;color:var(--sub)}
+.brief b{color:var(--ink);font-size:15px}
+.briefMeta{font-weight:600;color:var(--ink)}
+.paceRow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.paceBtn{text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:12px;padding:10px 12px}
+.paceBtn b{display:block;font-size:15px}
+.paceBtn small{display:block;font-size:12px;color:var(--sub);line-height:1.4}
+.paceBtn[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink),inset 3px 0 0 var(--gold)}
+.hpEst{font-weight:600;color:var(--ink)!important}
+.hpEst.bad{color:var(--crimson)!important}
+.hotTag{font-style:normal;font-size:11px;font-weight:600;color:var(--teal);border:1px solid var(--teal);border-radius:999px;padding:0 6px;margin-left:4px;vertical-align:2px}
+.quotaLine{text-align:center;font-weight:600}
 /* 분기 결과: 월별 판매 */
 .qMonths{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:2px 0 10px}
 .qMonths span{font-size:13px;padding:4px 10px;border-radius:999px;background:var(--sunk);color:var(--sub)}
@@ -428,7 +441,9 @@ body{word-break:keep-all;overflow-wrap:anywhere}
 
   <section>
     <h2 style="font-size:24px;margin-bottom:4px">이번 분기 영업</h2>
-    <p style="margin:0 0 10px;font-size:13.5px;color:var(--sub)">고른 행동으로 3개월을 보내요. 분기마다 고객 상황이 하나씩 생겨요.</p>
+    <p style="margin:0 0 10px;font-size:13.5px;color:var(--sub)">브리핑을 보고 강도와 행동을 골라 3개월을 보내요. 분기마다 고객 상황이 하나씩 생겨요.</p>
+    <div class="brief" id="brief"></div>
+    <div class="paceRow" id="paceRow" role="group" aria-label="영업 강도"></div>
     <div class="keys" id="actions"></div>
     <div class="row">
       <label style="font-size:14px;color:var(--sub)"><input type="checkbox" id="fastFx"> 연출 빠르게</label>
@@ -572,8 +587,7 @@ const ACTIONS=[
   {id:"pioneer",name:"개척 영업",desc:"법인·지인 발로 뛰기. 인맥 상승",lead:1.25,hp:-14,eff:{net:3}},
   {id:"sns",name:"SNS·유튜브 홍보",desc:"평판 상승. 판매는 다음 달부터 효과",lead:.7,hp:-6,eff:{rep:3}},
   {id:"study",name:"상품·금융 공부",desc:"상품지식 크게 상승. 판매 소폭",lead:.5,hp:-4,eff:{know:4}},
-  {id:"coach",name:"팀원 코칭",desc:"팀원 실력·사기 상승. 내 판매는 줄어요",lead:.6,hp:-6,eff:{},mgr:true},
-  {id:"rest",name:"휴가 후 복귀",desc:"한 달 푹 쉬고 두 달은 전시장 영업. 체력 크게 회복",lead:.15,hp:+50,eff:{}}
+  {id:"coach",name:"팀원 코칭",desc:"팀원 실력·사기 상승. 내 판매는 줄어요",lead:.6,hp:-6,eff:{},mgr:true}
 ];
 // 시대 흐름: 해당 연도부터 적용 (ev: 전기차 브랜드, ice: 일반 브랜드, hi: 하이엔드 배수)
 const ERAS=[
@@ -589,6 +603,44 @@ function eraMul(b){const e=eraOf(S.year);return b.ev?e.ev:b.ptPer>=6?e.hi:e.ice}
 // 단골 고객 도감: 이벤트 제목 → 고객 이름
 const CLIENTS={"노부부의 마지막 차":"노부부","외국인 고객":"외국인 주재원","아이와 함께 온 가족":"세 아이 가족","경쟁사 비교 고객":"꼼꼼한 비교파","법인차 교체 건":"중소기업 대표","택시 조합":"택시 조합장","동네 카센터 사장님":"카센터 사장님","VIP 의전":"VIP 회장님","관공서 입찰":"관공서 담당자","할부 상담":"사회초년생","충전 걱정":"전기차 첫 구매자","가격 협상":"협상의 달인","보조금 문의":"보조금 꼼꼼파","자율주행 질문":"얼리어답터","중고 시세 질문":"중고차 갈아타기 고객","옛 고객의 불만":"돌아온 옛 고객","법인 전기차 전환":"친환경 법인","아파트 입주 박람회":"신혼부부"};
 const PAINTS=[["펄 화이트",0xE8EBEF],["메탈 실버",0xA9B3BF],["미드나잇 블랙",0x1A202B],["딥 네이비",0x1F3A6B],["레이싱 레드",0xB3121B],["브리티시 그린",0x1F3B2E]];
+// ───── 영업 강도 · 피로 · 분기 브리핑 ─────
+// 매 분기 행동과 함께 강도를 고름. 체력 변화(한 달) = 행동 소모 × hpk + hp0, 전력은 연속할수록 피로만큼 더 소모
+const PACE={
+  easy:{n:"여유",d:"판매는 줄지만 체력이 회복돼요",lead:.55,hpk:.4,hp0:16,eff:.6},
+  norm:{n:"보통",d:"평소대로 일해요",lead:.85,hpk:1,hp0:2,eff:1},
+  rush:{n:"전력",d:"판매가 크게 늘지만 체력을 많이 써요",lead:1.15,hpk:1.6,hp0:-4,eff:1.1}
+};
+function pace(){return PACE[S.pace]||PACE.norm}
+function paceHp(a,p){p=p||S.pace||"norm";const P=PACE[p];return a.hp*P.hpk+P.hp0-(p==="rush"?3*(S.fatigue||0):0)}
+// 분기 브리핑: w는 1~4분기 등장 가중치
+const BRIEFS=[
+  {id:"newcar",n:"신차 출시",t:"신형 모델이 들어와 전시장이 붐벼요. 전시장 상담 효과가 커요.",act:{floor:1.25},q:1.1,w:[3,1,2,1]},
+  {id:"motorshow",n:"모터쇼 개최",t:"모터쇼 관람객이 전시장으로 이어져요. 전시장 상담과 SNS 효과가 커요.",act:{floor:1.12,sns:1.3},w:[2,2,1,0]},
+  {id:"lease",n:"법인 리스 교체 시즌",t:"법인 차량 교체가 몰려요. 개척 영업 효과가 커요.",act:{pioneer:1.3},q:1.1,w:[2,1,1,2]},
+  {id:"viral",n:"화제의 시승 영상",t:"우리 차 영상이 퍼지고 있어요. SNS 홍보 효과가 커요.",act:{sns:1.4},eff:{sns:2},w:[1,2,2,1]},
+  {id:"rate",n:"금리 인하 발표",t:"할부 부담이 줄어 손님이 늘어요. 모든 영업 효과가 조금 커요.",all:1.1,q:1.1,w:[1,1,1,1]},
+  {id:"discount",n:"경쟁사 할인 공세",t:"경쟁사가 크게 할인 중이에요. 손님이 줄어서 할당량도 낮아요. 공부로 버티기 좋은 때예요.",all:.85,q:.85,eff:{study:1.5},w:[1,1,1,1]},
+  {id:"training",n:"본사 교육 주간",t:"본사 교육이 열려요. 상품 공부 효과가 두 배예요.",eff:{study:2},act:{study:1.2},q:.9,w:[1,1,2,1]},
+  {id:"slow",n:"비수기",t:"휴가철이라 전시장이 한산해요. 무리하기보다 체력을 채우기 좋은 때예요.",all:.85,q:.85,w:[0,1,3,0]},
+  {id:"yearend",n:"연말 마감 프로모션",t:"연말 마감이에요. 전력으로 달리면 효과가 더 커요.",pace:{rush:1.15},q:1.15,w:[0,0,0,5]}
+];
+const QUOTA_K=1.05; // 분기 할당량 = 최근 1년 분기 평균 판매 × QUOTA_K × 브리핑 배수 (입사 첫해는 판매왕 기준의 60%)
+function briefKey(){return `${S.year}-${Math.ceil(S.month/3)}`}
+function ensureBrief(){
+  if(S.brief&&S.brief.key===briefKey())return S.brief;
+  const qi=Math.ceil(S.month/3)-1,tot=BRIEFS.reduce((t,x)=>t+x.w[qi],0);let r=Math.random()*tot,x=BRIEFS[0];
+  for(const p of BRIEFS){r-=p.w[qi];if(r<=0){x=p;break}}
+  const b=BRANDS[S.brand],left=3-((S.month-1)%3);
+  const h=S.history.slice(-12),perMonth=h.length>=6?h.reduce((t,m)=>t+m.n,0)/h.length:b.top*.6/QUOTA_K;
+  S.brief={key:briefKey(),id:x.id,quota:Math.max(1,Math.round(perMonth*left*QUOTA_K*(x.q||1)))};
+  return S.brief;
+}
+function briefOf(){const s=ensureBrief();return BRIEFS.find(x=>x.id===s.id)||BRIEFS[0]}
+function briefLead(a){const x=briefOf();return (x.all||1)*((x.act||{})[a.id]||1)*((x.pace||{})[S.pace||"norm"]||1)}
+function briefEff(a){return ((briefOf().eff||{})[a.id])||1}
+// 수상 기준 배수: 수상이 너무 잦지 않게
+const KING_MUL=1.4,QMVP_MUL=1.6,YT_MUL=1.4;
+function kingLine(b,ri){return (b.top+ri*.5*(b.ptPer>1?.4:1))*KING_MUL}
 const MONTH_MOD=[.75,.9,1.2,1.05,1.0,1.05,.95,.8,1.0,1.05,1.0,1.25];
 const CYCLES=[
   {name:"수입차 관세 인상",mul:1,ev:1,imp:.75,special:true},{name:"수입차 관세 인하",mul:1,ev:1,imp:1.25,special:true},{name:"온라인 직판 확산",mul:.88,ev:1.1,special:true},
@@ -1025,7 +1077,7 @@ document.addEventListener("click",e=>{const a=e.target.closest("[data-fb]");if(!
     sel.value=b.dataset.k;sel.onchange();showBrand3D(b.dataset.k);
     $("dealers").scrollIntoView({behavior:fast()?"auto":"smooth",block:"nearest"})};
 })();
-function kingAt(){const b=BRANDS[S.brand];return Math.ceil(b.top+myRank()*.5*(b.ptPer>1?.4:1))}
+function kingAt(){return Math.ceil(kingLine(BRANDS[S.brand],myRank()))}
 function lampsHtml(){
   const last=S.history[S.history.length-1],cy=S.cycle,mul=(BRANDS[S.brand].ev?cy.ev:cy.mul)||1;
   const L=[
@@ -1034,19 +1086,20 @@ function lampsHtml(){
     ["cyc",mul>=1?"호황":"불황",cy.name!=="평년",mul>=1?"good":"warn",`업계 흐름: ${cy.name}`],
     ["move","이직 준비",!!S.target,"good",S.target?`이직 준비 ${Math.round(S.prep)}%`:"목표 회사 없음"]
   ];
+  L.push(["cyc","피로",(S.fatigue||0)>=2,"warn",`피로 ${S.fatigue||0}단계: 전력을 이어 가면 체력 소모가 커져요`]);
   if(S.team)L.push(["team","팀 사기",S.team.some(t=>t.morale<35),"warn","사기가 낮은 팀원이 있으면 켜져요"]);
   return L.map(([k,n,on,c,t])=>`<span class="lamp${on?" on":""}" data-c="${c}" title="${t}" role="img" aria-label="${n} ${on?"켜짐":"꺼짐"}">${ICO(LAMP_ICON[k])}${n}</span>`).join("");
 }
 function odometer(n){return `<span class="odoMeter" aria-label="누적 판매 ${n}대">${String(Math.min(n,999999)).padStart(6,"0").split("").map(d=>`<i>${d}</i>`).join("")}</span><span class="odoUnit">대</span>`}
-function speedo(n,king,hot){
-  const max=Math.max(10,Math.ceil(Math.max(king*1.6,n)/5)*5),R=80,cx=100,cy=100,L=Math.PI*R;
+function speedo(n,king,hot,lab){
+  const max=Math.max(10,Math.ceil(Math.max(king*1.6,n*1.1)/5)*5),R=80,cx=100,cy=100,L=Math.PI*R;
   const pt=(v,r)=>{const a=Math.PI*(1-Math.min(v,max)/max);return[cx+r*Math.cos(a),cy-r*Math.sin(a)]};
   let ticks="";for(let i=0;i<=10;i++){const v=max*i/10,[x1,y1]=pt(v,R-12),[x2,y2]=pt(v,R-(i%2?17:21));ticks+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="currentColor" stroke-width="${i%2?1:2}" opacity=".5"/>`;if(i%2===0){const[tx,ty]=pt(v,R-32);ticks+=`<text x="${tx}" y="${ty+4}" text-anchor="middle" font-size="10" fill="var(--sub)">${Math.round(v)}</text>`}}
   const [kx1,ky1]=pt(king,R+6),[kx2,ky2]=pt(king,R-8),[nx,ny]=pt(n,R-14),col=hot?"var(--gold)":"currentColor";
-  return `<svg viewBox="0 0 200 140" role="img" aria-label="이번 달 ${n}대 판매, 판매왕 기준 ${king}대">
+  return `<svg viewBox="0 0 200 140" role="img" aria-label="${n}대 판매, ${lab||"판매왕 기준"} ${king}대">
   <path d="M20 100A80 80 0 0 1 180 100" fill="none" stroke="var(--rule)" stroke-width="9" stroke-linecap="round"/>
   <path d="M20 100A80 80 0 0 1 180 100" fill="none" stroke="${col}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${L*Math.min(n,max)/max} 999"/>
-  ${ticks}<line x1="${kx1}" y1="${ky1}" x2="${kx2}" y2="${ky2}" stroke="var(--gold)" stroke-width="3" stroke-linecap="round"/>
+  ${ticks}<line x1="${kx1}" y1="${ky1}" x2="${kx2}" y2="${ky2}" stroke="${lab?"var(--teal)":"var(--gold)"}" stroke-width="3" stroke-linecap="round"/>${lab?`<text x="${kx1}" y="${ky1-4}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--teal)">${lab}</text>`:""}
   <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="var(--crimson)" stroke-width="3" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="6" fill="currentColor"/>
   <text x="100" y="134" text-anchor="middle" font-size="26" font-weight="800" fill="${col}" font-family="Noto Sans KR, sans-serif">${n}대</text></svg>`;
 }
@@ -1074,8 +1127,12 @@ function render(){
   $("career").innerHTML=`${odometer(S.total)}<div>올해 ${S.yearSales}대</div>`;
   const hpc=S.hp<30?"#F08A82":S.hp<55?"#D9BE8A":"#7FD3BF";
   const D=S.lastDelta||{};$("gauges").innerHTML=gauge("화술",S.talk,"#C9D3E6",D.talk)+gauge("상품지식",S.know,"#C9D3E6",D.know)+gauge("인맥",S.net,"#C9D3E6",D.net)+gauge("평판",S.rep,"#D9BE8A",D.rep)+gauge("체력",S.hp,hpc,D.hp);$("statHelp").innerHTML=statHelpHtml();$("lamps").innerHTML=lampsHtml();
+  S.pace=S.pace||"norm";const br=ensureBrief(),bx=briefOf();
+  $("brief").innerHTML=`<b>이번 분기 브리핑 · ${bx.n}</b><span>${bx.t}</span><span class="briefMeta">할당량 ${br.quota}대 · 피로 ${S.fatigue||0}단계${(S.fatigue||0)>=2?" (전력 시 체력 소모 증가)":""}</span>`;
+  $("paceRow").innerHTML=Object.entries(PACE).map(([k,p])=>`<button class="paceBtn" aria-pressed="${S.pace===k}" data-p="${k}"><b>${p.n}</b><small>${p.d}</small></button>`).join("");
   $("actions").innerHTML="";
-  ACTIONS.filter(a=>!a.mgr||S.team).forEach(a=>{const e=document.createElement("button");e.className="key ic";e.innerHTML=`<span class="ico">${ICO(ACT_ICON[a.id]||"")}</span><b>${a.name}</b><span>${a.desc}</span>`;e.onclick=()=>play(a);$("actions").appendChild(e)});
+  ACTIONS.filter(a=>!a.mgr||S.team).forEach(a=>{const e=document.createElement("button");e.className="key ic";const hp=Math.round(paceHp(a)*3),bl=briefLead(a);
+    e.innerHTML=`<span class="ico">${ICO(ACT_ICON[a.id]||"")}</span><b>${a.name}${bl>1.05?' <i class="hotTag">브리핑 효과</i>':""}</b><span>${a.desc}</span><span class="hpEst ${S.hp+hp<=0?"bad":""}">체력 ${hp>0?"+":""}${hp} 예상</span>`;e.onclick=()=>play(a);$("actions").appendChild(e)});
   $("retireBtn").hidden=S.age<50;
   // 커리어
   const mv=Math.round(marketValue()),cd=6-(S.history.length-S.lastHunt);
@@ -1106,6 +1163,7 @@ function assetLv(){const c=S.cash;return[c<1500?0:c<4000?1:c<12000?2:c<35000?3:4
 function checkAssets(){const [a,h]=assetLv();S.assetMax=S.assetMax||[0,0];if(a>S.assetMax[0]){S.assetMax[0]=a;log(`🔑 자산이 늘어 차를 바꿨어요: ${CARS_OWN[a]}`,"good")}if(h>S.assetMax[1]){S.assetMax[1]=h;log(`🏠 이사했어요: ${HOMES[h]}`,"good")}}
 // 연출 빠르게: 이 기기에 기억
 try{$("fastFx").checked=localStorage.getItem("dealerSim.fastFx")==="1"}catch(e){}
+$("paceRow").onclick=e=>{const b=e.target.closest(".paceBtn");if(!b||busy)return;S.pace=b.dataset.p;render()};
 $("fastFx").onchange=()=>{try{localStorage.setItem("dealerSim.fastFx",$("fastFx").checked?"1":"0")}catch(e){}};
 const EMO=/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu;
 const clean=t=>String(t).replace(EMO,"").replace(/\s{2,}/g," ").trim();
@@ -1114,7 +1172,7 @@ function log(t,c=""){t=clean(t);if(CAP)CAP.push({t,c});if(S){S.logs=S.logs||[];S
 // 한 달 진행
 function turn(a,deal){
   const b=BRANDS[S.brand];
-  for(const [k,v] of Object.entries(a.eff))S[k]=clamp(S[k]+v*rnd(.6,1.4));
+  for(const [k,v] of Object.entries(a.eff))S[k]=clamp(S[k]+v*rnd(.6,1.4)*pace().eff*briefEff(a));
   if(a.id==="sns")S.snsCarry+=1.5;
   let interviewNow=false;
   if(S.target){
@@ -1122,14 +1180,14 @@ function turn(a,deal){
     if(S.prep>=100)interviewNow=true;
     if(Math.random()<.05){S.rep=clamp(S.rep-4);log("👀 팀장님이 모니터에 띄운 이력서를 봤어요… 평판 하락","bad")}
   }
-  S.hp=clamp(S.hp+a.hp+(a.hp<0&&S.trophy.golden?2:0)+(a.hp<0&&S.bg==="athlete"?2:0)+(a.id==="rest"&&has("rich")?10:0)+(a.id!=="rest"?rnd(-2,2):0));
+  S.hp=clamp(S.hp+paceHp(a)+(a.hp<0&&S.trophy.golden?2:0)+(a.hp<0&&S.bg==="athlete"?2:0)+(S.pace==="easy"&&has("rich")?4:0)+rnd(-2,2));
   const ageFactor=S.age>50?.9:S.age>40?1:1.05;
   const cyc=S.cycle.mul*(b.origin==="수입"&&S.cycle.imp?S.cycle.imp:1)*(b.ev?(S.cycle.ev<1&&has("toEv")?(1+S.cycle.ev)/2:S.cycle.ev):1)*eraMul(b);
-  let leads=b.leads*a.lead*MONTH_MOD[S.month-1]*(1+S.rep/120+S.net/200)*ageFactor*cyc*(S.team?.75:1)*(1+(S.trophy.hof?.1:0)+(has("topBrand")?.05:0)+(S.team?S.team.filter(m=>m.role==="digital").length*.08:0))+S.snsCarry;
+  let leads=b.leads*a.lead*pace().lead*briefLead(a)*MONTH_MOD[S.month-1]*(1+S.rep/120+S.net/200)*ageFactor*cyc*(S.team?.75:1)*(1+(S.trophy.hof?.1:0)+(has("topBrand")?.05:0)+(S.team?S.team.filter(m=>m.role==="digital").length*.08:0))+S.snsCarry;
   S.snsCarry*=.6;
   if(S.leaveMonths>0){leads*=.1;S.leaveMonths--;S.hp=clamp(S.hp+15);log("🏠 휴직 중이라 영업을 거의 못 했어요.")}
   const hpPenalty=S.hp<25?.5:S.hp<45?.8:1;
-  const conv=clamp((.18+(S.talk+S.know)/350)*b.conv*hpPenalty+(has("allround")?.03:0)+(has("dom2imp")&&b.origin==="수입"?.03:0),0,.85);
+  const conv=clamp((.18+(S.talk+S.know)/350)*b.conv*hpPenalty*(S.hp>=75?1.06:1)+(has("allround")?.03:0)+(has("dom2imp")&&b.origin==="수입"?.03:0),0,.85);
   let sold=0;for(let i=0;i<Math.round(leads*rnd(.7,1.3));i++)if(Math.random()<conv)sold++;
   let dealComm=0;
   if(deal){
@@ -1164,7 +1222,7 @@ function turn(a,deal){
   const prevTotal=S.total;
   S.total+=sold;S.yearSales+=sold;S.best=Math.max(S.best,sold);
   S.pts+=sold*b.ptPer+teamSales*b.ptPer*.2;tryPromote();
-  let top=sold>=b.top+ri*.5*(b.ptPer>1?.4:1);
+  let top=sold>=kingLine(b,ri);
   top=rivalMonth(b,cyc,top,sold);
   S.history.push({n:sold,top,label:`${S.year}.${S.month}`});
   S.last={sold,leads:Math.round(leads),top,teamSales};
@@ -1172,7 +1230,7 @@ function turn(a,deal){
   S.dex=S.dex||{};for(const [c,k] of Object.entries(mix.cnt||{})){if(!S.dex[c])log(`차종 도감에 ${c.replace(/-$/,"")}이(가) 추가됐어요.`,"good");S.dex[c]=(S.dex[c]||0)+k}
   if(mix.text)log(`🚗 판매 차종: ${mix.text} (판매액 ${won(mix.rev)}원)`);
   if(top)award("month",`(${S.month}월 ${sold}대)`);
-  if(S.month%3===0){const q=S.history.slice(-3).reduce((s,x)=>s+x.n,0);if(q>=b.top*3*.85)award("quarter",`(${S.month/3}분기 ${q}대)`)}
+  if(S.month%3===0){const q=S.history.slice(-3).reduce((s,x)=>s+x.n,0);if(q>=b.top*3*.85*QMVP_MUL)award("quarter",`(${S.month/3}분기 ${q}대)`)}
   [[100,"c100"],[500,"c500"],[1000,"c1000"]].forEach(([n,k])=>{if(prevTotal<n&&S.total>=n)award(k)});
   ensureTeam();
   if(!S.hof&&S.total>=b.hof){S.hof=true;award("hof",`(누적 ${S.total}대)`)}
@@ -1183,11 +1241,11 @@ function turn(a,deal){
   if(S.month>12){
     log(`🎤 ${S.year}년 연말 시상식`,"");
     rivalYear();
-    const yt=b.top*12*.85;let any=false;
+    const yt=b.top*12*.85*YT_MUL;let any=false;
     if(S.firstYear&&S.yearSales>=b.top*12*.5){award("rookie",`(${S.yearSales}대)`);any=true}
     if(S.yearSales>=yt){award("yearTop",`(${S.yearSales}대)`);S.cash+=b.comm*10;S.rep=clamp(S.rep+5);S.topStreak++;any=true;
       if(S.topStreak===3)award("golden")}else S.topStreak=0;
-    if(S.yearSales>=b.top*12*1.1){award("grand",`(${b.maker})`);S.cash+=b.comm*15;any=true}
+    if(S.yearSales>=b.top*12*1.1*YT_MUL){award("grand",`(${b.maker})`);S.cash+=b.comm*15;any=true}
     if(S.rep>=80){award("cs");any=true}
     if(S.year-S.joinedYear+1===10){award("loyal",`(${b.name})`);any=true}
     if(S.age===44&&S.burnouts===0){award("iron");any=true}
@@ -1291,6 +1349,7 @@ $("stage").onclick=()=>{skipping=true};
 
 function narr(a){
   const b=BRANDS[S.brand],car=pick(b.cars),L=[],m=S.month;
+  L.push(`분기 브리핑: ${briefOf().n}. 이번 분기는 ${pace().n}으로 갑니다.`);
   L.push(m===3?"3월 신차 시즌, 전시장이 북적입니다.":m===12?"연말 프로모션 마감 주간. 다들 막판 스퍼트 중입니다.":(m===1||m===8)?"비수기라 전시장이 한산합니다…":`${m}~${qEnd()}월, ${RANKS[myRank()][0]} ${S.name}의 분기가 시작됩니다.`);
   L.push({floor:b.ev?`${car} 시승 예약 고객을 맞이합니다.`:`${car} 앞에서 손님을 기다립니다.`,pioneer:"명함 한 뭉치를 들고 거래처를 돕니다.",sns:`${car} 시승 영상을 찍어 올립니다.`,study:`신형 ${car} 금융 프로그램을 파고듭니다.`,coach:"팀원들과 롤플레이로 상담 연습을 합니다.",rest:"오랜만에 휴대폰을 무음으로 돌려둡니다."}[a.id]);
   if(S.cycle.name!=="평년")L.push(b.ev&&S.cycle.ev!==1?`전기차 시장 분위기: ${S.cycle.name}. 문의 전화가 ${S.cycle.ev>1?"쏟아집니다":"뚝 끊겼습니다"}.`:`업계는 ${S.cycle.name}. 고객들 지갑이 ${S.cycle.mul>=1?"열려 있어요":"닫혀 있어요"}.`);
@@ -1603,19 +1662,29 @@ function qEnd(){return Math.ceil(S.month/3)*3}
 function runQuarter(a,deal){
   const months=[];let stop=false;
   do{
-    // 휴가는 첫 달만 쉬고 나머지 달은 전시장 상담
-    const am=a.id==="rest"&&months.length>0?ACTIONS[0]:a;
-    stop=turn(am,months.length===0&&deal?{...deal,mult:Q_EVENT}:null);checkAssets();checkAch();checkGoals();
+    // 체력이 바닥나면 분기 중간이라도 속도를 늦춤 (연속 번아웃 방지)
+    if(S.pace==="rush"&&S.hp<25){S.pace="norm";log("체력이 바닥나서 남은 달은 보통 강도로 바꿨어요.","bad")}
+    else if(S.pace==="norm"&&S.hp<12){S.pace="easy";log("체력이 바닥나서 남은 달은 여유 있게 보냈어요.","bad")}
+    stop=turn(a,months.length===0&&deal?{...deal,mult:Q_EVENT}:null);checkAssets();checkAch();checkGoals();
     const h=S.history[S.history.length-1];if(h&&S.last)months.push({...S.last,label:h.label});
   }while(!stop&&!S.over&&(S.month-1)%3!==0);
+  const br=S.brief;
+  if(br&&!S.over&&months.length&&(S.month-1)%3===0){
+    const b=BRANDS[S.brand],qs=months.reduce((t,x)=>t+x.sold,0),bonus=Math.round(b.comm*b.top*.5);
+    S.quotaN=(S.quotaN||0)+1;
+    if(qs>=br.quota){S.quotaOk=(S.quotaOk||0)+1;S.cash+=bonus;S.rep=clamp(S.rep+2);log(`분기 할당량 ${br.quota}대 달성 (${qs}대). 보너스 ${won(bonus)}원 · 평판 +2`,"good")}
+    else{S.rep=clamp(S.rep-3);log(`분기 할당량 ${br.quota}대 미달 (${qs}대). 평판 -3`,"bad")}
+    S.fatigue=S.pace==="rush"?(S.fatigue||0)+1:S.pace==="easy"?0:Math.max(0,(S.fatigue||0)-1);
+    S.lastQuota={q:br.quota,n:qs};
+  }
   return {months,stop};
 }
 // 인생 구간 목표
 const GOALS=[
-  {age:31,n:"신입기",t:"31세 전에 대리 달기",ok:()=>myRank()>=2,rw:"현금 500만 · 화술 +3",f:()=>{S.cash+=500;S.talk+=3}},
-  {age:37,n:"실무기",t:"37세 전에 과장 달고 연간 TOP 딜러 받기",ok:()=>myRank()>=3&&(S.trophy.yearTop||0)>=1,rw:"평판 +5 · 기본급 +3%",f:()=>{S.rep+=5;S.baseBonus=(S.baseBonus||0)+.03}},
-  {age:42,n:"관리자기",t:"42세 전에 팀장 달기",ok:()=>myRank()>=5,rw:"인맥 +5 · 팀 사기 +10",f:()=>{S.net+=5;(S.team||[]).forEach(m=>m.morale=clamp(m.morale+10))}},
-  {age:47,n:"리더기",t:"47세 전에 지점장 달기",ok:()=>myRank()>=6,rw:"현금 3,000만",f:()=>{S.cash+=3000}},
+  {age:30,n:"신입기",t:"30세 전에 대리 달기",ok:()=>myRank()>=2,rw:"현금 500만 · 화술 +3",f:()=>{S.cash+=500;S.talk+=3}},
+  {age:36,n:"실무기",t:"36세 전에 과장 달고 연간 TOP 딜러 받기",ok:()=>myRank()>=3&&(S.trophy.yearTop||0)>=1,rw:"평판 +5 · 기본급 +3%",f:()=>{S.rep+=5;S.baseBonus=(S.baseBonus||0)+.03}},
+  {age:41,n:"관리자기",t:"41세 전에 팀장 달기",ok:()=>myRank()>=5,rw:"인맥 +5 · 팀 사기 +10",f:()=>{S.net+=5;(S.team||[]).forEach(m=>m.morale=clamp(m.morale+10))}},
+  {age:46,n:"리더기",t:"46세 전에 지점장 달기",ok:()=>myRank()>=6,rw:"현금 3,000만",f:()=>{S.cash+=3000}},
   {age:60,n:"마무리",t:()=>`은퇴 전 누적 ${goalTotal()}대 판매`,ok:()=>S.total>=goalTotal(),rw:"커리어 점수 +200",f:()=>{}}
 ];
 function goalTotal(){return Math.round(BRANDS[S.brand].hof*2.2)}
@@ -1637,11 +1706,12 @@ async function reveal(ms,events){
   const sold=ms.reduce((s,x)=>s+x.sold,0),leads=ms.reduce((s,x)=>s+(x.leads||0),0),top=ms.some(x=>x.top);
   if(leads>0){addLine(`${ms.length}개월 동안 상담 고객 ${leads}명. 견적서를 뽑습니다…`);await w(800);addLine("계약서 서명을 기다리는 중…","dim");await w(900)}
   else{addLine("이번 분기는 찾아온 손님이 거의 없었습니다…","dim");await w(700)}
-  const qk=kingAt()*Math.max(1,ms.length);
-  for(let i=0;i<=sold;i++){$("stageNum").innerHTML=speedo(i,qk,false);await w(Math.min(120,1500/Math.max(1,sold)))}
-  $("stageNum").innerHTML=speedo(sold,qk,top);
+  const lq=S.lastQuota&&S.lastQuota.n===sold?S.lastQuota.q:null,qk=lq||kingAt()*Math.max(1,ms.length),ql=lq?"할당량":"";
+  for(let i=0;i<=sold;i++){$("stageNum").innerHTML=speedo(i,qk,false,ql);await w(Math.min(120,1500/Math.max(1,sold)))}
+  $("stageNum").innerHTML=speedo(sold,qk,top,ql);
   const mo=document.createElement("div");mo.className="qMonths";
   mo.innerHTML=ms.map(x=>`<span class="${x.top?"top":""}">${x.label.split(".")[1]}월 <b>${x.sold}대</b>${x.top?" 판매왕":""}</span>`).join("");$("stageOut").appendChild(mo);
+  if(S.lastQuota&&S.lastQuota.n===sold){const ok=sold>=S.lastQuota.q,qp=document.createElement("p");qp.className="quotaLine "+(ok?"good":"bad");qp.textContent=`분기 할당량 ${S.lastQuota.q}대 ${ok?"달성":"미달"}`;$("stageOut").appendChild(qp)}
   if(top){$("stageNum").className="hot";const st=$("stage3d");st.hidden=false;Show3D.show(st,myCar3D(assetLv()[0]),{fallback:""}).then(()=>Show3D.mood(st,true))}
   events.forEach(e=>{const p=document.createElement("p");p.className=e.c;p.textContent=clean(e.t);$("stageOut").appendChild(p)});
   $("skipHint").hidden=true;$("stageOk").hidden=false;$("stageOk").focus();
@@ -1655,7 +1725,8 @@ async function play(a){
     stOpen("");
     for(const l of narr(a)){addLine(l);await w(750)}
     let deal=null;
-    const sc=scenario(a);
+    ensureBrief();
+    const sc=scenario(S.pace==="easy"&&Math.random()<.5?{...a,id:"rest"}:a);
     if(sc)deal=await choose(sc);
     CAP=[];const q=runQuarter(a,deal);const ev=CAP;CAP=null;
     const dl=statDelta(snap);if(dl){log(dl);ev.push({t:dl,c:"dim"})}
@@ -1768,7 +1839,7 @@ function endGame(reason){
 }
 function careerScore(extra){
   const b=BRANDS[S.brand],c=k=>S.trophy[k]||0;
-  return Math.round(S.total*b.ptPer+S.teamTotal*.3+c("month")*20+c("quarter")*40+c("yearTop")*100+c("grand")*200+c("golden")*300+(S.hof?500:0)+Object.keys(S.ach||{}).length*40+(S.rivalW||0)*15+(S.goalsDone||[]).length*100+((S.goalsDone||[]).includes(4)?100:0)+extra);
+  return Math.round(S.total*b.ptPer+S.teamTotal*.3+c("month")*20+c("quarter")*40+c("yearTop")*100+c("grand")*200+c("golden")*300+(S.hof?500:0)+Object.keys(S.ach||{}).length*40+(S.rivalW||0)*15+(S.goalsDone||[]).length*100+(S.quotaOk||0)*5+((S.goalsDone||[]).includes(4)?100:0)+extra);
 }
 function gradeOf(s){return s>4500?"전설의 딜러":s>3000?"업계 레전드":s>1800?"베테랑 판매왕":s>800?"믿음직한 딜러":"성실한 영업인"}
 function finalCard(reason,o){
@@ -1786,6 +1857,7 @@ function finalCard(reason,o){
     <div class="kv"><small>누적 판매</small><b>${S.total}대</b></div>
     <div class="kv"><small>총 수상</small><b>${totalAwards}회</b></div>
     <div class="kv"><small>업적</small><b>${Object.keys(S.ach||{}).length} / ${Object.keys(ACH).length}</b></div>
+    <div class="kv"><small>분기 할당량</small><b>${S.quotaOk||0} / ${S.quotaN||0}</b></div>
     <div class="kv"><small>인생 목표</small><b>${(S.goalsDone||[]).length} / ${GOALS.length}</b></div>
     <div class="kv"><small>라이벌전</small><b>${S.rivalW||0}승 ${S.rivalL||0}패</b></div>
   </div>
