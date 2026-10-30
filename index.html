@@ -1662,9 +1662,9 @@ function qEnd(){return Math.ceil(S.month/3)*3}
 function runQuarter(a,deal){
   const months=[];let stop=false;
   do{
-    // 체력이 바닥나면 분기 중간이라도 속도를 늦춤 (연속 번아웃 방지)
-    if(S.pace==="rush"&&S.hp<25){S.pace="norm";log("체력이 바닥나서 남은 달은 보통 강도로 바꿨어요.","bad")}
-    else if(S.pace==="norm"&&S.hp<12){S.pace="easy";log("체력이 바닥나서 남은 달은 여유 있게 보냈어요.","bad")}
+    // 이번 달 소모로 체력이 바닥날 것 같으면 분기 중간이라도 한 단계씩 낮춤 (피로가 쌓인 전력은 한 달에 30 넘게 소모)
+    if(S.pace==="rush"&&S.hp+paceHp(a,"rush")<5){S.pace="norm";log("체력이 바닥나서 남은 달은 보통 강도로 바꿨어요.","bad")}
+    if(S.pace==="norm"&&S.hp+paceHp(a,"norm")<5){S.pace="easy";log("체력이 바닥나서 남은 달은 여유 있게 보냈어요.","bad")}
     stop=turn(a,months.length===0&&deal?{...deal,mult:Q_EVENT}:null);checkAssets();checkAch();checkGoals();
     const h=S.history[S.history.length-1];if(h&&S.last)months.push({...S.last,label:h.label});
   }while(!stop&&!S.over&&(S.month-1)%3!==0);
