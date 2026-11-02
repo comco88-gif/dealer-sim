@@ -233,7 +233,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .mkGroup h3 svg{width:42px;height:auto;color:var(--sub)}
 .mkRow{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
 .mk{text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;transition:border-color .15s}
-.mk b{display:block;font-size:15px;font-weight:700}
+.mk b{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:700}
+.emb{flex:none;display:inline-block;vertical-align:middle}
+.biz .co{display:flex;align-items:center;gap:6px}
+.pathRow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
 .mk small{display:block;color:var(--sub);font-size:12px;line-height:1.4;margin-top:2px}
 .mk:hover{border-color:var(--sub)}
 .mk[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 3px 0 0 var(--gold)}
@@ -358,6 +361,7 @@ body{word-break:keep-all;overflow-wrap:anywhere}
   .mk{padding:8px 9px}
   .mk b{font-size:13.5px;letter-spacing:-.02em}
   .mk small{font-size:11px}
+  .mk .emb{width:20px;height:20px}
   .mkN{display:none}
   .makers{gap:12px}
   .biz{aspect-ratio:auto;padding:14px 16px;gap:12px}
@@ -845,7 +849,7 @@ function showDealers(mk){
   const w=$("dealers");w.innerHTML="";
   DEALERS.filter(d=>d.mk===mk).forEach(d=>{const b=BRANDS[d.id];
     const el=document.createElement("button");el.className="card";el.setAttribute("aria-pressed","false");
-    el.innerHTML=`<h3>${b.name}</h3><small>${b.type}</small><p style="font-size:13px;margin:6px 0 0">${b.desc}</p>
+    el.innerHTML=`<h3 style="display:flex;align-items:center;gap:8px">${emb(b.mk,28)}${b.name}</h3><small>${b.type}</small><p style="font-size:13px;margin:6px 0 0">${b.desc}</p>
     <dl><dt>기본급</dt><dd>월 ${b.base}만</dd><dt>수당률</dt><dd>차값의 ${(b.rate*100).toFixed(1)}%</dd><dt>차값</dt><dd>${won(b.pmin)}~${won(b.pmax)}원</dd><dt>주력 차종</dt><dd>${b.cars.slice(0,3).join(", ")}</dd></dl>`;
     el.onclick=()=>{chosen=d.id;[...w.children].forEach(c=>c.setAttribute("aria-pressed","false"));el.setAttribute("aria-pressed","true");chk()};
     w.appendChild(el)});
@@ -903,6 +907,70 @@ const LAMP_ICON={
   cyc:'<path d="M2 15l5-5 3 3 7-7"/><path d="M13 6h4v4"/>',
   team:'<circle cx="7" cy="7" r="2.5"/><circle cx="14" cy="8" r="2"/><path d="M2.5 16c.5-3 2.3-4.5 4.5-4.5s4 1.5 4.5 4.5"/><path d="M12 12.2c2.6-.6 4.6.8 5.2 3.8"/>'
 };
+// ───── 패러디 브랜드 엠블럼 ─────
+// 실제 로고를 닮지 않도록 패러디 이름 머리글자 + 단순 도형만 씀
+// (별·고리·사분원·방패·동물·날개·나비넥타이·마름모·사방 별·겹친 RR·타원 속 기운 글자는 쓰지 않음)
+const EMB={
+  hyundai:{f:"rsq",t:"현",bg:"#1C2C4C",fg:"#E9EEF5",rim:"#9FB0C8"},
+  kia:{f:"pill",t:"키아",bg:"#7A1F2B",fg:"#FFF",rim:"#E8C4C9"},
+  genesis:{f:"oct",t:"GN",bg:"#101A2E",fg:"#D8DEE6",rim:"#8C97A8"},
+  kgn:{f:"notch",t:"KGN",bg:"#4A5640",fg:"#F0F2EA",rim:"#B9C2A8"},
+  renault:{f:"circle",t:"R",bg:"#24343F",fg:"#F3F6F8",rim:"#9BB3BF",m:"arcs"},
+  chevy:{f:"pill",t:"쉐",bg:"#B23A2E",fg:"#FFF",rim:"#FFF",m:"band"},
+  mentz:{f:"ring2",t:"M",bg:"#2A2F38",fg:"#E6E9EE",rim:"#C9CED6"},
+  bnw:{f:"hexf",t:"BNW",bg:"#17325E",fg:"#FFF",rim:"#A9BFE3"},
+  audi:{f:"triD",t:"O",bg:"#2E333B",fg:"#FFF",rim:"#B7BEC8"},
+  volvo:{f:"circle",t:"볼부",bg:"#1F5961",fg:"#FFF",rim:"#9FD0D4"},
+  lexus:{f:"capsule",t:"L",bg:"#141820",fg:"#E3E6EA",rim:"#8D96A3"},
+  porsche:{f:"circle",t:"P",bg:"#8E1B1B",fg:"#FFF",rim:"#E6D3D3",m:"speed"},
+  bentley:{f:"pill",t:"BT",bg:"#1F3B2E",fg:"#E9F0EC",rim:"#A9C2B5"},
+  ferrari:{f:"triU",t:"F",bg:"#B3121B",fg:"#FFF",rim:"#FFD9DB"},
+  lambo:{f:"hexp",t:"L",bg:"#1E2026",fg:"#F07A2E",rim:"#F07A2E"},
+  rolls:{f:"arch",t:"RZ",bg:"#2B2140",fg:"#E9E4F2",rim:"#B7A9D6"},
+  byt:{f:"circle",t:"B",bg:"#2C6E8A",fg:"#FFF",rim:"#BFE3F0",m:"leaf"},
+  polar:{f:"sqc",t:"PS",bg:"#1E2228",fg:"#F2F4F7",rim:"#AEB6C2",m:"orbit"},
+  tesla:{f:"circle",t:"TS",bg:"#151A24",fg:"#FFF",rim:"#E04848",m:"float"}
+};
+function drawEmblem(x,k,cx,cy,R){
+  const e=EMB[k]||EMB.hyundai,P=new Path2D(),poly=(n,rot)=>{for(let i=0;i<n;i++){const a=rot+i*2*Math.PI/n;i?P.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a)):P.moveTo(cx+R*Math.cos(a),cy+R*Math.sin(a))}P.closePath()};
+  const rr=(w,h,r)=>{P.moveTo(cx-w+r,cy-h);P.arcTo(cx+w,cy-h,cx+w,cy+h,r);P.arcTo(cx+w,cy+h,cx-w,cy+h,r);P.arcTo(cx-w,cy+h,cx-w,cy-h,r);P.arcTo(cx-w,cy-h,cx+w,cy-h,r);P.closePath()};
+  switch(e.f){
+    case"rsq":rr(R*.9,R*.9,R*.32);break;
+    case"pill":rr(R,R*.62,R*.62);break;
+    case"capsule":rr(R*.62,R,R*.62);break;
+    case"oct":poly(8,Math.PI/8);break;
+    case"hexf":poly(6,0);break;
+    case"hexp":poly(6,Math.PI/6);break;
+    case"triU":poly(3,-Math.PI/2);break;
+    case"triD":poly(3,Math.PI/2);break;
+    case"notch":{const a=R*.9,n=R*.28;P.moveTo(cx-a+n,cy-a);P.lineTo(cx+a-n,cy-a);P.lineTo(cx+a,cy-a+n);P.lineTo(cx+a,cy+a-n);P.lineTo(cx+a-n,cy+a);P.lineTo(cx-a+n,cy+a);P.lineTo(cx-a,cy+a-n);P.lineTo(cx-a,cy-a+n);P.closePath();break}
+    case"arch":P.moveTo(cx-R*.8,cy+R*.9);P.lineTo(cx-R*.8,cy-R*.25);P.arc(cx,cy-R*.25,R*.8,Math.PI,0);P.lineTo(cx+R*.8,cy+R*.9);P.closePath();break;
+    case"sqc":rr(R*.88,R*.88,R*.12);break;
+    default:P.arc(cx,cy,R,0,Math.PI*2);
+  }
+  x.save();x.lineJoin="round";x.fillStyle=e.bg;x.fill(P);x.lineWidth=R*.1;x.strokeStyle=e.rim;x.stroke(P);
+  x.clip(P);x.strokeStyle=e.rim;x.lineWidth=R*.05;
+  if(e.f==="ring2"){x.beginPath();x.arc(cx,cy,R*.78,0,7);x.stroke()}
+  if(e.m==="arcs")[.55,.7].forEach(r=>{x.beginPath();x.arc(cx,cy+R*.9,R*r*1.6,Math.PI*1.2,Math.PI*1.8);x.stroke()});
+  if(e.m==="band"){x.fillStyle="rgba(255,255,255,.18)";x.fillRect(cx-R,cy+R*.1,R*2,R*.18)}
+  if(e.m==="speed"){x.lineWidth=R*.07;[-.22,0,.22].forEach((dy,i)=>{x.beginPath();x.moveTo(cx-R*(.86-Math.abs(dy)*.5),cy+R*dy);x.lineTo(cx-R*.5,cy+R*dy);x.stroke()})}
+  if(e.m==="leaf"){x.fillStyle=e.rim;x.beginPath();x.ellipse(cx+R*.48,cy-R*.42,R*.18,R*.09,-.7,0,7);x.fill()}
+  if(e.m==="orbit"){x.beginPath();x.ellipse(cx,cy,R*.78,R*.32,-.35,0,7);x.stroke()}
+  if(e.m==="float")[.5,.64].forEach((dy,i)=>{x.beginPath();x.moveTo(cx-R*(.42-i*.12),cy+R*dy);x.lineTo(cx+R*(.42-i*.12),cy+R*dy);x.stroke()});
+  const yo=e.f==="triU"?R*.08:e.f==="triD"?-R*.08:e.m==="speed"?0:e.f==="arch"?R*.08:e.m==="float"?-R*.1:0,maxW=R*(e.f==="triU"||e.f==="triD"?.55:e.f==="capsule"?.8:1.25);
+  let fs=R*(e.f==="triU"||e.f==="triD"?.56:e.t.length>2?.62:e.t.length>1?.78:1.05);x.font=`900 ${fs}px "Noto Sans KR",sans-serif`;const tw=x.measureText(e.t).width;if(tw>maxW){fs*=maxW/tw;x.font=`900 ${fs}px "Noto Sans KR",sans-serif`}
+  x.fillStyle=e.fg;x.textAlign="center";x.textBaseline="middle";x.fillText(e.t,cx+(e.m==="speed"?R*.12:0),cy+yo+fs*.04);
+  x.restore();
+}
+let EMB_URL={};
+function embCanvas(k,px){const c=document.createElement("canvas");c.width=c.height=px;drawEmblem(c.getContext("2d"),k,px/2,px/2,px*.44);return c}
+function embURL(k){return EMB_URL[k]||(EMB_URL[k]=embCanvas(k,128).toDataURL())}
+function emb(k,size=24,cls="emb"){return k?`<img class="${cls}" data-emb="${k}" src="${embURL(k)}" width="${size}" height="${size}" alt="">`:""}
+const MAKER_KEY={};Object.entries(MAKERS).forEach(([k,m])=>MAKER_KEY[m.maker]=k);
+function makerKeyOf(text){const t=String(text);const hit=Object.keys(MAKER_KEY).sort((a,b)=>b.length-a.length).find(n=>t.startsWith(n));return hit?MAKER_KEY[hit]:null}
+// 웹 글꼴이 늦게 들어오면 엠블럼을 다시 그림
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{EMB_URL={};document.querySelectorAll("img[data-emb]").forEach(i=>i.src=embURL(i.dataset.emb))});
+
 // ───── 3D 쇼룸 ─────
 // three.js를 필요할 때만 불러와 단순 도형으로 가상의 차를 그림 (실제 차량 모델·로고 아님)
 const Show3D=(()=>{
@@ -939,9 +1007,9 @@ const Show3D=(()=>{
     }).then(v=>ok=v);
     return loading;
   }
-  function build(T,type,color,list,det){
+  function build(T,type,color,list,det,brand){
     det=det||[];const D=k=>det.includes(k);
-    if(list){const w=new T.Group(),n=list.length,gap=5.6;list.forEach((it,i)=>{const c=build(T,it.type,it.color,null,it.det);c.position.x=(i-(n-1)/2)*gap;c.rotation.y=-.55;w.add(c)});return w}
+    if(list){const w=new T.Group(),n=list.length,gap=5.6;list.forEach((it,i)=>{const c=build(T,it.type,it.color,null,it.det,it.brand);c.position.x=(i-(n-1)/2)*gap;c.rotation.y=-.55;w.add(c)});return w}
     const c=CARS[type]||CARS.sedan,g=new T.Group();
     const shape=pts=>{const s=new T.Shape();pts.forEach(([x,y],i)=>i?s.lineTo(x,y):s.moveTo(x,y));s.closePath();return s};
     const ext=(pts,d,bev)=>{const geo=new T.ExtrudeGeometry(shape(pts),{depth:d,bevelEnabled:bev,bevelThickness:.08,bevelSize:.06,bevelSegments:3,curveSegments:4});geo.translate(0,0,-d/2);return geo};
@@ -960,7 +1028,7 @@ const Show3D=(()=>{
     // 브랜드 디테일
     const topAt=(x0,x1)=>Math.max(...c.b.filter(p=>p[0]>=x0&&p[0]<=x1).map(p=>p[1]),.6),fTop=topAt(fx-.45,fx+1),rTop=topAt(bx-1,bx+.45),roofY=Math.max(...c.b.map(p=>p[1]));
     const roofX=c.b.filter(p=>p[1]>roofY-.05).map(p=>p[0]),rx0=Math.min(...roofX),rx1=Math.max(...roofX),W2=c.wd/2;
-    const M=(col,o={})=>new T.MeshStandardMaterial({color:col,...o}),chrome=M(0xD8DEE6,{metalness:1,roughness:.18}),dark=M(0x0B0F16,{metalness:.4,roughness:.25});
+    const M=(col,o={})=>new T.MeshStandardMaterial({color:col,...o}),chrome=M(0xDDE3EA,{metalness:.55,roughness:.22}),dark=M(0x0B0F16,{metalness:.4,roughness:.25});
     const box=(sx,sy,sz,x,y,z,mat)=>{const m=new T.Mesh(new T.BoxGeometry(sx,sy,sz),mat);m.position.set(x,y,z);g.add(m);return m};
     const glow=(col,i=1.4)=>M(col,{emissive:col,emissiveIntensity:i});
     if(D("lightbar"))box(.05,.05,c.wd*.86,fx+.03,fTop-.1,0,glow(0xEAF2FF));
@@ -987,6 +1055,13 @@ const Show3D=(()=>{
       [-1,1].forEach(sd=>{const ng=new T.CylinderGeometry(.13,.17,.32,20);ng.rotateZ(Math.PI/2);const n=new T.Mesh(ng,M(0x1A2233,{metalness:.8,roughness:.3}));n.position.set(bx+.05,.62,sd*.42);g.add(n);
         const fl=new T.Mesh(new T.CircleGeometry(.11,20),glow(0x7FE0FF,2.4));fl.rotation.y=-Math.PI/2;fl.position.set(bx-.12,.62,sd*.42);g.add(fl);jets.push(fl)});
       g.userData.update=t=>{g.position.y=.55+Math.sin(t/650)*.08;const f=1.8+Math.sin(t/90)*.4;jets.forEach(j=>j.material.emissiveIntensity=f)};
+    }
+    if(brand&&EMB[brand]){
+      // 엠블럼 배지: 앞은 그릴 위, 뒤는 트렁크
+      const tex=new T.CanvasTexture(embCanvas(brand,256));tex.encoding=T.sRGBEncoding;
+      const bm=new T.MeshStandardMaterial({map:tex,transparent:true,metalness:.25,roughness:.35});
+      const badge=(x,ry,y)=>{const m=new T.Mesh(new T.PlaneGeometry(.34,.34),bm);m.position.set(x,y,0);m.rotation.y=ry;g.add(m)};
+      badge(fx+.08,Math.PI/2,Math.max(.5,fTop-.06));badge(bx-.08,-Math.PI/2,Math.max(.55,rTop-.3));
     }
     const len=fx-bx,sc=4.7/Math.max(len,4.4);g.scale.setScalar(sc);g.position.x=-(fx+bx)/2*sc;
     const wrap=new T.Group();wrap.add(g);if(g.userData.update)wrap.userData.update=g.userData.update;return wrap;
@@ -1029,13 +1104,13 @@ const Show3D=(()=>{
     requestAnimationFrame(loop);
   }
   async function show(el,spec,o={}){
-    if(!el)return;const key=spec.list?JSON.stringify(spec.list):spec.type+spec.color+(spec.det||[]).join();
+    if(!el)return;const key=spec.list?JSON.stringify(spec.list):spec.type+spec.color+(spec.det||[]).join()+(spec.brand||"");
     if(el.dataset.k===key)return;el.dataset.k=key;
     if(!(await load())){el.classList.add("no3d");if(o.fallback&&!el.querySelector("svg"))el.insertAdjacentHTML("beforeend",o.fallback);return}
     const T=window.THREE;let v=V.get(el);
     if(!v){v=make(el,T);V.set(el,v);if(V.size===1)requestAnimationFrame(loop)}
     if(v.car){v.sc.remove(v.car);v.car.traverse(m=>{m.geometry&&m.geometry.dispose()})}
-    v.spin=o.spin==null?1:o.spin;v.lineN=spec.list?spec.list.length:0;v.size();v.car=build(T,spec.type,spec.color,spec.list,spec.det);if(spec.list)v.rot=0;v.sc.add(v.car);v.enter=still()||!o.drive?1:0;v.t0=performance.now();
+    v.spin=o.spin==null?1:o.spin;v.lineN=spec.list?spec.list.length:0;v.size();v.car=build(T,spec.type,spec.color,spec.list,spec.det,spec.brand);if(spec.list)v.rot=0;v.sc.add(v.car);v.enter=still()||!o.drive?1:0;v.t0=performance.now();
     if(still()||document.hidden)v.r.render(v.sc,v.cam);
   }
   function mood(el,gold){const v=V.get(el);if(!v)return;v.key.color.set(gold?0xFFD99A:0xFFFFFF);if(v.top)v.top.color.set(gold?0xFFC870:0xFFFFFF);if(v.top)v.top.intensity=gold?1.2:.45;v.spin=gold?3:1}
@@ -1064,7 +1139,7 @@ const SHOW_CAR={
   polar:{t:"fastback",c:0xD9DCE0,d:["lightbar","rearbar"],n:"미니멀 전기 패스트백"},
   tesla:{t:"hover",c:0xB9161E,d:["hover","rearbar"],n:"공중에 뜨는 플라잉 로드스터"}
 };
-function brandCar(k,paint){const x=SHOW_CAR[k]||SHOW_CAR.hyundai;return {type:x.t,color:paint!=null&&PAINTS[paint]?PAINTS[paint][1]:x.c,det:x.d}}
+function brandCar(k,paint){const x=SHOW_CAR[k]||SHOW_CAR.hyundai;return {brand:k,type:x.t,color:paint!=null&&PAINTS[paint]?PAINTS[paint][1]:x.c,det:x.d}}
 const GARAGE_3D=[{type:"bus",color:0xC9D1DB},{type:"hatch",color:0xA9B3BF},{type:"suv",color:0xF2F4F6},{type:"sedan",color:0x1A202B},{type:"sports",color:0x8E1B1B}];
 function showBrand3D(k){
   const m=MAKERS[k];
@@ -1091,7 +1166,7 @@ function renderDex(){
   const D=S.dex||{},all=Object.values(MAKERS).reduce((a,m)=>a+m.cars.length,0),got=Object.keys(D).length;
   $("dexCount").textContent=`${got} / ${all}`;
   const worked=new Set(S.path.map(p=>p.split(" ")[0]).concat(BRANDS[S.brand].maker));
-  const row=m=>`<div class="dexMk">${m.maker}<small>${m.cars.filter(c=>D[c]).length} / ${m.cars.length}</small></div><div class="dexRow">${m.cars.map(c=>D[c]?`<span class="dexCar on">${c.replace(/-$/,"")}<i>${D[c]}대</i></span>`:`<span class="dexCar">${c.replace(/-$/,"")}</span>`).join("")}</div>`;
+  const row=m=>`<div class="dexMk">${emb(MAKER_KEY[m.maker],18)} ${m.maker}<small>${m.cars.filter(c=>D[c]).length} / ${m.cars.length}</small></div><div class="dexRow">${m.cars.map(c=>D[c]?`<span class="dexCar on">${c.replace(/-$/,"")}<i>${D[c]}대</i></span>`:`<span class="dexCar">${c.replace(/-$/,"")}</span>`).join("")}</div>`;
   const M=Object.values(MAKERS);
   $("dexMine").innerHTML=M.filter(m=>worked.has(m.maker)).map(row).join("");
   $("dexOther").innerHTML=M.filter(m=>!worked.has(m.maker)).map(row).join("");
@@ -1132,7 +1207,7 @@ document.addEventListener("click",e=>{const a=e.target.closest("[data-fb]");if(!
 (function makerCards(){
   const G=[["국산",1,"차값이 낮고 많이 팔아요"],["수입",3,"대당 포인트 3배"],["수입 하이엔드",4,"한 대가 크지만 드물게 팔려요"],["전기차",2,"보조금·업계 흐름을 크게 타요"]];
   $("makerCards").innerHTML=G.map(([g,ci,d])=>`<div class="mkGroup"><h3>${carSvg(ci)}<span>${g} · <span style="font-weight:500">${d}</span></span></h3><div class="mkRow">`+
-    Object.entries(MAKERS).filter(([k,m])=>(m.group||m.origin)===g).map(([k,m])=>`<button class="mk" aria-pressed="false" data-k="${k}"><b>${m.maker}</b><small>포인트 ×${m.ptPer}<span class="mkN"> · 소속사 ${DEALERS.filter(d=>d.mk===k).length}곳</span></small></button>`).join("")+`</div></div>`).join("");
+    Object.entries(MAKERS).filter(([k,m])=>(m.group||m.origin)===g).map(([k,m])=>`<button class="mk" aria-pressed="false" data-k="${k}"><b>${emb(k,26)}${m.maker}</b><small>포인트 ×${m.ptPer}<span class="mkN"> · 소속사 ${DEALERS.filter(d=>d.mk===k).length}곳</span></small></button>`).join("")+`</div></div>`).join("");
   $("makerCards").onclick=e=>{const b=e.target.closest(".mk");if(!b)return;
     $("makerCards").querySelectorAll(".mk").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
     sel.value=b.dataset.k;sel.onchange();showBrand3D(b.dataset.k);
@@ -1175,7 +1250,7 @@ function render(){
   $("assets").textContent=`${CARS_OWN[lv[0]]} · ${HOMES[lv[1]]}`;
   const phone="010-"+String(1000+(S.name.length*977)%9000)+"-"+String(1000+(S.name.charCodeAt(0)*31)%9000);
   $("biz").dataset.tier=tier;
-  $("biz").innerHTML=`<div class="co">${b.maker} · ${b.name}</div><div><div class="nm">${S.name}</div><div class="rk">${RANKS[myRank()][0]}${S.team?" · 팀 "+S.team.length+"명":""}${S.titles&&S.titles.length?"<br>「"+S.titles[S.titles.length-1]+"」":""}</div></div><div class="ph">${phone} · ${b.type}</div>`;
+  $("biz").innerHTML=`<div class="co">${emb(b.mk,22)}${b.maker} · ${b.name}</div><div><div class="nm">${S.name}</div><div class="rk">${RANKS[myRank()][0]}${S.team?" · 팀 "+S.team.length+"명":""}${S.titles&&S.titles.length?"<br>「"+S.titles[S.titles.length-1]+"」":""}</div></div><div class="ph">${phone} · ${b.type}</div>`;
   const nx=RANKS[ri+1];
   $("next").innerHTML=nx?`<h3>다음 직급: ${nx[0]}</h3><div class="prog"><i style="width:${Math.min(100,(S.pts-RANKS[ri][1])/(nx[1]-RANKS[ri][1])*100)}%;background:var(--marker)"></i></div><small>승진 포인트 ${Math.round(S.pts)} / ${nx[1]} · ${gateText(ri+1)||"직급이 오르면 명함과 계기판이 바뀌어요"}</small>`:`<h3>최고 직급 달성</h3><small>지점장의 명함은 금박입니다.</small>`;
   $("next").innerHTML+=goalHtml();
@@ -1924,7 +1999,7 @@ function finalCard(reason,o){
   </div>
   <p style="font-size:14px;margin:12px 0 0"><b>대표 수상</b><br>${best}</p>
   ${S.titles&&S.titles.length?`<p style="font-size:14px;margin:12px 0 0"><b>칭호</b><br>${S.titles.map(t=>"「"+t+"」").join(" ")}</p>`:""}
-  <p style="font-size:14px;margin:12px 0 0"><b>경력</b> (이적 ${S.switched}회)<br>${S.path.join(" → ")}</p>
+  <p style="font-size:14px;margin:12px 0 0"><b>경력</b> (이적 ${S.switched}회)</p><div class="pathRow" style="font-size:14px">${S.path.map(pp=>`<span style="display:inline-flex;align-items:center;gap:4px">${emb(makerKeyOf(pp),20)}${pp}</span>`).join(" → ")}</div>
   <p style="font-size:14px;margin:12px 0 0"><b>30년 동안 탄 차</b> ${ownedCars().map(i=>CARS_OWN[i]).join(" → ")}</p>
   <div class="lineup3d" id="lineup3d" role="img" aria-label="내가 탔던 차들"></div>
   <p style="color:var(--sub);font-size:14px">커리어 점수 ${score.toLocaleString()}점 · 단골 고객 ${Object.keys(S.clients||{}).length}명 · 차종 도감 ${Object.keys(S.dex||{}).length}종</p>
@@ -1953,6 +2028,7 @@ async function makeCardBlob(){
     x.fillStyle="#fff";x.fillRect(90,100,330,74);x.strokeStyle="#111";x.lineWidth=5;x.strokeRect(90,100,330,74);
     x.fillStyle="#111";x.font=F(44);x.fillText("12가 3456",120,152);
     x.fillStyle="#8D99A8";x.font=F(36);x.fillText("나는 자동차 딜러다",90,250);
+    drawEmblem(x,BRANDS[S.brand].mk,960,330,62);
     x.fillStyle="#E9EEF3";x.font=F(96);x.fillText(S.name,90,370);
     x.fillStyle="#D9BE8A";x.font=F(76);x.fillText(S.final.grade,90,470);
     x.fillStyle="#E9EEF3";x.font=F(40);
