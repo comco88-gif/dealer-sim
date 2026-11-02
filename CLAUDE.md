@@ -25,6 +25,7 @@
    - 이벤트: `scenario(a)`(행동별 상황 풀), `lifeEvent()`, `industryEvent()`, `salaryTalk()`, `transferMarket()`, `interview()`
    - 보상: `AWARDS`·`AWARD_PERK`(수상 15종), `ACH`·`ACH_PERK`(업적 15종), `addTitle()`(칭호), `GOALS`(인생 구간 목표 5개), `CLIENTS`(단골 고객 도감), `S.dex`(차종 도감)
    - 3D: `Show3D`(three.js r128을 cdnjs에서 필요할 때 불러옴, 실패하면 2D 그림), 전시장·내 차·판매왕 연출·은퇴 차고
+   - 브랜드 차: `SHOW_CAR`(브랜드별 차종 형태 `t`·디테일 `d`·설명 `n`), `brandCar()`. 드림카(자산 최고 단계)는 현재 소속 브랜드의 대표 차. 실제 모델 복제·로고 금지, 차종의 일반 형태와 분위기만
    - 화면: `render()`, `renderExtra()`, `narr()`(내레이션), `reveal()`(분기 결과 연출), `play()`(턴 = 분기 실행)
    - 은퇴: `endGame()` → `SECOND`(2막 5종) → `finalCard()` → `saveCard()`(PNG 저장)
 4. Firebase SDK `<script src>` 3개와 `firebase-config.js`
