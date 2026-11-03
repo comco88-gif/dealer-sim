@@ -18,7 +18,8 @@
 ## index.html 구조 (위에서 아래 순서)
 
 1. `<style>`: 디자인 토큰과 전체 스타일
-2. 마크업: 시작 화면(`#start`), 게임 화면(`#game`), 모달(`#modal`), 월간 연출(`#stage`)
+2. 마크업: 시작 화면(`#start`), 게임 화면(`#game`, 하단 탭 `#tabbar`로 영업·커리어·기록·컬렉션 구분, 각 덩어리는 `data-tab`), 모달(`#modal`), 분기 연출(`#stage`)
+   - 휴대폰 기준: 영업 탭은 한 화면(약 860px) 안에, 분기 결과 창은 월별 상세를 접어서 짧게 유지
 3. 첫 번째 `<script>`: 게임 본체
    - 데이터: `MAKERS`(브랜드 19개), `DEALERS`(소속사 30개), `CARPRICE`(차량 가격), `RANKS`, `ACTIONS`, `CYCLES`, `BGS`(시작 배경)
    - 계산: `sellMix()`(차종·수당), `turn(a, deal)`(한 달 계산), `runQuarter(a, deal)`(분기 = 3개월 진행, 이벤트 보상 `Q_EVENT`배), `teamMonth()`(팀), `rivalMonth()/rivalYear()`, `ERAS`(시대 흐름), `PACE`(영업 강도 여유·보통·전력, 피로 `S.fatigue`), `BRIEFS`(분기 브리핑·할당량), `KING_MUL`·`QMVP_MUL`·`YT_MUL`(수상 기준 배수)
