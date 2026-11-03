@@ -312,6 +312,21 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .qMonths span{font-size:13px;padding:4px 10px;border-radius:999px;background:var(--sunk);color:var(--sub)}
 .qMonths span b{color:var(--ink)}
 .qMonths span.top{background:var(--goldSoft);color:var(--ink);font-weight:600}
+/* 게임 탭 */
+#game{padding-bottom:84px}
+#game[data-tab="sales"]>[data-tab]:not([data-tab~="sales"]),#game[data-tab="career"]>[data-tab]:not([data-tab~="career"]),#game[data-tab="record"]>[data-tab]:not([data-tab~="record"]),#game[data-tab="collect"]>[data-tab]:not([data-tab~="collect"]){display:none!important}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:15;display:grid;grid-template-columns:repeat(4,1fr);max-width:960px;margin:0 auto;background:var(--surface);border-top:1px solid var(--rule);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 24px -18px rgba(10,20,40,.4)}
+.tabbar button{display:grid;justify-items:center;gap:2px;background:none;border:0;color:var(--sub);font-size:12px;font-weight:600;padding:6px 0;border-radius:10px;position:relative}
+.tabbar button .ti svg{width:20px;height:20px}
+.tabbar button[aria-selected="true"]{color:var(--ink)}
+.tabbar button[aria-selected="true"]::before{content:"";position:absolute;top:-6px;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
+.miniBar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;background:var(--dash);color:var(--dashText);border-radius:14px;padding:10px 14px;font-size:13px}
+.miniBar span{color:var(--dashSub)}.miniBar .bad{color:#F08A82}
+.evMore{margin-top:6px;font-size:13px}
+.evMore summary{cursor:pointer;color:var(--sub);padding:4px 0}
+.paceBtn .ps{display:none}
+/* 탭 덕분에 화면이 짧아져 계기판은 고정하지 않음 */
+.dash{position:relative}
 /* 모바일: 한글 단어 단위 줄바꿈, 계기판 압축, 입력창 확대 방지 */
 body{word-break:keep-all;overflow-wrap:anywhere}
 @media (max-width:640px){
@@ -351,6 +366,23 @@ body{word-break:keep-all;overflow-wrap:anywhere}
   .lamp svg{width:16px;height:16px}
   .odoMeter i{font-size:13px;width:13px;padding:3px 0}
   .garage svg{width:80px}
+  #assets{display:none}
+  .salesH{font-size:19px!important}
+  .salesP{display:none}
+  #game>section{margin-top:16px}
+  .keys{grid-template-columns:1fr 1fr!important;gap:8px}
+  .key.ic{padding:10px 10px 10px 46px;border-radius:12px 22px 22px 12px}
+  .key .ico{left:9px;width:28px;height:28px;margin-top:-14px}
+  .key b{font-size:14.5px}
+  .key .kd{display:none!important}
+  .paceBtn{padding:8px 10px}
+  .paceBtn .pd{display:none}.paceBtn .ps{display:block}
+  .brief{padding:10px 12px;font-size:13px}
+  .brief b{font-size:14px}
+  #stageNum svg{max-width:240px}
+  #stageNum{min-height:120px}
+  #stage .sheet{padding:16px 16px}
+  #stageLines p{margin:5px 0}
   .showroom{height:220px}
   .g3d{width:128px;height:80px}
   .clientGrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
@@ -418,7 +450,8 @@ body{word-break:keep-all;overflow-wrap:anywhere}
   <p class="lead" style="font-size:12.5px;margin-top:26px">회사·딜러사·차량 이름은 모두 가상이며 실제 기업과 관계없습니다. 로그인하지 않으면 진행 상황은 이 브라우저에만 저장돼요. 테스트 버전입니다.</p>
 </div>
 
-<div id="game" hidden>
+<div id="game" hidden data-tab="sales">
+  <div class="miniBar" id="miniBar" data-tab="career record collect" aria-live="polite"></div>
   <div class="dash">
     <div class="dashTop">
       <div>
@@ -444,8 +477,8 @@ body{word-break:keep-all;overflow-wrap:anywhere}
   </section>
 
   <section>
-    <h2 style="font-size:24px;margin-bottom:4px">이번 분기 영업</h2>
-    <p style="margin:0 0 10px;font-size:13.5px;color:var(--sub)">브리핑을 보고 강도와 행동을 골라 3개월을 보내요. 분기마다 고객 상황이 하나씩 생겨요.</p>
+    <h2 class="salesH" style="font-size:24px;margin-bottom:4px">이번 분기 영업</h2>
+    <p class="salesP" style="margin:0 0 10px;font-size:13.5px;color:var(--sub)">브리핑을 보고 강도와 행동을 골라 3개월을 보내요. 분기마다 고객 상황이 하나씩 생겨요.</p>
     <div class="brief" id="brief"></div>
     <div class="paceRow" id="paceRow" role="group" aria-label="영업 강도"></div>
     <div class="keys" id="actions"></div>
@@ -515,6 +548,12 @@ body{word-break:keep-all;overflow-wrap:anywhere}
     <div class="note"><ul id="log"></ul></div>
     <p class="fbBox" data-fbbox></p>
   </section>
+  <nav class="tabbar" id="tabbar" aria-label="게임 메뉴">
+    <button data-t="sales" aria-selected="true"><span class="ti"></span>영업</button>
+    <button data-t="career" aria-selected="false"><span class="ti"></span>커리어</button>
+    <button data-t="record" aria-selected="false"><span class="ti"></span>기록</button>
+    <button data-t="collect" aria-selected="false"><span class="ti"></span>컬렉션</button>
+  </nav>
 </div>
 
 <div class="modal" id="modal" hidden><div class="sheet" id="modalBody"></div></div>
@@ -610,9 +649,9 @@ const PAINTS=[["펄 화이트",0xE8EBEF],["메탈 실버",0xA9B3BF],["미드나�
 // ───── 영업 강도 · 피로 · 분기 브리핑 ─────
 // 매 분기 행동과 함께 강도를 고름. 체력 변화(한 달) = 행동 소모 × hpk + hp0, 전력은 연속할수록 피로만큼 더 소모
 const PACE={
-  easy:{n:"여유",d:"판매는 줄지만 체력이 회복돼요",lead:.55,hpk:.4,hp0:16,eff:.6},
-  norm:{n:"보통",d:"평소대로 일해요",lead:.85,hpk:1,hp0:2,eff:1},
-  rush:{n:"전력",d:"판매가 크게 늘지만 체력을 많이 써요",lead:1.15,hpk:1.6,hp0:-4,eff:1.1}
+  easy:{n:"여유",d:"판매는 줄지만 체력이 회복돼요",s:"체력 회복",lead:.55,hpk:.4,hp0:16,eff:.6},
+  norm:{n:"보통",d:"평소대로 일해요",s:"평소대로",lead:.85,hpk:1,hp0:2,eff:1},
+  rush:{n:"전력",d:"판매가 크게 늘지만 체력을 많이 써요",s:"판매↑ 체력↓",lead:1.15,hpk:1.6,hp0:-4,eff:1.1}
 };
 function pace(){return PACE[S.pace]||PACE.norm}
 function paceHp(a,p){p=p||S.pace||"norm";const P=PACE[p];return a.hp*P.hpk+P.hp0-(p==="rush"?3*(S.fatigue||0):0)}
@@ -851,7 +890,7 @@ function showDealers(mk){
     const el=document.createElement("button");el.className="card";el.setAttribute("aria-pressed","false");
     el.innerHTML=`<h3 style="display:flex;align-items:center;gap:8px">${emb(b.mk,28)}${b.name}</h3><small>${b.type}</small><p style="font-size:13px;margin:6px 0 0">${b.desc}</p>
     <dl><dt>기본급</dt><dd>월 ${b.base}만</dd><dt>수당률</dt><dd>차값의 ${(b.rate*100).toFixed(1)}%</dd><dt>차값</dt><dd>${won(b.pmin)}~${won(b.pmax)}원</dd><dt>주력 차종</dt><dd>${b.cars.slice(0,3).join(", ")}</dd></dl>`;
-    el.onclick=()=>{chosen=d.id;[...w.children].forEach(c=>c.setAttribute("aria-pressed","false"));el.setAttribute("aria-pressed","true");chk()};
+    el.onclick=()=>{chosen=d.id;[...w.children].forEach(c=>c.setAttribute("aria-pressed","false"));el.setAttribute("aria-pressed","true");chk();$("paints").scrollIntoView({behavior:fast()?"auto":"smooth",block:"start"})};
     w.appendChild(el)});
 }
 const chk=()=>$("startBtn").disabled=!(chosen&&$("pname").value.trim());
@@ -863,7 +902,7 @@ $("startBtn").onclick=()=>{
      cycle:CYCLES.find(c=>c.name==="평년"),team:null,teamTotal:0,topStreak:0,negoWins:0,joinedYear:2027,firstYear:true,ach:{},recentScen:[],
      rival:{name:pick(NAMES),brand:chosen,pts:0,total:0,year:0,mwins:0,last:0}};
   S.paint=PAINT_SEL;S.bg=BGS[$("bgSel").value]?$("bgSel").value:"normal";BGS[S.bg].f();fixStats();S.joinedAge=S.age;
-  $("start").hidden=true;$("game").hidden=false;
+  $("start").hidden=true;$("game").hidden=false;window.scrollTo(0,0);
   log(`[${BGS[S.bg].n}] ${S.name} 님, ${BRANDS[S.brand].maker} ${BRANDS[S.brand].name}에 입사했습니다.`,"good");
   log(`같은 날 입사한 동기 ${S.rival.name}. 앞으로 30년, 이 사람이 라이벌입니다.`);
   render();
@@ -1260,15 +1299,16 @@ function render(){
   Show3D.show($("g3d"),myCar3D(ci),{fallback:carSvg(ci)});
   bizTier(tier);
   $("money").textContent=`₩ ${won(S.cash)}`;
+  $("miniBar").innerHTML=`<b>${S.year} ${Math.ceil(S.month/3)}분기</b><span>${S.age}세 · ${RANKS[myRank()][0]}</span><span>₩ ${won(S.cash)}</span><span class="${S.hp<45?"bad":""}">체력 ${Math.round(S.hp)}</span>`;
   $("career").innerHTML=`${odometer(S.total)}<div>올해 ${S.yearSales}대</div>`;
   const hpc=S.hp<30?"#F08A82":S.hp<55?"#D9BE8A":"#7FD3BF";
   const D=S.lastDelta||{};$("gauges").innerHTML=gauge("화술",S.talk,"#C9D3E6",D.talk)+gauge("상품지식",S.know,"#C9D3E6",D.know)+gauge("인맥",S.net,"#C9D3E6",D.net)+gauge("평판",S.rep,"#D9BE8A",D.rep)+gauge("체력",S.hp,hpc,D.hp);$("statHelp").innerHTML=statHelpHtml();$("lamps").innerHTML=lampsHtml();
   S.pace=S.pace||"norm";const br=ensureBrief(),bx=briefOf();
   $("brief").innerHTML=`<b>이번 분기 브리핑 · ${bx.n}</b><span>${bx.t}</span><span class="briefMeta">할당량 ${br.quota}대 · 피로 ${S.fatigue||0}단계${(S.fatigue||0)>=2?" (전력 시 체력 소모 증가)":""}</span>`;
-  $("paceRow").innerHTML=Object.entries(PACE).map(([k,p])=>`<button class="paceBtn" aria-pressed="${S.pace===k}" data-p="${k}"><b>${p.n}</b><small>${p.d}</small></button>`).join("");
+  $("paceRow").innerHTML=Object.entries(PACE).map(([k,p])=>`<button class="paceBtn" aria-pressed="${S.pace===k}" data-p="${k}"><b>${p.n}</b><small class="pd">${p.d}</small><small class="ps">${p.s}</small></button>`).join("");
   $("actions").innerHTML="";
   ACTIONS.filter(a=>!a.mgr||S.team).forEach(a=>{const e=document.createElement("button");e.className="key ic";const hp=Math.round(paceHp(a)*3),bl=briefLead(a);
-    e.innerHTML=`<span class="ico">${ICO(ACT_ICON[a.id]||"")}</span><b>${a.name}${bl>1.05?' <i class="hotTag">브리핑 효과</i>':""}</b><span>${a.desc}</span><span class="hpEst ${S.hp+hp<=0?"bad":""}">체력 ${hp>0?"+":""}${hp} 예상</span>`;e.onclick=()=>play(a);$("actions").appendChild(e)});
+    e.innerHTML=`<span class="ico">${ICO(ACT_ICON[a.id]||"")}</span><b>${a.name}${bl>1.05?' <i class="hotTag">브리핑 효과</i>':""}</b><span class="kd">${a.desc}</span><span class="hpEst ${S.hp+hp<=0?"bad":""}">체력 ${hp>0?"+":""}${hp} 예상</span>`;e.onclick=()=>play(a);$("actions").appendChild(e)});
   $("retireBtn").hidden=S.age<50;
   // 커리어
   const mv=Math.round(marketValue()),cd=6-(S.history.length-S.lastHunt);
@@ -1299,6 +1339,14 @@ function assetLv(){const c=S.cash;return[c<1500?0:c<4000?1:c<12000?2:c<35000?3:4
 function checkAssets(){const [a,h]=assetLv();S.assetMax=S.assetMax||[0,0];if(a>S.assetMax[0]){S.assetMax[0]=a;log(`🔑 자산이 늘어 차를 바꿨어요: ${CARS_OWN[a]}`,"good")}if(h>S.assetMax[1]){S.assetMax[1]=h;log(`🏠 이사했어요: ${HOMES[h]}`,"good")}}
 // 연출 빠르게: 이 기기에 기억
 try{$("fastFx").checked=localStorage.getItem("dealerSim.fastFx")==="1"}catch(e){}
+// 게임 화면 탭: 휴대폰에서 한 화면에 필요한 것만
+(function gameTabs(){
+  const G=$("game"),map=[[".dash","sales"],["section.me","career"],["#actions","sales"],["#careerInfo","career"],["#teamPanel","career"],["#bars","record"],["#rival","career"],["#shelf","collect"],["#achGrid","collect"],["#clientGrid","collect"],["#dexMine","collect"],["#log","record"]];
+  map.forEach(([q,t])=>{let el=G.querySelector(q);while(el&&el.parentElement!==G)el=el.parentElement;if(el)el.dataset.tab=t});
+  const IC={sales:ACT_ICON.floor,career:'<rect x="3" y="6" width="14" height="10" rx="2"/><path d="M7 6V4h6v2M3 10h14"/>',record:'<path d="M3 17V9M8 17V5M13 17v-6M18 17V8"/>',collect:'<circle cx="10" cy="11" r="5"/><path d="M7 2l3 4 3-4"/>'};
+  $("tabbar").querySelectorAll("button").forEach(b=>b.querySelector(".ti").innerHTML=ICO(IC[b.dataset.t]));
+  $("tabbar").onclick=e=>{const b=e.target.closest("button");if(!b)return;G.dataset.tab=b.dataset.t;$("tabbar").querySelectorAll("button").forEach(x=>x.setAttribute("aria-selected",x===b?"true":"false"));window.scrollTo({top:0,behavior:"auto"})};
+})();
 $("paceRow").onclick=e=>{const b=e.target.closest(".paceBtn");if(!b||busy)return;S.pace=b.dataset.p;render()};
 $("fastFx").onchange=()=>{try{localStorage.setItem("dealerSim.fastFx",$("fastFx").checked?"1":"0")}catch(e){}};
 const EMO=/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu;
@@ -1849,7 +1897,10 @@ async function reveal(ms,events){
   mo.innerHTML=ms.map(x=>`<span class="${x.top?"top":""}">${x.label.split(".")[1]}월 <b>${x.sold}대</b>${x.top?" 판매왕":""}</span>`).join("");$("stageOut").appendChild(mo);
   if(S.lastQuota&&S.lastQuota.n===sold){const ok=sold>=S.lastQuota.q,qp=document.createElement("p");qp.className="quotaLine "+(ok?"good":"bad");qp.textContent=`분기 할당량 ${S.lastQuota.q}대 ${ok?"달성":"미달"}`;$("stageOut").appendChild(qp)}
   if(top){$("stageNum").className="hot";const st=$("stage3d");st.hidden=false;Show3D.show(st,myCar3D(assetLv()[0]),{fallback:""}).then(()=>Show3D.mood(st,true))}
-  events.forEach(e=>{const p=document.createElement("p");p.className=e.c;p.textContent=clean(e.t);$("stageOut").appendChild(p)});
+  // 월별 실적·판매 차종 같은 반복 기록은 접어 두고, 중요한 소식만 바로 보여 줌
+  const det=e=>/^\d{4}\.\d+ |^판매 차종/.test(clean(e.t)),main=events.filter(e=>!det(e)),more=events.filter(det);
+  main.forEach(e=>{const p=document.createElement("p");p.className=e.c;p.textContent=clean(e.t);$("stageOut").appendChild(p)});
+  if(more.length){const d=document.createElement("details");d.className="evMore";d.innerHTML=`<summary>월별 상세 보기 (${more.length})</summary>`;more.forEach(e=>{const p=document.createElement("p");p.className=e.c;p.textContent=clean(e.t);d.appendChild(p)});d.onclick=ev=>ev.stopPropagation();$("stageOut").appendChild(d)}
   $("skipHint").hidden=true;$("stageOk").hidden=false;$("stageOk").focus();
   await new Promise(r=>$("stageOk").onclick=e=>{e.stopPropagation();$("stage").hidden=true;r()});
 }
@@ -1859,7 +1910,7 @@ async function play(a){
     if(S.over)return;
     const snap=snapStats();
     stOpen("");
-    for(const l of narr(a)){addLine(l);await w(750)}
+    const NL=narr(a);for(const l of (matchMedia("(max-width:640px)").matches?NL.slice(0,3):NL)){addLine(l);await w(750)}
     let deal=null;
     ensureBrief();
     const sc=scenario(S.pace==="easy"&&Math.random()<.5?{...a,id:"rest"}:a);
@@ -1884,7 +1935,7 @@ function initContinue(){
   $("contInfo").textContent=`${sv.name} · ${sv.age}세 · ${BRANDS[sv.brand].maker} ${BRANDS[sv.brand].name} · 누적 ${sv.total}대 (${sv.year}년 ${sv.month}월)`;
   $("contBtn").onclick=()=>{
     S=sv;S.cycle=CYCLES.find(c=>c.name===(S.cycle&&S.cycle.name))||CYCLES[0];
-    $("start").hidden=true;$("game").hidden=false;
+    $("start").hidden=true;$("game").hidden=false;window.scrollTo(0,0);
     const logs=S.logs||[];S.logs=[];logs.forEach(([t,c])=>log(t,c));
     log("💾 저장된 커리어를 이어서 시작합니다.");render();
   };
