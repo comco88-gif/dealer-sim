@@ -11,6 +11,7 @@
 | `index.html` | 게임 전체. HTML·CSS·JS가 한 파일에 들어 있음 (빌드 도구 없음) |
 | `firebase-config.js` | Firebase 웹 설정값. **실제 값이 들어 있으니 내용을 바꾸거나 지우지 말 것** |
 | `firestore.rules` | Firestore 보안 규칙 사본 (콘솔에 붙여 넣는 용도) |
+| `og.png` | 공유 미리보기 이미지 (1200×630, `index.html`의 og:image) |
 | `CLAUDE.md` | 이 문서 |
 
 배포: `main` 브랜치에 머지되면 GitHub Pages가 1~3분 뒤 https://comco88-gif.github.io/dealer-sim/ 에 반영합니다.
@@ -23,6 +24,7 @@
 3. 첫 번째 `<script>`: 게임 본체
    - 데이터: `MAKERS`(브랜드 19개), `DEALERS`(소속사 30개), `CARPRICE`(차량 가격), `RANKS`, `ACTIONS`, `CYCLES`, `BGS`(시작 배경)
    - 계산: `sellMix()`(차종·수당), `turn(a, deal)`(한 달 계산), `runQuarter(a, deal)`(분기 = 3개월 진행, 이벤트 보상 `Q_EVENT`배), `teamMonth()`(팀), `rivalMonth()/rivalYear()`, `ERAS`(시대 흐름), `PACE`(영업 강도 여유·보통·전력, 피로 `S.fatigue`), `BRIEFS`(분기 브리핑·할당량), `KING_MUL`·`QMVP_MUL`·`YT_MUL`(수상 기준 배수)
+   - 기회 카드: `CARDS`(행동별 조건 카드), `cardsNow()`(분기마다 행동당 1장, 평소대로 15%·지난 분기와 겹치지 않음), `cardAction()`·`cardOnce()`. 빠른 진행은 지난 행동의 기본 카드 + 안전한 선택지로 자동 진행
    - 이벤트: `scenario(a)`(행동별 상황 풀), `lifeEvent()`, `industryEvent()`, `salaryTalk()`, `transferMarket()`, `interview()`
    - 보상: `AWARDS`·`AWARD_PERK`(수상 15종), `ACH`·`ACH_PERK`(업적 15종), `addTitle()`(칭호), `GOALS`(인생 구간 목표 5개), `CLIENTS`(단골 고객 도감), `S.dex`(차종 도감)
    - 3D: `Show3D`(three.js r128을 cdnjs에서 필요할 때 불러옴, 실패하면 2D 그림), 전시장·내 차·판매왕 연출·은퇴 차고
